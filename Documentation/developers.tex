@@ -12,6 +12,24 @@
 \section{Introduction}
 This is a compiler for a subset of the C programming language.
 
+\section{Compile}
+In the Source, use
+"make" to compile
+"make clean" to remove generated files
+
+\section{Useage}
+Usage:
+	mycc -mode [options] infile 
+Valid modes:
+	-0: Version information only
+	-1: Lexer for C
+	-2: C parser
+	-3: Type checking
+	-4: Code generation: Expressions
+	-5: Part 5 (not yet implemented)
+Valid options:
+	-o outfile: write to outfile instead of standard output
+
 
 \section{Part 0}
 Basic information documentation of the project.
