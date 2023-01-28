@@ -7,7 +7,7 @@ Next Generation Compiler But God Know If It Would Work.
 NGCBDKIIWW is a compiler for a subset of the C programming language.
 
 ## Installation
-Move to the Source directory
+Move to the Source directory. All files will be generated in Source directory after compile.
 
 Compile
 ```
