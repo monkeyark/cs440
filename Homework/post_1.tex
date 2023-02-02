@@ -1,0 +1,141 @@
+\documentclass[10pt]{article}
+\usepackage{fullpage}
+\usepackage{url}
+\usepackage{color}
+\usepackage{listings}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{dkred}{rgb}{0.6,0,0}
+\definecolor{dkblue}{rgb}{0,0,0.7}
+
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows}
+\tikzset{%
+  node distance=2.5cm,  
+  initial text={},      
+  every state/.style={  
+    semithick},
+  double distance=2pt,  % Accept state appearance
+  every edge/.style={   
+    draw,
+    ->,
+    >=stealth',
+    auto,
+    semithick} %
+}
+
+\lstdefinestyle{jvm}{
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=left,
+  moredelim=[s][\color{black}]{Ljava}{;},
+  morecomment=[l][\color{dkgreen}]{;},
+  morecomment=[l][\color{magenta}]{;;},
+  keywords={class,public,static,super,method,code,end},
+  keywordstyle=\color{dkblue},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=8
+}
+
+\renewcommand{\thepage}{~}
+
+\title{COM S 440/540 Homework 1}
+\date{}
+\author{Lexical Analysis 1}
+
+\begin{document}
+
+\maketitle
+
+\noindent
+Reminder: present your own work and properly cite any sources used.
+Solutions should be written satisfying the \emph{other student viewpoint},
+and must be prepared using \LaTeX.
+\renewcommand{\thepage}{~}
+ 
+%============================================================
+\section*{Question~1~\hfill 25--30 points}
+%============================================================
+
+Implement a C function,
+with appropriate comments to explain how your code works,
+to read an unsigned integer with commas as the thousands separator.
+The function should read from a file,
+and write the digits (without the commas) in order into a character buffer.
+The function may assume that the next character in the file stream
+is a digit,
+and should consume characters from the stream until a
+character that is neither a digit nor a comma is encountered
+(which should be returned to the stream for later processing), or end of file.
+Your function should write an error message and exit for misplaced commas.
+You may not call any other functions, except for
+{\tt fgetc}, {\tt ungetc}, {\tt exit}, {\tt fprintf},
+and any helper functions you provide.
+
+For fewer points, use function prototype
+\begin{verbatim}
+    void read_int(FILE* in, char* lexeme);
+\end{verbatim}
+where your function may assume that character buffer {\tt lexeme} will
+be large enough to hold the digits.
+For extra points, use function prototype
+\begin{verbatim}
+    void read_int(FILE* in, char* lexeme, unsigned max_length);
+\end{verbatim}
+where {\tt max\_length} (which will be at least 4)
+is the size of the character buffer.
+Give an error message and exit if the digits will not fit into the buffer.
+
+Below is a table of examples,
+showing the file contents (from the current position onward)
+immediately before calling \verb|read_int|,
+and the contents of the buffer {\tt lexeme} on return.
+\begin{center}
+\begin{tabular}{l|l}
+  File & {\tt lexeme} (or error message)
+\\ \hline
+  \tt 42 43 44& \tt 42
+\\
+  \tt 12,345,678+3 & \tt 12345678
+\\
+  \tt 123,456,789,012,345zzzzz & \tt 12345789012345
+\\
+  \tt 00,004e7 & \tt 00004
+\\[2mm]
+  \tt 12345 & \tt Error: expected comma
+\\
+  \tt 12,13,14 & \tt Error: expected digit
+\\
+\end{tabular}
+\end{center}
+
+%============================================================
+\section*{Question~2~\hfill 15 points}
+%============================================================
+
+Write a regular expression,
+or draw a nondeterministic finite automaton,
+that accepts an HTML open tag of the form
+\verb|<tagname>|
+where a \verb|tagname| consists
+of one or more lower-case letters,
+followed by an optional digit from 1 to 9.
+The following are examples of words that should be accepted:
+\begin{verbatim}
+    <a>
+    <bogusname3>
+    <h1>
+    <table>
+    <ul>
+\end{verbatim}
+Note that you do not need to check that this is a valid HTML tag.
+
+<[a-z]+[1-9]*>
+
+\end{document}
