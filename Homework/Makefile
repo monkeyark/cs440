@@ -33,11 +33,11 @@ $(BIN): $(OBJS)
 
 clean:
 	@$(ECHO) Removing all generated files
-	@$(RM) *.o $(BIN) *.d TAGS core vgcore.* gmon.out *.txt *.pdf *.aux *.log
+	@$(RM) *.o $(BIN) *.d TAGS core vgcore.* gmon.out
 
 clobber: clean
 	@$(ECHO) Removing backup files
-	@$(RM) *~ \#*
+	@$(RM) *~ \#* *.txt *.pdf *.aux *.log
 
 etags:
 	@$(ECHO) Updating TAGS
