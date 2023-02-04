@@ -3,6 +3,7 @@
 \usepackage{url}
 \usepackage{color}
 \usepackage{listings}
+\usepackage{fancyvrb}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{dkred}{rgb}{0.6,0,0}
@@ -115,6 +116,104 @@ and the contents of the buffer {\tt lexeme} on return.
 \end{tabular}
 \end{center}
 
+\begin{Verbatim}[frame=single]
+
+void read_int(FILE *in, char *lexeme, unsigned max_length)
+{
+	char buffer[max_length+1];
+	int count = 3; // counter for every three digits
+	int checked = 0; // checker flag to determine if before first comma
+	int errored = 0; // if error produced
+	char c;
+	int i = 0;
+
+	while (1)
+	{
+		c = fgetc(in);
+		// read all digits and commas, then save them into buffer
+		if ((c >= '0' && c <= '9') )
+		{
+			buffer[i] = c;
+			i++;
+			i %= max_length;
+			count--;
+		}
+		else
+		{
+			// validate buffter content
+			if (count != 0) // count is 0 when reach a comma
+			{
+				if(checked == 0)
+				{
+					checked = 1; // passed the first comma
+				}
+				else
+				{
+					fprintf(stderr, "Error: expected digit\n");
+					errored = 1;
+					//clear buffer and goes to newline
+					for (int k = 0; buffer[k] != 0; k++)
+					{
+						buffer[k] = 0;
+						i = 0; //reset buffer index
+					}
+				}
+				
+			}
+			if (count < 0) // consumed more than 3 digits
+			{
+				fprintf(stderr, "Error: expected comma\n");
+				errored = 1;
+				//clear buffer and goes to nextline
+				for (int k = 0; buffer[k] != 0; k++)
+				{
+					buffer[k] = 0;
+					i = 0;
+				}
+			}
+			// consume a comma.
+			// If it's the not the first comma reset digit count
+			if (c == ',' && errored == 0)
+			{
+				count = 3;
+				continue;
+			}
+			while (c != '\n') // consume everything until newline
+			{
+				c = fgetc(in);
+				if (c == EOF) return; // if reach EOF return
+			}
+
+			// the buffer is fulled with lexeme in one line
+			// reset all flags for newline
+			count = 3;
+			checked = 0;
+			errored = 0;
+
+			//write buffer content to lexeme
+			for (int j = 0; buffer[j] != 0; j++)
+			{
+				printf("%c", buffer[j]);
+
+				*lexeme = buffer[j];
+				lexeme++;
+			}
+			*lexeme = '\n';
+			lexeme++;
+
+			// printf("%s\n",lexeme); // test code
+
+			//clear buffer
+			for (int k = 0; buffer[k] != 0; k++)
+			{
+				buffer[k] = 0;
+				i = 0;
+			}
+		}
+	}
+}
+
+\end{Verbatim}
 %============================================================
 \section*{Question~2~\hfill 15 points}
 %============================================================
@@ -136,6 +235,8 @@ The following are examples of words that should be accepted:
 \end{verbatim}
 Note that you do not need to check that this is a valid HTML tag.
 
-<[a-z]+[1-9]*>
+\begin{Verbatim}[frame=single]
+	<[a-z]+[1-9]?>
+\end{Verbatim}
 
 \end{document}
