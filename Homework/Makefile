@@ -17,7 +17,7 @@ all: $(BIN) etags
 $(BIN): $(OBJS)
 	@$(ECHO) Linking $@
 	@$(CC) $^ -o $@
-	@$(ECHO) Generating DevDocs $@
+	@$(ECHO) Generating Documentations $@
 	@$(TEX) $(TEXFLAGS) $(TEXSOURCES) $@
 -include $(OBJS:.o=.d)
 
@@ -32,11 +32,11 @@ $(BIN): $(OBJS)
 .PHONY: all clean clobber etags
 
 clean:
-	@$(ECHO) Removing all generated files
+	@$(ECHO) Removing compiled files
 	@$(RM) *.o $(BIN) *.d TAGS core vgcore.* gmon.out
 
 clobber: clean
-	@$(ECHO) Removing backup files
+	@$(ECHO) Removing all generated files
 	@$(RM) *~ \#* *.txt *.pdf *.aux *.log
 
 etags:
