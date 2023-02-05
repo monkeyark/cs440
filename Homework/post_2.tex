@@ -3,6 +3,7 @@
 \usepackage{url}
 \usepackage{color}
 \usepackage{listings}
+\usepackage{fancyvrb}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{dkred}{rgb}{0.6,0,0}
@@ -104,7 +105,17 @@ Explain why.
 Describe, in English, which words are accepted.
 \end{enumerate}
 
+\begin{Verbatim}[frame=single]
 
+	\begin{itemize}
+		\item `` '' (empty string) Y
+		\item ``{\tt ba}''         N
+		\item ``{\tt ababa}''      N
+		\item ``{\tt bbbaba}''     Y
+		\item ``{\tt baabba}''     N
+	  \end{itemize}
+
+\end{Verbatim}
 %============================================================
 \section*{Question~2~\hfill 20 points}
 %============================================================
@@ -121,5 +132,29 @@ The following are examples of words that should be accepted.
   /* This is a comment */
   /* This is a\n\tmulti-line comment */
 \end{verbatim}
+
+\begin{center}
+	\begin{tikzpicture}
+	  \node[state, initial] (q0) {$q_0$};
+	  \node[state, right of=q0] (q1) {$q_1$};
+	  \node[state, right of=q1] (q2) {$q_2$};
+	  \node[state, below of=q2] (q3) {$q_3$};
+	  \node[state, left of=q3] (q4) {$q_4$};
+	  \node[state, left of=q4, accepting] (q5) {$q_5$};
+	
+	  \draw 
+			(q0) edge [bend left, above] node{{\tt /}} (q1)
+			(q1) edge [bend left, above] node{{\tt *}} (q2)
+			(q2) edge [bend left, right] node{{\tt $\Sigma$}} (q3)
+
+			(q3) edge [bend left, below] node{{\tt *}} (q4)
+			(q3) edge [bend left, left] node{{\tt $\Sigma$}} (q2)
+	
+			(q4) edge [bend left, below] node{{\tt /}} (q5)
+			(q4) edge [bend left, above] node{{\tt $\Sigma$}} (q2)
+	  ;
+	
+	\end{tikzpicture}
+\end{center}
 
 \end{document}

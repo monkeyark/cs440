@@ -3,7 +3,7 @@ CXX = g++
 ECHO = echo
 RM = rm -f
 TEX = pdflatex
-TEXSOURCES = post_1.tex post_2.tex
+TEXSOURCES = post_2.tex
 
 CFLAGS = -Wall -Werror -ggdb3 -funroll-loops
 CXXFLAGS = -std=c++20 -Wall -Werror -ggdb3 -funroll-loops
