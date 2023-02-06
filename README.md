@@ -14,9 +14,14 @@ Compile
 make
 ```
 
-Remove generated files
+Remove compiled binary and linking files
 ```
 make clean 
+```
+
+Remove backup files and documentations
+```
+make clobber
 ```
 
 ## Useage
