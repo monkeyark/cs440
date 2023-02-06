@@ -4,6 +4,8 @@
 \usepackage{color}
 \usepackage{listings}
 \usepackage{fancyvrb}
+\usepackage{tikz}
+\usetikzlibrary{backgrounds}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{dkred}{rgb}{0.6,0,0}
@@ -136,7 +138,7 @@ The following are examples of words that should be accepted.
 \end{verbatim}
 
 \begin{center}
-	\begin{tikzpicture}
+	\begin{tikzpicture}[framed]
 	  \node[state, initial] (q0) {$q_0$};
 	  \node[state, right of=q0] (q1) {$q_1$};
 	  \node[state, right of=q1] (q2) {$q_2$};
