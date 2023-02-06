@@ -16,7 +16,7 @@ all: $(BIN) etags
 
 $(BIN): $(OBJS)
 	@$(ECHO) Linking $@
-	@$(CC) $^ -o $@
+	@$(CXX) $^ -o $@
 	@$(ECHO) Generating Documentations $@
 	@$(TEX) $(TEXFLAGS) $(TEXSOURCES) $@
 -include $(OBJS:.o=.d)
