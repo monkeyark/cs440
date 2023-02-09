@@ -3,7 +3,6 @@ CXX = g++
 ECHO = echo
 RM = rm -f
 TEX = pdflatex
-TEXSOURCES = post_2.tex
 
 CFLAGS = -Wall -Werror -ggdb3 -funroll-loops
 CXXFLAGS = -std=c++20 -Wall -Werror -ggdb3 -funroll-loops
@@ -11,14 +10,13 @@ TEXFLAGS = -shell-escape -interaction=nonstopmode -file-line-error --interaction
 
 BIN = hw
 OBJS = hw1.o
+TEXFILES = post_2.tex
 
 all: $(BIN) etags
 
 $(BIN): $(OBJS)
 	@$(ECHO) Linking $@
 	@$(CC) $^ -o $@
-	@$(ECHO) Generating Documentations $@
-	@$(TEX) $(TEXFLAGS) $(TEXSOURCES) $@
 -include $(OBJS:.o=.d)
 
 %.o: %.c
@@ -31,13 +29,21 @@ $(BIN): $(OBJS)
 
 .PHONY: all clean clobber etags
 
+doc: $(TEXFILES)
+	@$(ECHO) Generating Documentations $@
+	@$(TEX) $(TEXFLAGS) $(TEXFILES) $@
+
 clean:
 	@$(ECHO) Removing compiled files
 	@$(RM) *.o $(BIN) *.d TAGS core vgcore.* gmon.out
 
-clobber: clean
-	@$(ECHO) Removing all generated files
-	@$(RM) *~ \#* *.txt *.pdf *.aux *.log
+cleandoc:
+	@$(ECHO) Removing generated documentations
+	@$(RM) *.pdf *.aux *.log *.fls *.fdb_latexmk *.gz
+
+clobber: clean cleandoc
+	@$(ECHO) Removing everything
+	@$(RM) *~ \#*
 
 etags:
 	@$(ECHO) Updating TAGS

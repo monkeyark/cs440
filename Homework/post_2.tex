@@ -101,24 +101,33 @@ Explain why.
 \item ``{\tt baabba}''
 \end{itemize}
 
+\begin{framed}
+\begin{itemize}
+	\item Accepted
+	\item Not accepted
+	\item Not accepted
+	\item Accepted
+	\item Not accepted
+\end{itemize}
+\end{framed}
+
 \item
 {\bf (Extra credit for 440) }
 Describe, in English, which words are accepted.
 \end{enumerate}
 
 \begin{framed}
-	\begin{enumerate}
-	\item
-	\begin{itemize}
-		\item `` '' (empty string)         Y
-		\item ``{\tt ba}''                 N
-		\item ``{\tt ababa}''              N
-		\item ``{\tt bbbaba}''             Y
-		\item ``{\tt baabba}''             N
-	\end{itemize}
-	\item
-		it accept symetric words
-\end{enumerate}
+We can treat any words as a candy crush game, 
+just like in the games, connected same letter will cancel out each other like two candies.
+Every time when letters are canceled,
+new connected letter may created.
+After all the cancellation we can check the left over letters,
+there are only three patterns of words are accepted:
+\begin{itemize}
+	\item `` '' (empty string)
+	\item ``{\tt [abab]+}'' (1 or more {\tt abab})
+	\item ``{\tt [baba]+}'' (1 or more {\tt baba})
+\end{itemize}
 \end{framed}
 
 %============================================================
