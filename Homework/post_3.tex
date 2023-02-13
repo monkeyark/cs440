@@ -1,0 +1,121 @@
+\documentclass[10pt]{article}
+\usepackage{fullpage}
+\usepackage{url}
+\usepackage{color}
+\usepackage{listings}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{dkred}{rgb}{0.6,0,0}
+\definecolor{dkblue}{rgb}{0,0,0.7}
+
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows}
+\tikzset{%
+  node distance=2.5cm,
+  initial text={},
+  every state/.style={
+    semithick},
+  double distance=2pt,  % Accept state appearance
+  every edge/.style={
+    draw,
+    ->,
+    >=stealth',
+    auto,
+    semithick} %
+}
+
+\lstdefinestyle{jvm}{
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=left,
+  moredelim=[s][\color{black}]{Ljava}{;},
+  morecomment=[l][\color{dkgreen}]{;},
+  morecomment=[l][\color{magenta}]{;;},
+  keywords={class,public,static,super,method,code,end},
+  keywordstyle=\color{dkblue},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=8
+}
+
+\title{COM S 440/540 Homework 3}
+\date{}
+\author{Grammars}
+
+\begin{document}
+
+\maketitle
+
+\noindent
+Reminder: present your own work and properly cite any sources used.
+Solutions should be written satisfying the \emph{other student viewpoint},
+and must be prepared using \LaTeX.
+\renewcommand{\thepage}{~}
+ 
+\noindent 
+{\bf For questions 1 and 2}, use the following grammar, where
+%============================================================
+\emph{lbrace}, \emph{rbrace}, \emph{comma}, and \emph{number}
+are terminal symbols (i.e., tokens).
+
+\begin{eqnarray}
+  S & \rightarrow & \mathit{lbrace} ~L~ \mathit{rbrace}
+\\
+  L & \rightarrow & L ~\mathit{comma}~ I
+\\
+  L & \rightarrow & I
+\\
+  I & \rightarrow & \mathit{number}
+\\
+  I & \rightarrow & S
+\end{eqnarray}
+
+
+%============================================================
+\section*{Question~1~\hfill 15 points}
+%============================================================
+
+Determine
+  $\textsc{First}(S)$,
+  $\textsc{First}(L)$,
+  $\textsc{First}(I)$,
+  $\textsc{Follow}(S)$,
+  $\textsc{Follow}(L)$, and
+  $\textsc{Follow}(I)$.
+
+
+%============================================================
+\section*{Question~2~\hfill 15 points}
+%============================================================
+
+Write an equivalent grammar (with the same precedence
+of operators) that does not use left recursion.
+
+
+%============================================================
+\section*{Question~3~\hfill 20 points}
+%============================================================
+
+Write an unambiguous grammar to describe the language of 
+``variables'' in C.
+For this question, a ``variable'' is an identifier
+that could be an array in several dimensions,
+where the array indexes are also variables.
+The following are examples of legal sentences.
+\begin{quote}
+  \emph{ident} \\
+  \emph{ident}[\emph{ident}] \\
+  \emph{ident}[ \emph{ident}[\emph{ident}][\emph{ident}] ]
+  [ \emph{ident} ]
+  [ \emph{ident}[\emph{ident}[\emph{ident}]][\emph{ident}] ]
+  [ \emph{ident}[\emph{ident}][\emph{ident}][\emph{ident}] ]
+\end{quote}
+Your grammar should use $\mathit{ident}$, $[$, and $]$ as
+terminal symbols.
+
+\end{document}
