@@ -1,0 +1,21 @@
+File test3.c Line 1: global variable pi
+File test3.c Line 3: global struct point
+File test3.c Line 4: member x
+File test3.c Line 4: member y
+File test3.c Line 7: global struct rectangle
+File test3.c Line 8: member upperleft
+File test3.c Line 9: member lowerright
+File test3.c Line 12: global struct window
+File test3.c Line 13: member area
+File test3.c Line 14: member text
+File test3.c Line 17: function display
+File test3.c Line 17: parameter W
+File test3.c Line 17: parameter n
+File test3.c Line 19: function strange
+File test3.c Line 19: parameter z
+File test3.c Line 25: local variable y
+File test3.c Line 26: local struct mything
+File test3.c Line 27: member a
+File test3.c Line 27: member b
+File test3.c Line 27: member c
+File test3.c Line 29: local variable A

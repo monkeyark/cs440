@@ -1,0 +1,32 @@
+File test1.c Line 1: global variable x
+File test1.c Line 1: global variable y
+File test1.c Line 2: global variable z
+File test1.c Line 4: function foo
+File test1.c Line 4: parameter z
+File test1.c Line 10: function bar
+File test1.c Line 10: parameter a
+File test1.c Line 10: parameter b
+File test1.c Line 13: local variable a
+File test1.c Line 20: local variable foo
+File test1.c Line 29: global variable more
+File test1.c Line 29: global variable global
+File test1.c Line 29: global variable variables
+File test1.c Line 31: function test
+File test1.c Line 31: parameter lots
+File test1.c Line 31: parameter more
+File test1.c Line 31: parameter useless
+File test1.c Line 33: local variable variables
+File test1.c Line 33: local variable just
+File test1.c Line 33: local variable to
+File test1.c Line 33: local variable show
+File test1.c Line 37: function bar
+File test1.c Line 37: parameter a
+File test1.c Line 37: parameter b
+File test1.c Line 39: local variable d
+File test1.c Line 42: local variable d
+File test1.c Line 47: function main
+File test1.c Line 49: local variable how
+File test1.c Line 49: local variable this
+File test1.c Line 49: local variable part
+File test1.c Line 49: local variable should
+File test1.c Line 49: local variable work

@@ -1,0 +1,13 @@
+File test4.c Line 2: global variable z
+File test4.c Line 4: function func1
+File test4.c Line 4: parameter y
+File test4.c Line 16: local variable x
+File test4.c Line 19: function func2
+File test4.c Line 19: parameter w
+File test4.c Line 19: parameter v
+File test4.c Line 19: parameter u
+File test4.c Line 38: global variable t
+File test4.c Line 40: function func3
+File test4.c Line 40: parameter A
+File test4.c Line 40: parameter n
+File test4.c Line 42: local variable sum

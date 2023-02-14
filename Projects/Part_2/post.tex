@@ -1,0 +1,651 @@
+
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{url}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{longtable}
+
+\renewcommand{\topfraction}{0.99}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{muave}{rgb}{0.58,0,0.82}
+\definecolor{dkred}{rgb}{0.6,0,0}
+\definecolor{dkblue}{rgb}{0,0,0.7}
+
+\lstset{frame=none,
+  language=C,
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=left,
+  stepnumber=1,
+  keywordstyle=\color{dkblue},
+  directivestyle=\color{dkred},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{muave},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=2
+}
+
+\lstdefinestyle{Output}{
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=none,
+  keywordstyle=,
+  directivestyle=,
+  commentstyle=,
+  stringstyle=,
+  tabsize=8
+}
+
+\newcommand{\cpp}{C{\tt ++}}
+
+\newcommand{\gradeline}{ \cline{1-2} \cline{4-4} ~\\[-1.5ex] }
+
+\newenvironment{gradetable}{\begin{longtable}{@{}rrcp{5in}} \multicolumn{2}{l}{\bf Points} & & {\bf Description}\\ \gradeline}{\end{longtable}}
+
+\newcommand{\mainitem}[2]{\pagebreak[2] {\bf #1} &&& {\bf #2}}
+\newcommand{\mainpara}[1]{~ &&& {#1} }
+\newcommand{\inneritem}[2]{~ & #1 && #2}
+\newcommand{\innerpara}[1]{~ & ~ && #1}
+
+\newcommand{\iseasier}{is$^\dagger$ }
+\newcommand{\isextra}{is$^\ddagger$ }
+
+\newcommand{\thispart}{2}
+\newcommand{\typecheck}{3}
+\newcommand{\codegen}{4}
+
+\title{COM S 440/540 Project part \thispart}
+\author{C parser}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+
+%======================================================================
+\section{Requirements for part \thispart}
+%======================================================================
+
+When executed with a mode of \thispart,
+your compiler should read the specified input file
+and check that the file has correct C syntax
+(for our subset of C, discussed in Section~\ref{SEC:language}).
+If the input file is not syntactically correct,
+then display an appropriate error message.
+Error messages should be written to standard error,
+and have the format
+\begin{quote}
+  \begin{tabbing}
+		{\tt Parser }\={\tt error in file }\emph{filename}
+		{\tt line }\emph{line number}
+		{\tt at text }\emph{lexeme}
+	\\
+		\> \emph{Description}
+  \end{tabbing}
+\end{quote}
+where the line number and offending text should
+be where the error occurs (or was detected).
+The description will typically indicate
+what the parser expected to appear next in input.
+After the first syntax error,
+your parser may either make a ``best effort''
+attempt to continue processing the input file, or exit.
+When tested on input files with syntax errors,
+your compiler will be considered correct if it catches the first syntax error.
+This part of the project checks {\bf only} the input file {\bf syntax}.
+You {\bf should not} check for type consistency,
+for existence of called functions,
+for existence of used variables,
+for duplication of function definitions,
+  or for duplication of variable declarations.
+These checks will instead be required for part~\typecheck{} of the project.
+
+
+If the input file is syntactically correct,
+your parser should create a single output file with extension {\tt .parser},
+containing a list of the global variables, function definitions,
+parameters, and local variables
+(see Section~\ref{SEC:output} for details).
+
+
+%======================================================================
+\section{C language (subset) definition: basic implementation}
+\label{SEC:language}
+%======================================================================
+
+Rules for a minimalist implementation
+are given below;
+from these you should be able to define an appropriate grammar
+for our subset of the C programming language.
+The rules are numbered for later reference.
+Extra features,
+  potentially requiring grammar modifications,
+are discussed in Section~\ref{SEC:extra}.
+Rules that are more restrictive than the C standard
+(for purposes of making the parser or compiler simpler)
+are marked with $\dagger$ or $\ddagger$,
+with $\ddagger$ indicating that the rule will need to be modified
+for one or more extra features.
+
+%
+%
+\begin{enumerate}
+\item\label{Cprog}
+  A C program \isextra a sequence of zero or more
+  (global) variable declarations  %function prototypes,
+  or function definitions,
+  appearing in any order.
+
+\item\label{vardec}
+  A \emph{variable declaration} \isextra a type name,
+  followed by a comma-separated list of one or more identifiers,
+  each identifier optionally followed by a left bracket,
+  an integer literal, and a right bracket.
+  The list is terminated with a semicolon.
+  Note that this restricts arrays to a single dimension.
+
+\item\label{typename}
+  A \emph{type name} \isextra one of the simple types:
+    {\tt void}, {\tt char}, {\tt int}, {\tt float}.
+
+\item
+  A \emph{function declaration} \iseasier a type name
+  (the return type of the function),
+  followed by an identifier (the name of the function),
+  a left parenthesis,
+    an optional comma-separated list of formal parameters,
+  and a right parenthesis.
+
+\item
+  A \emph{formal parameter} \iseasier a type name,
+  followed by an identifier,
+  and optionally followed by a left and right bracket.
+
+\item \label{funcdef}
+  A \emph{function definition} \isextra a function declaration
+  followed by a left brace,
+  a sequence of zero or more
+    variable declarations or statements,
+  and a right brace.
+
+\item
+  A \emph{statement block} is a left brace,
+  a sequence of zero or more statements,
+  and a right brace.
+
+\item
+  A \emph{statement} \iseasier one of the following.
+
+  \begin{itemize}
+    \item Nothing, followed by a semicolon.
+    \item An expression followed by a semicolon.
+
+    \item Keywords {\bf break} or {\bf continue} followed by a semicolon.
+    Note: you do {\bf not} need to check that these statements
+      are within a loop (yet).
+
+    \item Keyword {\bf return}, followed by an optional expression,
+    and a semicolon.
+
+    \item Keyword {\bf if}, followed by a left parenthesis,
+    an expression, and a right parenthesis,
+    followed by either a statement block or a single statement.
+    Then, optionally, the following:
+    keyword {\bf else}, followed by either a statement block,
+    or a single statement.
+
+    \item Keyword {\bf for}, followed by a left parenthesis,
+      an optional expression, a semicolon, an optional expression,
+      a semicolon, an optional expression, a right parenthesis,
+      and then either a statement block,
+      or a single statement.
+
+    \item Keyword {\bf while}, followed by a left parenthesis,
+      an expression, and a right parenthesis,
+      and then either a statement block, or a single statement.
+
+    \item Keyword {\bf do}, followed by either a statement block
+    or a single statement,
+    followed by keyword {\bf while}, a left parenthesis, an expression,
+    a right parenthesis, and a semicolon.
+
+  \end{itemize}
+
+\item
+  An \emph{expression} \iseasier one of the following.
+  \begin{itemize}
+    \item A literal value.
+    \item An identifier, left parenthesis,
+    a comma-separated list of zero or more expressions,
+    and a right parenthesis.
+
+    \item An l-value.
+
+    \item An l-value, an \emph{assignment operator}, and an expression.
+
+    \item An l-value, preceeded by or followed by the
+    increment or decrement operator.
+
+    \item A \emph{unary operator}, and an expression.
+
+    \item An expression, a \emph{binary operator}, and an expression.
+
+    \item An expression, a question mark, an expression, a colon,
+    and an expression.
+
+    \item A left parenthesis, a type name, a right parenthesis, and
+    an expression.
+    \item A left parenthesis, an expression, and a right parenthesis.
+  \end{itemize}
+
+\item \label{lvalue}
+  An \emph{l-value} \isextra an identifier,
+  optionally followed by a left bracket,
+  an expression, and a right bracket.
+  Note that this restricts array access to a single dimension.
+
+\item
+  Unary operators (for any expression) are: \verb|-, !, ~|
+
+\item
+  Binary operators are: \verb$==, !=, >, >=, <, <=, +, -, *, /, %, |, &, ||, &&$
+
+\item
+  Assignment operators are: \verb$=, +=, -=, *=, /=$
+\end{enumerate}
+%
+%
+Operator precedence and rules for associativity
+are shown in Table~\ref{TAB:precedence}.
+%
+\begin{table}[t]
+\begin{center}
+\begin{tabular}{@{}l|c|c}
+\hline
+  \multicolumn{1}{c|}{\sc Operators}
+&
+  {\sc Associativity}
+&
+  {\sc Precedence}
+\\ \hline
+  \verb|()| \quad \verb|[]| \quad .
+  &
+  left to right
+  &
+  (highest)
+\\
+  \verb|!| \quad \verb|~| \quad \verb|-| (unary)
+  \quad \verb|--| \quad \verb|++|
+  % \quad \verb|&| (unary)
+  \quad \verb|(|\emph{type}\verb|)|
+  &
+  right to left
+\\
+  \verb|*| \quad \verb|/| \quad \verb|%|
+  &
+  left to right
+\\
+  \verb|+| \quad \verb|-|
+  &
+  left to right
+\\
+  \verb|<| \quad \verb|<=| \quad \verb|>| \quad \verb|>=|
+  &
+  left to right
+\\
+  \verb|==| \quad \verb|!=|
+  &
+  left to right
+\\
+  \verb|&|
+  &
+  left to right
+\\
+  \verb$|$
+  &
+  left to right
+\\
+  \verb|&&|
+  &
+  left to right
+\\
+  \verb$||$
+  &
+  left to right
+\\
+  \verb$?:$
+  &
+  right to left
+\\
+  \verb|=| \quad \verb|+=| \quad \verb|-=| \quad \verb|*=| \quad \verb|/=|
+  &
+  right to left
+\\
+  \verb|,|
+  &
+  left to right
+  &
+  (lowest)
+\\ \hline
+\end{tabular}
+\end{center}
+\caption{Precedence and associativity of operators}
+\label{TAB:precedence}
+\end{table}
+
+%======================================================================
+\section{Extra features}
+\label{SEC:extra}
+%======================================================================
+
+\subsection{Function prototypes}
+\label{SEC:prototypes}
+
+Modify rule~\ref{Cprog} to allow function prototypes,
+as would appear in a header file or as ``forward'' declarations:
+\begin{enumerate}
+\item[1'.]
+  A C program \isextra a sequence of zero or more
+  (global) variable declarations, function prototypes,
+  or function definitions,
+  appearing in any order.
+\end{enumerate}
+A \emph{function prototype} is a function declaration
+followed by a semicolon.
+
+If you choose to implement this feature,
+you will have the option of earning
+additional extra credit for type checking
+in part~\typecheck.
+
+
+
+\subsection{Variable initialization}
+\label{SEC:varinit}
+
+Relax rule~\ref{vardec} to allow global and local variables to be
+declared and initialized at the same time.
+For example, this would allow variable declarations of the form
+\begin{lstlisting}[numbers=none]
+  int a, b=3, c, d=b+1;
+\end{lstlisting}
+for both global and local variables.
+You may do this for simple types only;
+do not worry about initializing arrays or struct variables.
+
+If you choose to implement this feature,
+you may have the option of earning
+additional extra credit for code generation
+in part~\codegen.
+
+\subsection{Constants}
+\label{SEC:constants}
+
+Relax rule~\ref{typename} to allow type names to be modified
+with the keyword {\tt const}, either before or after the type name.
+For example,
+this would enable the declaration of function parameters
+with type \lstinline{const int} or \lstinline{int const};
+note that these are equivalent types.
+
+If you choose to implement this feature,
+you will have the option of earning
+additional extra credit for type checking
+in part~\typecheck.
+
+
+\subsection{User-defined structs}
+\label{SEC:userstructs}
+
+Modify rule~\ref{typename} so that keyword {\tt struct},
+followed by an identifier,
+is also a valid type name.
+If you implement the {\tt const} keyword (c.f. Section~\ref{SEC:constants}),
+make sure it may be applied to {\tt struct} types
+and members.
+
+Modify rules~\ref{Cprog} and \ref{funcdef} to allow user-defined
+{\tt struct} types.
+For a C program, global user-defined types may appear in any order.
+A \emph{user-defined type declaration} \iseasier the keyword {\tt struct},
+followed by an identifier, a left brace,
+  zero or more variable declarations (without initializations),
+a right brace, and a semicolon.
+
+Note that you must allow (1) arrays of structs, (2) array variables
+inside structs, and (3) arbitrary nesting of structs.
+%
+If you choose to implement this feature,
+you will have the option of earning
+additional extra credit for type checking
+in part \typecheck.
+
+\subsection{Struct member selection}
+\label{SEC:lastextra}
+\label{SEC:members}
+
+Modify rule~\ref{lvalue} to allow member selection using the
+{\tt .} operator.
+For example,
+\lstinline{point.x}
+should be a valid l-value.
+Remember that you must allow (1) arrays of structs,
+(2) array variables inside structs, and (3) arbitrary nesting of structs.
+For example,
+\begin{lstlisting}[numbers=none]
+  window[3].upperleft.x = mouse.x.stack[mouse.x.top];
+\end{lstlisting}
+should be syntactically correct.
+The \emph{type checking} of that expression falls under part \typecheck,
+where you will have the option of earning additional extra credit.
+
+
+%======================================================================
+\section{Output format}
+\label{SEC:output}
+%======================================================================
+
+The output file should contain a line of the form
+\begin{quote}
+  {\tt File} \emph{filename} {\tt Line} \emph{lineno}{\tt :}
+  \emph{kind} \emph{ident}
+\end{quote}
+for each identifier,
+where the displayed \emph{filename} and \emph{lineno} should
+be the location of the identifier in the source file.
+The different ``kinds'' of identifiers are as follows.
+\begin{itemize}
+  \item {\tt global variable}, for global variables.
+
+  \item {\tt global struct}, for global struct declarations,
+    assuming your parser can handle them.
+
+  \item {\tt function}, for function declarations.
+    This includes function prototypes, if your parser can handle them.
+
+  \item {\tt parameter}, for formal parameters in a function declaration.
+
+  \item {\tt local variable}, for variable declarations
+    within a function definition.
+
+  \item {\tt local struct}, for struct declarations
+    within a function definition,
+    assuming your parser can handle them.
+
+  \item {\tt member}, for members of a (local or global) struct,
+    assuming you have implemented user-defined structs.
+
+\end{itemize}
+See Sections \ref{SEC:outbasic} and \ref{SEC:outextra} for examples.
+
+%======================================================================
+\section{Basic example(s)} \label{SEC:outbasic}
+%======================================================================
+
+\subsection{Input: {\tt test1.c}}
+
+\lstinputlisting{INPUTS/test1.c}
+
+\subsection{Output: {\tt test1.parser}}
+
+\lstinputlisting[style=Output]{OUTPUTS_B/test1.parser}
+
+\subsection{Input: {\tt test2.c}}
+
+\lstinputlisting{INPUTS/test2.c}
+
+\subsection{Error stream for {\tt test2.c}}
+
+\lstinputlisting[style=Output]{OUTPUTS_B/test2.error}
+
+%======================================================================
+\section{Extra credit example} \label{SEC:outextra}
+%======================================================================
+
+\subsection{Input: {\tt test3.c}}
+
+\lstinputlisting{INPUTS/test3.c}
+
+\subsection{Errors for basic implementation, on {\tt test3.c}}
+
+\lstinputlisting[style=Output]{OUTPUTS_B/test3.error}
+
+\subsection{Output: {\tt test3.parser} for extra credit implementation}
+
+\lstinputlisting[style=Output]{OUTPUTS_X/test3.parser}
+
+%======================================================================
+\section{Grading}
+%======================================================================
+
+The grading script, {\tt ParseTest.sh}, is published on the course
+git repository, along with \LaTeX{} source for these specifications.
+Students are \emph{strongly} encouraged to test their code
+using the script, especially on {\tt pyrite.cs.iastate.edu},
+before submission.
+The script works in the same way as the previous grading script,
+{\tt LexTest.sh}.
+
+\noindent
+\begin{gradetable}
+  \mainitem{17}{Documentation}
+  \\[1mm]
+  \inneritem{5}{\tt README.txt}
+  \\[1mm]
+  \innerpara{%
+    How to build the compiler and documentation.
+    Updated to show which part \thispart{} features are implemented.
+  }
+  \\[1mm]
+  \inneritem{12}{\tt developers.pdf}
+  \\[1mm]
+  \innerpara{%
+    New section for part \thispart{}, that explains
+    the purpose of each source file,
+    the main data structures used,
+    and gives a high-level overview of how the various
+    features are implemented.
+  }
+  \\[4mm]
+
+  \mainitem{8}{Ease of building}
+  \\[1mm]
+  \mainpara{%
+    How easy was it for the graders to build your compiler and
+    documentation from the {\tt README} file.
+		You are encouraged to use {\tt Makefile}s under the
+		{\tt Source/} and {\tt Documentation/}
+		directories so that running ``{\tt make}''
+		will build everything and running ``{\tt make clean}''
+		will remove all generated files.
+  }
+  \\[4mm]
+
+  \mainitem{5}{Still works in mode 0}
+  \\[4mm]
+  \mainitem{5}{Still works in mode 1}
+  \\[4mm]
+
+  \mainitem{60}{Basic Parser}
+  \\[2mm]
+    \inneritem{5}{Global variables}
+  \\
+    \inneritem{5}{Function declarations / parameter lists}
+  \\
+    \inneritem{5}{Function local variables and body}
+  \\[2mm]
+    \inneritem{10}{For, while, do loops}
+  \\
+    \inneritem{5}{if then else}
+  \\
+    \inneritem{5}{break / continue / return / expression stmts}
+  \\[2mm]
+    \inneritem{10}{Expressions with unary/binary/ternary operators}
+  \\
+    \inneritem{5}{Assignment operators; increment and decrement}
+  \\
+    \inneritem{5}{Identifiers and arrays}
+  \\
+    \inneritem{5}{Function calls and parameters}
+  \\[4mm]
+
+  \mainitem{30}{Extra features}
+  \\[2mm]
+    \inneritem{5}{Function prototypes (c.f. Section~\ref{SEC:prototypes})}
+  \\
+    \inneritem{5}{Variable initializations (c.f. Section~\ref{SEC:varinit})}
+  \\
+    \inneritem{5}{Constants (c.f. Section~\ref{SEC:constants})}
+  \\
+    \inneritem{10}{User-defined structs (c.f. Section~\ref{SEC:userstructs})}
+  \\
+    \inneritem{5}{Struct member selection (c.f. Section~\ref{SEC:members})}
+  \\[4mm]
+
+  \gradeline
+  \mainitem{100}{Total for students in 440 (max points is 120)}
+  \\
+  \mainitem{115}{Total for students in 540}
+\end{gradetable}
+
+
+\section{Submission}
+
+\begin{table}[h]
+\centering
+
+  \begin{tabular}{lcr}
+    {\bf Part} & ~~~~ & {\bf Penalty applied} \\ \cline{1-1}\cline{3-3}
+    Part 0 && 20\% off \\
+    Part 1 && 10\% off
+  \end{tabular}
+
+\caption{Penalty applied when re-grading}
+\label{TAB:penalties}
+\end{table}
+
+Be sure to commit your source code and documentation to your
+git repository, and to upload (push) those commits to the server
+so that we may grade them.
+In Canvas,
+indicate which parts you would like us to re-grade for reduced credit
+(see Table~\ref{TAB:penalties} for penalty information).
+Otherwise, we will grade only part \thispart.
+
+
+\end{document}
+

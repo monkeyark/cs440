@@ -1,0 +1,578 @@
+
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{url}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{longtable}
+
+\renewcommand{\topfraction}{0.99}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{muave}{rgb}{0.58,0,0.82}
+\definecolor{dkred}{rgb}{0.6,0,0}
+\definecolor{dkblue}{rgb}{0,0,0.7}
+
+\lstset{frame=none,
+  language=C,
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=left,
+  stepnumber=1,
+  keywordstyle=\color{dkblue},
+  directivestyle=\color{dkred},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{muave},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=2
+}
+
+\lstdefinestyle{Output}{
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=fixed,
+  basicstyle={\ttfamily},
+  numbers=none,
+  keywordstyle=,
+  directivestyle=,
+  commentstyle=,
+  stringstyle=,
+  tabsize=8
+}
+
+\newcommand{\cpp}{C{\tt ++}}
+
+\newcommand{\gradeline}{ \cline{1-2} \cline{4-4} ~\\[-1.5ex] }
+
+\newenvironment{gradetable}{\begin{longtable}{@{}rrcp{5in}} \multicolumn{2}{l}{\bf Points} & & {\bf Description}\\ \gradeline}{\end{longtable}}
+
+\newcommand{\mainitem}[2]{\pagebreak[2] {\bf #1} &&& {\bf #2}}
+\newcommand{\mainpara}[1]{~ &&& {#1} }
+\newcommand{\inneritem}[2]{~ & #1 && #2}
+\newcommand{\innerpara}[1]{~ & ~ && #1}
+
+
+\title{COM S 440/540 Project part 1}
+\author{Create a lexer for C\thanks{Actually, it's a subset of C,
+but students are always free to implement more of the C standard.}}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+%======================================================================
+\section{Overview}
+%======================================================================
+
+When executed with a mode of 1,
+your compiler should read the specified input file
+and divide it into tokens;
+essentially this is the lexical analysis phase of the compiler
+(referred to as the ``lexer'').
+The output stream should contain
+a line for each token,
+showing the file name, line number, and text corresponding to the token.
+More details (including the precise output and error formats,
+and the definitions for the tokens) are given below.
+The input file may be a C header file, a C source file,
+or an arbitrary text file.
+There are opportunities for extra credit.
+
+All implementation must be C, C++, Java, or Python.
+Instructor permission is required to use anything beyond
+the standard libraries for these languages.
+Submissions will be graded on {\tt pyrite.cs.iastate.edu},
+and therefore must build and run correctly there.
+
+Students are \emph{strongly} encouraged
+to encapsulate the functionality of this phase of the compiler,
+so that later parts of the project can easily
+examine and consume tokens from an input stream.
+
+%======================================================================
+\section{Tokens in our subset of C}
+%======================================================================
+
+Your lexer must recognize the tokens
+given in Table~\ref{TAB:tokens}.
+A useful list of integer constants for tokens may be found in {\tt tokens.h},
+distributed with the materials for this part of the project.
+Note that single-character symbols use their ASCII codes;
+all other tokens have integer values above 300.
+Whitespace (spaces, tabs, and carriage returns) serves only to separate
+tokens, and should otherwise be discarded.
+Any characters that are not part of a lexeme,
+such as \verb|$|,
+should generate an error message.
+
+You may notice that some of the C keywords and operators are missing.
+Students are welcome to implement additional language features if desired,
+but any extra keywords or operators must be part ot the C standard.
+
+\begin{table}[t]
+	\centering
+	\begin{tabular}{rlcrlcrl}
+		\multicolumn{8}{c}{Single character symbols}
+		\\[1mm]
+		{\bf Value} & {\bf Lexeme}
+		& ~~~~~~ &
+		{\bf Value} & {\bf Lexeme}
+		& ~~~~~~ &
+		{\bf Value} & {\bf Lexeme}
+		\\ \cline{1-2} \cline{4-5} \cline{7-8}
+		33  & \verb|!| &  & 45  & \verb|-| &  & 63  & \verb|?| \\
+    37  & \verb|%| &  & 46  & \verb|.| &  & 91  & \verb|[| \\
+    38  & \verb|&| &  & 47  & \verb|/| &  & 93  & \verb|]| \\
+    40  & \verb|(| &  & 58  & \verb|:| &  & 123 & \verb|{| \\
+    41  & \verb|)| &  & 59  & \verb|;| &  & 124 & \verb+|+ \\
+    42  & \verb|*| &  & 60  & \verb|<| &  & 125 & \verb|}| \\
+		43  & \verb|+| &  & 61  & \verb|=| &  & 126 & \verb|~| \\
+    44  & \verb|,| &  & 62  & \verb|>| \\
+  \\
+		\multicolumn{8}{c}{Operators with two characters}
+		\\[1mm]
+		{\bf Value} & {\bf Lexeme}
+		& ~~~~~~ &
+		{\bf Value} & {\bf Lexeme}
+		& ~~~~~~ &
+		{\bf Value} & {\bf Lexeme}
+		\\ \cline{1-2} \cline{4-5} \cline{7-8}
+    351 & \verb|==| &   & 355 & \verb|++| &   & 361 & \verb|+=| \\
+		352 & \verb|!=| &   & 356 & \verb|--| &   & 362 & \verb|-=| \\
+		353 & \verb|>=| &   & 357 & \verb+||+ &   & 363 & \verb|*=| \\
+    354 & \verb|<=| &   & 358 & \verb|&&| &   & 364 & \verb|/=| \\
+	\\
+		\multicolumn{8}{c}{Keywords}
+		\\[1mm]
+		{\bf Value} & {\bf Lexeme}
+		& ~~~~~~ &
+		{\bf Value} & {\bf Lexeme}
+		& ~~~~~~ &
+		{\bf Value} & {\bf Lexeme}
+		\\ \cline{1-2} \cline{4-5} \cline{7-8}
+		401 & \verb|const|  & & 406 & \verb|if| &       & 410 & \verb|return| \\
+		402 & \verb|struct| & & 407 & \verb|else| &     & 411 & \verb|switch| \\
+		403 & \verb|for|    & & 408 & \verb|break| &    & 412 & \verb|case| \\
+		404 & \verb|while|  & & 409 & \verb|continue| & & 413 & \verb|default| \\
+		405 & \verb|do| \\
+	\end{tabular}
+
+	\begin{tabular}{rll}
+		\\
+		\multicolumn{3}{c}{Lexemes with attributes}
+		\\[1mm]
+		{\bf Value} & {\bf Lexeme} & {\bf Definition}
+	  \\ \hline
+		301 & type & \verb|void| or \verb|char| or \verb|int| or \verb|float|
+		\\
+		302 & character literal & a character enclosed in single quotes;
+			escape sequences are extra credit
+		\\
+		303 & integer literal & a sequence of one or more digits
+		\\
+		304 & real literal & two sequences each of one or more digits, separated by \verb|.|
+		\\
+		305 & string literal & a sequence of zero or more characters (including escape sequences,
+		\\ & & except for \verb|\\| and \verb|\"|, which are extra credit) enclosed in double quotes
+		\\
+		306 & identifier & a letter or underscore, followed by zero or more letters,
+			underscores, or
+		\\ & & digits, that is not a keyword or type
+	\end{tabular}
+
+	\caption{Tokens to be recognized by the lexer.}
+	\label{TAB:tokens}
+\end{table}
+
+\subsection{C style comments}
+
+C-style comments, beginning with \verb|/*| and ending with \verb|*/|,
+should be discarded and treated the same as a space.
+A comment with no matching \verb|*/| is closed at the end of file,
+and an error message
+(indicating the starting point of the comment)
+should be displayed for this case.
+The formal rule for C-style comments is:
+\begin{quote}
+	When not currently inside a comment or string literal,
+	the text \verb|/*| indicates the start of a comment,
+	and all text is ignored until the next \verb|*/| or the end of file.
+\end{quote}
+
+\subsection{C++ style comments}
+
+C++-style comments, beginning with \verb|//|
+and ending with a newline or end of file,
+should be discarded and treated the same as a newline character.
+No error message is necessary if the comment is terminated by the end of file.
+The formal rule for C++-style comments is:
+\begin{quote}
+	When not currently inside a comment or string literal,
+	the text \verb|//| indicates the start of a comment,
+	and all text is ignored until the next newline character or the end of file.
+\end{quote}
+
+\subsection{Literals}
+
+The token definitions for integers, reals, characters, and strings
+are simpler than the C standard.
+Some extensions to these may be implemented for extra credit;
+see below.
+
+
+%======================================================================
+\section{Formatting}
+%======================================================================
+
+\subsection{Compiler output}
+
+For mode 1, the output stream should contain
+a line for each token, exactly of the form
+\begin{quote}
+	{\tt File}
+	\emph{filename}
+	{\tt Line}
+	\emph{line number}
+	{\tt Token}
+	\emph{token number}
+	{\tt Text}
+	\emph{lexeme}
+\end{quote}
+where
+\begin{itemize}
+	\item \emph{filename}
+		is the name of the input file that contains the token,
+	\item \emph{line number}
+		is the line number of the input file that contains the token,
+	\item \emph{token number}
+		is the integer corresponding to the token, given in \verb|tokens.h|
+		and Table~\ref{TAB:tokens}, and
+	\item \emph{lexeme}
+		is the matched text that produced the token.
+\end{itemize}
+Nothing else should be written to the output stream.
+
+The output stream should be written to a file,
+based on the input file name given on the command line,
+with extension replaced by {\tt lexer}.
+For example, an input file named {\tt infile.c} or {\tt infile.h}
+should produce an output file named {\tt infile.lexer} in
+the current working directory.
+
+
+\subsection{Error messages}
+
+Error messages generated by the lexer must
+be written to standard error,
+and have exactly the form
+\begin{quote}
+	\begin{tabbing}
+		{\tt Lexer} \= {\tt error in file} \emph{filename}
+		{\tt line} \emph{line number}
+		{\tt at text} \emph{lexeme}
+	\\
+		\> \emph{Description}
+	\end{tabbing}
+\end{quote}
+The \emph{Description} should appear on the next line(s)
+and give a helpful description of the error.
+The error stream must be empty if no errors are generated.
+Students are \emph{strongly} encouraged to define their own switches
+	to display any additional information, to help with debugging.
+
+
+Example inputs, outputs, and errors are given below.
+Additionally, students are encouraged to check the output and error messages
+given for the example test files, for all parts of the project.
+For test files with errors,
+code is considered correct if the first error message
+occurs at the expected input line and text,
+and the error messages describe the same error
+(as determined by a human).
+
+%======================================================================
+\section{Extra features}
+%======================================================================
+
+\subsection{Character literals}
+\label{SEC:chars}
+
+In addition to ordinary character literals,
+e.g., \verb|' '|,
+your lexer should allow
+the escape sequences
+\verb|'\a'|, \verb|'\b'|, \verb|'\n'|, \verb|'\r'|, \verb|'\t'|, \verb|'\\'|,
+and \verb|'\''|.
+
+\subsection{Real literals}
+\label{SEC:reals}
+
+In addition to numbers with fractional portions,
+e.g., \verb|3.14159|,
+your lexer should allow \emph{exponents},
+of the form \verb|e| or \verb|E| followed by an integer with optional sign.
+If an exponent is present, then the fractional part is optional.
+For example,
+the following should be recognized as real literals:
+\begin{verbatim}
+	31.41592
+	6.02214e23
+	1.60217653E-19
+	1e+100
+\end{verbatim}
+
+\subsection{String literals}
+\label{SEC:strings}
+
+Allow escape sequences \verb|\\| and \verb|\"|,
+in addition to the others, inside string literals.
+For example, the following should be recognized as string literals:
+\begin{verbatim}
+	"Hello, world!\n"
+	"I said, \"Hello, world!\""
+	"This is evil \\"
+\end{verbatim}
+
+\subsection{Size limits for lexemes}
+\label{SEC:sizes}
+
+Your lexer should generate an appropriate error message
+(and terminate, if you wish)
+if the following size limits are exceeded.
+\begin{itemize}
+	\item Integer literals: 48 characters
+	\item Real literals: 48 characters
+	\item Identifiers: 48 characters
+	\item String literals: 1024 characters
+\end{itemize}
+Note that there is {\bf no limit} for
+the length of a line,
+the length of a comment,
+or the length of an input file.
+
+\subsection{Output file on error}
+\label{SEC:remove}
+
+For efficiency,
+your lexer should make one pass through the input file,
+generating output for each token as it is encountered.
+If any error message is generated,
+then your lexer should remove the output file
+(it will be ignored anyway during grading).
+
+
+\subsection{{\tt \#include} directives}
+\label{SEC:include}
+
+The \verb|include| directive has the form
+\begin{quote}
+  \verb|#| \verb|include| \emph{filename}
+\end{quote}
+where \emph{filename} is a string literal.
+We will only test for include files in double quotes.
+In other words, we will test for directives of the form
+\begin{quote}
+  \verb|#  | \verb|include  | \verb|"stack.h"| \\
+  \verb|#| \verb|include| \verb|"../mylib/mylib.h"| \\
+  \verb|#include"/usr/include/gcc/includes/stdio.h"|
+\end{quote}
+where the files are either absolute pathnames or
+pathnames relative to the current working directory.
+We will not test for ``system'' includes of the form
+\begin{quote}
+  \verb|#include <stdio.h>|
+\end{quote}
+although you are free to implement that if you wish.
+
+Each include directive switches the token input stream to the
+indicated file,
+with an appropriate error message generated if the file cannot be opened.
+When the token stream from that file is exhausted,
+it reverts back to the original file.
+Of course, the included file may itself have include directives,
+which should be followed recursively.
+You may set a reasonable limit to the include depth (say, 256)
+with an appropriate error message if this depth is exceeded.
+
+
+%======================================================================
+\section{Basic example}
+%======================================================================
+
+\subsection{Input: {\tt hello.c}}
+
+\lstinputlisting{INPUTS/hello.c}
+
+\subsection{Output: {\tt hello.lexer}}
+
+\lstinputlisting[style=Output]{OUTPUTS_B/hello.lexer}
+
+
+
+
+
+
+%======================================================================
+\section{The grading script}
+%======================================================================
+
+The grading script, {\tt LexTest.sh},
+is published on the course git repository,
+along with other materials for the project.
+Students are \emph{strongly} encouraged to test their code using
+the script, especially on {\tt pyrite.cs.iastate.edu}, before submission.
+The script should be invoked as follows.
+
+\begin{itemize}
+  \item
+    You will want to invoke the script in the directory containing the
+    script, as the script makes assumptions about where files are located.
+
+  \item
+    The first argument to the script should be the command used to run your
+    compiler, enclosed in double quotes
+    (although, these are not necessary if you just need to run an
+    executable, for example with {\tt ./mycc}).
+
+  \item
+    The remaining arguments to the script should be the input files
+    you wish to test.
+    These should be located in directory {\tt INPUTS/}.
+    Use wildcards as appropriate.
+
+  \item
+    The script will compare your output (or error message)
+    with the instructor's output (or error message)
+    for both a basic and an extra credit implementation,
+    and give an appropriate summary.
+    These files are located in directories {\tt OUTPUTS\_B/}
+    and {\tt OUTPUTS\_X/}, respectively.
+    The script will not run a test if there is no corresponding
+    output or error file in {\tt OUTPUTS\_B/}.
+
+  \item
+    Students are encouraged, but not required,
+    to use the same (or very similar) error messages
+    to the instructor's, to make grading easier.
+
+\end{itemize}
+For example, running
+\begin{verbatim}
+  ./LexTest.sh "java -jar ./mycc.jar" INPUTS/tricky?.c
+\end{verbatim}
+would test a compiler written in Java
+(with jar file in the current directory),
+on input files in directory {\tt INPUTS} whose names match
+{\tt tricky?.c}.
+Running
+\begin{verbatim}
+  ./LexTest.sh ~/ComS440/Part1/mycc INPUTS/*
+\end{verbatim}
+will check all input files (with instructor-generated outputs in directory
+{\tt OUTPUTS\_B}),
+for a compiler executable located in directory
+\verb|~/ComS440/Part1|.
+
+
+%======================================================================
+\section{Grading}
+%======================================================================
+
+\noindent
+\begin{gradetable}
+  \mainitem{20}{Documentation}
+  \\[1mm]
+  \inneritem{5}{\tt README.txt}
+  \\[1mm]
+  \innerpara{%
+    How to build the compiler and documentation.
+    Updated to show which part 1 features are implemented.
+  }
+  \\[1mm]
+  \inneritem{15}{\tt developers.pdf}
+  \\[1mm]
+  \innerpara{%
+    New section for part 1, that explains
+    the purpose of each source file,
+    the main data structures used,
+    and gives a high-level overview of how the various
+    features are implemented.
+  }
+  \\[4mm]
+
+  \mainitem{10}{Ease of building}
+  \\[1mm]
+  \mainpara{%
+    How easy was it for the graders to build your compiler and
+    documentation from the {\tt README} file.
+		You are encouraged to use {\tt Makefile}s under the
+		{\tt Source/} and {\tt Documentation/}
+		directories so that running ``{\tt make}''
+		will build everything and running ``{\tt make clean}''
+		will remove all generated files.
+  }
+  \\[4mm]
+
+  \mainitem{5}{The executable works also in mode 0}
+  \\[4mm]
+
+  \mainitem{60}{Basic lexer}
+  \\
+  \inneritem{10}{Correct line numbers and output format}
+  \\
+	\inneritem{15}{Keywords, types, identifiers}
+  \\
+  \inneritem{14}{Integer, real, string, character literals}
+  \\
+  \inneritem{6}{Comments}
+  \\
+  \inneritem{15}{Symbols}
+  \\[4mm]
+
+  \mainitem{30}{Extra features}
+	\\
+  \inneritem{3}{Character literals with escapes (c.f. Sec.~\ref{SEC:chars})}
+	\\
+  \inneritem{3}{Real literals with exponents (c.f. Sec.~\ref{SEC:reals})}
+	\\
+  \inneritem{3}{String literals with escapes (c.f. Sec.~\ref{SEC:strings})}
+	\\
+  \inneritem{3}{Errors for very long lexemes (c.f. Sec.~\ref{SEC:sizes})}
+	\\
+  \inneritem{3}{Errors for invalid characters}
+  \\
+  \inneritem{3}{Output file removed on error (c.f. Sec.~\ref{SEC:remove})}
+  \\
+  \inneritem{12}{{\tt \#include} directives (c.f. Sec.~\ref{SEC:include})}
+  \\
+
+  \gradeline
+  \mainitem{100}{Total for students in 440 (Max score is 120 points)}
+  \\
+  \mainitem{110}{Total for students in 540}
+\end{gradetable}
+
+
+\section{Submission}
+
+Be sure to commit your source code and documentation to your
+git repository, and to upload (push) those commits to the server
+so that we may grade them.
+In Canvas,
+indicate if you would like us to re-grade your part 0 submission
+for reduced credit, or only grade part 1.
+If nothing is indicated, we will grade part~1 only.
+
+
+\end{document}
+

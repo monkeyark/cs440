@@ -1,0 +1,13 @@
+File test2.c Line 4 Token 302 Text 'a'
+File test2.c Line 5 Token 302 Text '\b'
+File test2.c Line 6 Token 302 Text '\t'
+File test2.c Line 7 Token 302 Text 'd'
+File test2.c Line 9 Token 304 Text 0.001
+File test2.c Line 10 Token 304 Text 1.0
+File test2.c Line 11 Token 304 Text 1.0e-5
+File test2.c Line 12 Token 304 Text 1.0e+6
+File test2.c Line 13 Token 304 Text 12.34e5
+File test2.c Line 15 Token 305 Text "string\n"
+File test2.c Line 16 Token 305 Text "\\string"
+File test2.c Line 17 Token 305 Text "a \"fun\" string"
+File test2.c Line 18 Token 305 Text "an evil string \\"

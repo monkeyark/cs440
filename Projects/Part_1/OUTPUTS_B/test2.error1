@@ -1,0 +1,2 @@
+Lexer error in file test2.c line 5 at text '\b
+	Expected closing ' for character literal.
