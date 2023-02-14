@@ -10,7 +10,7 @@ TEXFLAGS = -shell-escape -interaction=nonstopmode -file-line-error --interaction
 
 BIN = hw
 OBJS = hw1.o
-TEXFILES = post_2.tex
+TEXFILES = post_3.tex
 
 all: $(BIN) etags
 
