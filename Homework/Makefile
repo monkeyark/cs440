@@ -27,8 +27,6 @@ $(BIN): $(OBJS)
 	@$(ECHO) Compiling $<
 	@$(CXX) $(CXXFLAGS) -MMD -MF $*.d -c $<
 
-.PHONY: all clean clobber etags
-
 doc: $(TEXFILES)
 	@$(ECHO) Generating Documentations $@
 	@$(TEX) $(TEXFLAGS) $(TEXFILES) $@
@@ -47,3 +45,5 @@ clobber: clean cleandoc
 
 etags:
 	@$(ECHO) Updating TAGS
+
+.PHONY: all clean cleandoc clobber etags
