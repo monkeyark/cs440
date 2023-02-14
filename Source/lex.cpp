@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
+#include <iomanip>
 
 using std::cout;
 using std::cerr;
@@ -50,7 +51,7 @@ unordered_set<char> escape ({
 	'\\'
 });
 
-unordered_map<string , int> operators ({
+unordered_map<string, int> operators ({
 	{"==", 351},
 	{"!=", 352},
 	{">=", 353},
@@ -65,7 +66,7 @@ unordered_map<string , int> operators ({
 	{"/=", 364}
 });
 
-unordered_map<string , int> keywords ({
+unordered_map<string, int> keywords ({
 	{"const", 401},
 	{"struc", 402},
 	{"for", 403},
@@ -111,17 +112,28 @@ int is_newline(char c)
 {
 	return (c == '\n');
 }
-int is_comment_start(char a, char b)
+
+int is_c_comment_start(char a, char b)
 {
-	return (a == '/') && ((b == '/') || (b == '*'));
+	return (a == '/') && (b == '*');
 }
 
-int is_comment_end(char a, char b)
+int is_cpp_comment_start(char a, char b)
 {
-	return ((a == '*') && (b == '/')) || (a == '\n');
+	return (a == '/') && (b == '/');
 }
 
-bool is_number(const string& str)
+int is_c_comment_end(char a, char b)
+{
+	return (a == '*') && (b == '/');
+}
+
+int is_cpp_comment_end(char a, char b)
+{
+	return (a == '\n');
+}
+
+bool is_number(const string &str)
 {
     for (char const &c : str)
 	{
@@ -133,7 +145,7 @@ bool is_number(const string& str)
 bool is_vaild_token(string token)
 {
 	char c = token[0];
-	if (!isdigit(c) && !isalpha(c) && symbols.contains(c))
+	if (!isdigit(c) && !isalpha(c) && symbols.count(c))
 	{
 		return false;
 	}
@@ -144,7 +156,7 @@ bool is_vaild_token(string token)
 	return true;
 }
 
-void save_token(string lexeme, int line)
+void output_token(string lexeme, int line)
 {
 	if (lexeme.empty() || escape.find(lexeme[0]) != escape.end())
 	{
@@ -153,137 +165,151 @@ void save_token(string lexeme, int line)
 
 	if (!is_vaild_token(lexeme))
 	{
-		cout << "Lexer error in file " << filename <<
-			" Line " << line <<
-			" Near Text " << lexeme <<
+		cout <<
+			"Lexer error in file " << filename <<
+			" Line " << std::right << std::setw(5) << line <<
+			" Near Text " << std::right << std::setw(5) << lexeme <<
 		endl;
 		return;
 	}
 
-	int tokenid = 301;
+	int tokenid = -1;
 
 	cout <<
 		"File " << filename <<
-		" Line " << "  " << line <<
-		" Token "  << "    " << tokenid <<
+		" Line " << std::right << std::setw(5) << line <<
+		" Token " << std::right << std::setw(5) << tokenid <<
 		" Text " << lexeme <<
 	endl;
-
 }
 
 void lex_text(string text)
 {
 	string token;
 	string output;
-	bool in_comment = false;
+	bool in_c_comment = false;
+	bool in_cpp_comment = false;
 	bool in_quotation = false;
 	bool in_apostrophe = false;
-	bool in_backslash = false; 
-	int lines = 0;
+	bool in_backslash = false;
+	int line = 1;
 	for (long unsigned int i = 0; i < text.length(); i++)
 	{
-		char character = text[i];
-		char character_next = text[i+1];//TODO handle EOF
+		char c = text[i];
+		char c_next = text[i+1];
 
-		if (character == '\n')
+		if (c == '\n') line++;	//line counter
+
+		//check for c and c++ style comments
+		if (in_c_comment)
 		{
-			lines++;
-		}
-		//deal with end of comment
-		if (in_comment)
-		{
-			if (is_comment_end(character, character_next))
+			if (is_c_comment_end(c, c_next))
 			{
-				in_comment = false;
+				in_c_comment = false;
+				i++;
+			}
+			continue;
+		}
+		else if (in_cpp_comment)
+		{
+			if (is_cpp_comment_end(c, c_next))
+			{
+				in_cpp_comment = false;
 				i++;
 			}
 			continue;
 		}
 
-		//deal with symbols
-		if (symbols.contains(character) && !in_quotation && !in_apostrophe)
+		if (is_c_comment_start(c, c_next))
 		{
-			if (character == '.' && is_number(token))
+			in_c_comment = true;
+			continue;
+		}
+		else if (is_cpp_comment_start(c, c_next))
+		{
+			in_cpp_comment = true;
+			continue;
+		}
+
+		//current char is a symbol
+		if (symbols.count(c) && !in_quotation && !in_apostrophe)
+		{
+			if (c == '.' && is_number(token)) //find an real number
 			{
-				token.push_back('.');
+				token.push_back(c);
 				continue;
 			}
-			save_token(token, lines);
-			// output.append(token);
-			token.clear();
-			//deal with comment start
-			if (is_comment_start(character, character_next))
+
+			//TODO need to deal with three symbols like === in operator check
+			//check for current and next char for operators
+			string s(1, c);
+			s.push_back(c_next);
+			if (operators.count(s))
 			{
-				if (character_next == '/') break;
-				in_comment = true;
-				i++;
-				continue;
-			}
-			//deal with operaters
-			string s(1, character);
-			s.push_back(character_next);
-			if (operators.contains(s))
-			{
-				save_token(s, lines);
-				// output.append(s);
+				token.push_back(c);
+				token.push_back(c_next);
 				i++;
 			}
-			else
+			else //output previous token when meet a symbol
 			{
-				string s(1, character);
-				save_token(s, lines);
-				// output.push_back(character);
+				output_token(token, line);
+				token.clear();
+				token.push_back(c);
 			}
 		}
 		else //reading normal characters and digits
 		{
-			token.push_back(character);
+			token.push_back(c);
 
 			if (in_backslash)
 			{
 				in_backslash = false;
 				continue;
 			}
-			if (character == '"' && ! in_backslash)
+			if (c == '"' && !in_backslash)
 			{
 				in_quotation = !in_quotation;
 			}
-			else if (character == '\'')
+			else if (c == '\'')
 			{
 				in_apostrophe = !in_apostrophe;
 			}
-			if (character == '\\' && !in_backslash && in_quotation)
+			if (c == '\\' && !in_backslash && in_quotation)
 			{
 				in_backslash = true;
 			}
 		}
 
-		if(!token.empty() && !in_quotation)
+		// if(!token.empty() && !in_quotation)
+		// {
+		// 	token.push_back(c);
+		// }
+
+		if (escape.count(c) || symbols.count(c)) // check symbols again to avoid read newline
 		{
-			save_token(token, lines);
-			// output.append(token);
+			output_token(token, line);
 			token.clear();
 		}
 	}
 
 
-	cout << output << endl;//
+	// cout << output << endl;//
 }
 
 void lex_file(string file_path)
 {
 	filename = file_path;
-	ifstream file(file_path);
+	ifstream file(filename);
 	if (!file.is_open())
 	{
-		cerr << "Could not open the file - '" << file_path << "'" << endl;
+		cerr << "Could not open the file - '" << filename << "'" << endl;
 		return;
 	}
-	char byte;
+	char c;
 	vector<char> bytes;
-	while (file.get(byte))
+	while (file.get(c))
 	{
-		bytes.push_back(byte);
+		bytes.push_back(c);
 	}
 	file.close();
 
