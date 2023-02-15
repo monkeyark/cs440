@@ -132,15 +132,6 @@ int is_cpp_comment_end(char a, char b)
 	return (a == '\n');
 }
 
-bool is_number(const string &str)
-{
-	for (char const &c : str)
-	{
-		if (std::isdigit(c) == 0) return false;
-	}
-	return true;
-}
-
 bool is_identifier(string token)
 {
 	char c = token[0];
@@ -162,6 +153,46 @@ bool is_identifier(string token)
 	return true;
 }
 
+bool is_char_lit(string token)
+{
+	return token[0] == '\'' && token[token.length()-1] == '\'';
+}
+
+bool is_str_lit(string token)
+{
+	return token[0] == '"' && token[token.length()-1] == '"';
+}
+
+bool is_int_lit(string token)
+{
+	for (char const &c : token)
+	{
+		if (isdigit(c) == 0) return false;
+	}
+	return true;
+}
+
+bool is_real_lit(string token)
+{
+	bool seen_dot = false;
+	for (char const &c : token)
+	{
+		if (isdigit(c) == 0 && c != '.')
+		{
+			return false;
+		}
+		else if (c == '.' && seen_dot)
+		{
+			return false;
+		}
+		else if (c == '.')
+		{
+			seen_dot = true;
+		}
+	}
+	return true;
+}
+
 int find_tokenid(string token)
 {
 	if (types.find(token) != types.end())
@@ -176,6 +207,14 @@ int find_tokenid(string token)
 		return operators[token];
 	else if (is_identifier(token))
 		return IDENT;
+	else if (is_char_lit(token))
+		return CHAR_LIT;
+	else if (is_str_lit(token))
+		return STR_LIT;
+	else if (is_int_lit(token))
+		return INT_LIT;
+	else if (is_real_lit(token))
+		return REAL_LIT;
 	else
 		return -1;
 }
@@ -221,6 +260,13 @@ void lex_text(string text)
 	{
 		char c = text[i];
 		char c_next = text[i+1];
+		
+		//TODO need to deal with EOF next to a token
+		if (c_next == EOF)
+		{
+			output_token(token, line);
+			token.clear();
+		}
 
 		if (c == '\n') //line counter
 		{
@@ -296,7 +342,7 @@ void lex_text(string text)
 		//current char is a symbol
 		if (symbols.count(c) && !in_quotation && !in_apostrophe)
 		{
-			if (c == '.' && is_number(token)) //find an real number
+			if (c == '.' && is_int_lit(token)) //find an real number
 			{
 				token.push_back(c);
 				continue;
