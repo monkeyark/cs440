@@ -14,6 +14,49 @@ using std::ifstream;
 using std::unordered_set;
 using std::unordered_map;
 
+unordered_map<string, int> operators ({
+	{"==", 351},
+	{"!=", 352},
+	{">=", 353},
+	{"<=", 354},
+	{"++", 355},
+	{"--", 356},
+	{"||", 357},
+	{"&&", 358},
+	{"+=", 361},
+	{"-=", 362},
+	{"*=", 363},
+	{"/=", 364},
+});
+
+unordered_map<string, int> keywords ({
+	{"const", 401},
+	{"struc", 402},
+	{"for", 403},
+	{"while", 404},
+	{"do", 405},
+	{"if", 406},
+	{"else", 407},
+	{"break", 408},
+	{"continue", 409},
+	{"return", 410},
+	{"switch", 411},
+	{"case", 412},
+	{"default", 413},
+});
+
+unordered_set<string> types ({
+	"void",
+	"int",
+	"double",
+	"float",
+	"char",
+	"byte",
+	"short",
+	"long",
+	"bool",
+});
+
 unordered_set<char> symbols ({
 	'!',//33
 	'&',//38
@@ -44,63 +87,19 @@ unordered_set<char> escape ({
 	' ',
 	'\a',
 	'\b',
+	'\f',
 	'\n',
 	'\r',
 	'\t',
-	'\'',
-	'\\'
-});
-
-unordered_map<string, int> operators ({
-	{"==", 351},
-	{"!=", 352},
-	{">=", 353},
-	{"<=", 354},
-	{"++", 355},
-	{"--", 356},
-	{"||", 357},
-	{"&&", 358},
-	{"+=", 361},
-	{"-=", 362},
-	{"*=", 363},
-	{"/=", 364}
-});
-
-unordered_map<string, int> keywords ({
-	{"const", 401},
-	{"struc", 402},
-	{"for", 403},
-	{"while", 404},
-	{"do", 405},
-	{"if", 406},
-	{"else", 407},
-	{"break", 408},
-	{"continue", 409},
-	{"return", 410},
-	{"switch", 411},
-	{"case", 412},
-	{"default", 413}
-});
-
-unordered_set<string> types ({
-	"void",
-	"int",
-	"double",
-	"float",
-	"char",
-	"byte",
-	"short",
-	"long",
-	"bool"
+	'\v',
 });
 
 string filename;
 
 int is_escape(char c)
 {
-	return (c == ' ') || (c == '\a') || (c == '\b') ||
-			(c == '\n') || (c == '\r') || (c == '\t') ||
-			(c == '\'') || (c == '\\');
+	return (c == ' ') || (c == '\a') || (c == '\b') || (c == '\f') ||
+			(c == '\n') || (c == '\r') || (c == '\t') || (c == '\v');
 }
 
 int is_space(char c)
@@ -135,52 +134,77 @@ int is_cpp_comment_end(char a, char b)
 
 bool is_number(const string &str)
 {
-    for (char const &c : str)
+	for (char const &c : str)
 	{
-        if (std::isdigit(c) == 0) return false;
-    }
-    return true;
+		if (std::isdigit(c) == 0) return false;
+	}
+	return true;
 }
 
-bool is_vaild_token(string token)
+bool is_identifier(string token)
 {
 	char c = token[0];
-	if (!isdigit(c) && !isalpha(c) && symbols.count(c))
+	if (c == '_' ||  isalpha(c))
 	{
-		return false;
+		for (unsigned i = 1; i < token.length(); i++)
+		{
+			c = token[i];
+			if (c != '_' && !isdigit(c) && !isalpha(c))
+			{
+				return false;
+			}
+		}
 	}
-	else if (token.size() <= 1)
+	else
 	{
 		return false;
 	}
 	return true;
 }
 
+int find_tokenid(string token)
+{
+	if (types.find(token) != types.end())
+		return TYPE;
+	else if (escape.find(token[0]) != escape.end())
+		return token[0];
+	else if (symbols.find(token[0]) != symbols.end())
+		return token[0];
+	else if (keywords.count(token))
+		return keywords[token];
+	else if (operators.count(token))
+		return operators[token];
+	else if (is_identifier(token))
+		return IDENT;
+	else
+		return -1;
+}
+
 void output_token(string lexeme, int line)
 {
-	if (lexeme.empty() || escape.find(lexeme[0]) != escape.end())
-	{
-		return;
-	}
+	// check if current lexeme is empty string or an esacpe
+	if (lexeme.empty() || is_escape(lexeme[0])) return;
+	// if (lexeme.empty() || escape.find(lexeme[0]) != escape.end()) return;
 
-	if (!is_vaild_token(lexeme))
+	int tokenid = find_tokenid(lexeme);
+	if (tokenid < 0)
 	{
 		cout <<
-			"Lexer error in file " << filename <<
+			"Lexer error " << filename <<
 			" Line " << std::right << std::setw(5) << line <<
-			" Near Text " << std::right << std::setw(5) << lexeme <<
+			" Near Text " << lexeme <<
 		endl;
-		return;
+	}
+	else
+	{
+		cout <<
+			"File " << filename <<
+			" Line " << std::right << std::setw(5) << line <<
+			" Token " << std::right << std::setw(5) << tokenid <<
+			" Text " << lexeme <<
+		endl;
 	}
 
-	int tokenid = -1;
-
-	cout <<
-		"File " << filename <<
-		" Line " << std::right << std::setw(5) << line <<
-		" Token " << std::right << std::setw(5) << tokenid <<
-		" Text " << lexeme <<
-	endl;
 }
 
 void lex_text(string text)
@@ -191,14 +215,18 @@ void lex_text(string text)
 	bool in_cpp_comment = false;
 	bool in_quotation = false;
 	bool in_apostrophe = false;
-	bool in_backslash = false;
+	// bool in_backslash = false;
 	int line = 1;
 	for (long unsigned int i = 0; i < text.length(); i++)
 	{
 		char c = text[i];
 		char c_next = text[i+1];
 
-		if (c == '\n') line++;	//line counter
+		if (c == '\n') //line counter
+		{
+			line++;
+			continue;
+		}
 
 		//check for c and c++ style comments
 		if (in_c_comment)
@@ -231,6 +259,40 @@ void lex_text(string text)
 			continue;
 		}
 
+		if (in_quotation)
+		{
+			if (c == '"') in_quotation = false;
+			token.push_back(c);
+			continue;
+		}
+
+		if (in_apostrophe)
+		{
+			if (c == '\'') in_apostrophe = false;
+			token.push_back(c);
+			continue;
+		}
+
+		// check for text string 
+		if (c == '"')
+		{
+			in_quotation = true;
+		}
+		if (c == '\'')
+		{
+			in_apostrophe = true;
+		}
+
+		// skip the backslash in the end of line
+		if (c == '\\' && c_next == '\n') continue;
+
+
+
+		// comments and string have higher priority than other chars
+
+		// after high priority text process
+		
+
 		//current char is a symbol
 		if (symbols.count(c) && !in_quotation && !in_apostrophe)
 		{
@@ -254,46 +316,21 @@ void lex_text(string text)
 			{
 				output_token(token, line);
 				token.clear();
-				token.push_back(c);
+				token.push_back(c); //TODO this line push newline after meet a symbol
 			}
 		}
-		else //reading normal characters and digits
+		else if (!is_escape(c))//reading normal characters and digits
 		{
 			token.push_back(c);
-
-			if (in_backslash)
-			{
-				in_backslash = false;
-				continue;
-			}
-			if (c == '"' && !in_backslash)
-			{
-				in_quotation = !in_quotation;
-			}
-			else if (c == '\'')
-			{
-				in_apostrophe = !in_apostrophe;
-			}
-			if (c == '\\' && !in_backslash && in_quotation)
-			{
-				in_backslash = true;
-			}
 		}
 
-		// if(!token.empty() && !in_quotation)
-		// {
-		// 	token.push_back(c);
-		// }
-
-		if (escape.count(c) || symbols.count(c)) // check symbols again to avoid read newline
+		// check symbols again to avoid read newline
+		if ((is_escape(c) || symbols.count(c)) && !in_quotation && !in_apostrophe)
 		{
 			output_token(token, line);
 			token.clear();
 		}
 	}
-
-
-	// cout << output << endl;//
 }
 
 void lex_file(string file_path)
@@ -315,8 +352,6 @@ void lex_file(string file_path)
 
 	string text(bytes.begin(), bytes.end());
 	lex_text(text);
-	// for (const auto &i : bytes) cout << i;
-	// cout << endl;
 }
 
 string print_file();
