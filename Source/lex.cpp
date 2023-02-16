@@ -271,24 +271,25 @@ void lex_text(string text)
 		if (c == '\n') //line counter
 		{
 			line++;
+			//terminate c++ style comments
+			if (in_cpp_comment)
+			{
+				if (is_cpp_comment_end(c, c_next))
+				{
+					in_cpp_comment = false;
+					i++;
+				}
+				continue;
+			}
 			continue;
 		}
 
-		//check for c and c++ style comments
+		//terminate c style comments
 		if (in_c_comment)
 		{
 			if (is_c_comment_end(c, c_next))
 			{
 				in_c_comment = false;
-				i++;
-			}
-			continue;
-		}
-		else if (in_cpp_comment)
-		{
-			if (is_cpp_comment_end(c, c_next))
-			{
-				in_cpp_comment = false;
 				i++;
 			}
 			continue;
