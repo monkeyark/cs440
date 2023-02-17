@@ -57,6 +57,36 @@ unordered_set<string> types ({
 	"bool",
 });
 
+unordered_set<char> c_symbols ({
+
+	'!',//33
+	'#',//35
+	'&',//38
+	'%',//37
+	'(',//40
+	')',//41
+	'*',//42
+	'+',//43
+	',',//44
+	'-',//45
+	'.',//46
+	'/',//47
+	':',//58
+	';',//59
+	'<',//60
+	'=',//61
+	'>',//62
+	'?',//63
+	'[',//91
+	'\\',//92
+	']',//93
+	'^',//94
+	'_',//95
+	'{',//123
+	'|',//124
+	'}',//125
+	'~',//126
+});
 unordered_set<char> symbols ({
 	'!',//33
 	'&',//38
@@ -124,11 +154,6 @@ int is_operator(string token)
 	return 0;
 }
 
-int is_symbol(char c)
-{
-	return symbols.count(c);
-}
-
 int is_symbols(string token)
 {
 	if (token.length() == 1)
@@ -137,6 +162,16 @@ int is_symbols(string token)
 		if (symbols.count(c)) return c;
 	}
 	return 0;
+}
+
+int is_symbol(char c)
+{
+	return symbols.count(c);
+}
+
+int is_legal_symbol(char c)
+{
+	return c_symbols.count(c) || isdigit(c) || isalpha(c);
 }
 
 int is_c_comment_start(char a, char b)
@@ -154,7 +189,7 @@ int is_c_comment_end(char a, char b)
 	return (a == '*') && (b == '/');
 }
 
-int is_cpp_comment_end(char a, char b)
+int is_cpp_comment_end(char a)
 {
 	return (a == '\n');
 }
@@ -294,6 +329,14 @@ void output_token(string lexeme, int line)
 {
 	// check if current lexeme is empty string or an esacpe
 	if (lexeme.empty() || is_escape(lexeme)) return;
+	if (lexeme.length() == 1 && !is_legal_symbol(lexeme[0]))
+	{
+		cout <<
+			"Illegal character " << filename <<
+			" Line " << std::right << std::setw(5) << line <<
+			" Near Text " << lexeme <<
+		endl;
+	}
 
 	int tokenid = find_tokenid(lexeme);
 	if (tokenid < 0)
@@ -346,18 +389,20 @@ void lex_text(string text)
 			//terminate c++ style comments
 			if (in_cpp_comment)
 			{
-				if (is_cpp_comment_end(c, c_next))
+				if (is_cpp_comment_end(c))
 				{
 					in_cpp_comment = false;
 					i++;
+					continue;
 				}
-				continue;
 			}
+			output_token(token, line);
+			token.clear();
 			continue;
 		}
 
 		//terminate c style comments
-		if (in_c_comment)
+		if (in_c_comment && !in_quotation && !in_apostrophe)
 		{
 			if (is_c_comment_end(c, c_next))
 			{
@@ -366,19 +411,24 @@ void lex_text(string text)
 			}
 			continue;
 		}
+		if (in_cpp_comment && !in_quotation && !in_apostrophe)
+		{
+			continue;
+		}
 
-		if (is_c_comment_start(c, c_next))
+		if (is_c_comment_start(c, c_next) && !in_quotation && !in_apostrophe)
 		{
 			in_c_comment = true;
 			continue;
 		}
-		else if (is_cpp_comment_start(c, c_next))
+		else if (is_cpp_comment_start(c, c_next) && !in_quotation && !in_apostrophe)
 		{
 			in_cpp_comment = true;
+			i++;
 			continue;
 		}
 
-		if (in_quotation)
+		if (in_quotation && !in_c_comment && !in_cpp_comment)
 		{
 			if (in_quotation_esc)
 			{
@@ -404,7 +454,7 @@ void lex_text(string text)
 			continue;
 		}
 
-		if (in_apostrophe)
+		if (in_apostrophe && !in_c_comment && !in_cpp_comment)
 		{
 			if (in_apostrophe_esc)
 			{
@@ -446,8 +496,16 @@ void lex_text(string text)
 		// after high priority text process
 		
 
+
 		// check if need to output buffered token
-		if (escape.count(c) && !in_quotation && !in_apostrophe) //current is escape
+		if (!is_legal_symbol(c) && !in_quotation && !in_apostrophe)
+		{
+			output_token(token, line);
+			token.clear();
+			string s(1, c);
+			output_token(s, line);
+		}
+		else if (escape.count(c) && !in_quotation && !in_apostrophe) //current is escape
 		{
 			output_token(token, line);
 			token.clear();
@@ -508,10 +566,10 @@ void lex_text(string text)
 	}
 }
 
-void lex_file(string file_path)
+void lex_file(string path)
 {
-	filename = file_path;
-	ifstream file(filename);
+	ifstream file(path);
+	filename = path.substr(path.find_last_of("/\\") + 1);
 	if (!file.is_open())
 	{
 		cerr << "Could not open the file - '" << filename << "'" << endl;
