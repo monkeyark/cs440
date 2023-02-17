@@ -96,20 +96,47 @@ unordered_set<char> escape ({
 
 string filename;
 
-int is_escape(char c)
+int is_escape(string token)
 {
-	return (c == ' ') || (c == '\a') || (c == '\b') || (c == '\f') ||
-			(c == '\n') || (c == '\r') || (c == '\t') || (c == '\v');
+	if (token.length() == 1)
+	{
+		char c = token[0];
+		if (escape.count(c)) return c;
+	}
+	return 0;
 }
 
-int is_space(char c)
+int is_type(string token)
 {
-	return (c == ' ');
+	if (types.find(token) != types.end()) return TYPE;
+	return 0;
 }
 
-int is_newline(char c)
+int is_keyword(string token)
 {
-	return (c == '\n');
+	if (keywords.count(token)) return keywords[token];
+	return 0;
+}
+
+int is_operator(string token)
+{
+	if (operators.count(token)) return operators[token];
+	return 0;
+}
+
+int is_symbol(char c)
+{
+	return symbols.count(c);
+}
+
+int is_symbols(string token)
+{
+	if (token.length() == 1)
+	{
+		char c = token[0];
+		if (symbols.count(c)) return c;
+	}
+	return 0;
 }
 
 int is_c_comment_start(char a, char b)
@@ -132,79 +159,123 @@ int is_cpp_comment_end(char a, char b)
 	return (a == '\n');
 }
 
-bool is_identifier(string token)
+int is_identifier(string token)
 {
 	char c = token[0];
-	if (c == '_' ||  isalpha(c))
+	if (c != '_' &&  !isalpha(c))
 	{
-		for (unsigned i = 1; i < token.length(); i++)
+		return TOKEN_ERR; // invaild char at first byte
+	}
+	for (unsigned i = 1; i < token.length(); i++)
+	{
+		c = token[i];
+		if (c != '_' && !isdigit(c) && !isalpha(c))
 		{
-			c = token[i];
-			if (c != '_' && !isdigit(c) && !isalpha(c))
-			{
-				return false;
-			}
+			return TOKEN_ERR; // invaild char after first byte
 		}
 	}
-	else
+	if (token.length() > 48)
 	{
-		return false;
+		return TOKEN_SIZE_EXCEEDED;
 	}
-	return true;
+	return TOKEN_SUCC;
 }
 
-bool is_char_lit(string token)
-{
-	return token[0] == '\'' && token[token.length()-1] == '\'';
-}
-
-bool is_str_lit(string token)
-{
-	return token[0] == '"' && token[token.length()-1] == '"';
-}
-
-bool is_int_lit(string token)
+int is_int_lit(string token)
 {
 	for (char const &c : token)
 	{
-		if (isdigit(c) == 0) return false;
+		if (!isdigit(c)) return TOKEN_ERR;
 	}
-	return true;
+	if (token.length() > 48)
+	{
+		return TOKEN_SIZE_EXCEEDED;
+	}
+	return TOKEN_SUCC;
 }
 
-bool is_real_lit(string token)
+int is_real_lit(string token)
 {
 	bool seen_dot = false;
 	for (char const &c : token)
 	{
 		if (isdigit(c) == 0 && c != '.')
 		{
-			return false;
+			return TOKEN_ERR;
 		}
 		else if (c == '.' && seen_dot)
 		{
-			return false;
+			return TOKEN_ERR;
 		}
-		else if (c == '.')
+		if (c == '.')
 		{
 			seen_dot = true;
 		}
 	}
-	return true;
+	if (token.length() > 48)
+	{
+		return TOKEN_SIZE_EXCEEDED;
+	}
+	return TOKEN_SUCC;
+}
+
+int is_char_lit(string token)
+{
+	if (token.length() > 1024)
+	{
+		return TOKEN_SIZE_EXCEEDED;
+	}
+	if (token[0] == '\'' && token[token.length()-1] == '\'')
+	{
+		return TOKEN_SUCC;
+	}
+	return TOKEN_ERR;
+}
+
+int is_str_lit(string token)
+{
+	char c = token[0];
+	char c_ = token[token.length()-1];
+	if (c != '"' && c_ != '"')
+	{
+		return TOKEN_ERR;
+	}
+	// for (unsigned i = 1; i < token.length()-1; i++)
+	// {
+	// 	/* code */
+	// }
+	if (token.length() > 1024)
+	{
+		return TOKEN_SIZE_EXCEEDED;
+	}
+	return TOKEN_SUCC;
+}
+
+int check_token(string token)
+{
+	return 1;
 }
 
 int find_tokenid(string token)
 {
-	if (types.find(token) != types.end())
+	// int id = is_identifier(token);
+	// switch (check_token(token))
+	// {
+	// 	case TYPE:
+	// 		return TYPE;
+	// 		break;
+	// 	default:
+	// 		return -1;
+	// }
+
+	if (is_type(token))
 		return TYPE;
-	else if (escape.find(token[0]) != escape.end())
-		return token[0];
-	else if (symbols.find(token[0]) != symbols.end())
-		return token[0];
-	else if (keywords.count(token))
-		return keywords[token];
-	else if (operators.count(token))
-		return operators[token];
+	else if (is_symbols(token))
+		return is_symbols(token);
+	else if (is_keyword(token))
+		return is_keyword(token);
+	else if (is_operator(token))
+		return is_operator(token);
 	else if (is_identifier(token))
 		return IDENT;
 	else if (is_char_lit(token))
@@ -222,8 +293,7 @@ int find_tokenid(string token)
 void output_token(string lexeme, int line)
 {
 	// check if current lexeme is empty string or an esacpe
-	if (lexeme.empty() || is_escape(lexeme[0])) return;
-	// if (lexeme.empty() || escape.find(lexeme[0]) != escape.end()) return;
+	if (lexeme.empty() || is_escape(lexeme)) return;
 
 	int tokenid = find_tokenid(lexeme);
 	if (tokenid < 0)
@@ -253,8 +323,10 @@ void lex_text(string text)
 	bool in_c_comment = false;
 	bool in_cpp_comment = false;
 	bool in_quotation = false;
+	bool in_quotation_esc = false;
 	bool in_apostrophe = false;
-	// bool in_backslash = false;
+	bool in_apostrophe_esc = false;
+	bool in_real = false;
 	int line = 1;
 	for (long unsigned int i = 0; i < text.length(); i++)
 	{
@@ -308,19 +380,53 @@ void lex_text(string text)
 
 		if (in_quotation)
 		{
-			if (c == '"') in_quotation = false;
+			if (in_quotation_esc)
+			{
+				if (c == '\\' && c_next == '"')
+				{
+					in_quotation_esc = false;
+				}
+			}
+			if (c == '\\' && c_next == '"')
+			{
+				in_quotation_esc = true;
+				token.push_back(c);
+				token.push_back(c_next);
+				i++;
+				continue;
+			}
+
+			if (c == '"')
+			{
+				in_quotation = false;
+			}
 			token.push_back(c);
 			continue;
 		}
 
 		if (in_apostrophe)
 		{
+			if (in_apostrophe_esc)
+			{
+				if (c == '\\' && c_next == '\'')
+				{
+					in_apostrophe_esc = false;
+				}
+			}
+			if (c == '\\' && c_next == '\'')
+			{
+				in_apostrophe_esc = true;
+				token.push_back(c);
+				token.push_back(c_next);
+				i++;
+				continue;
+			}
 			if (c == '\'') in_apostrophe = false;
 			token.push_back(c);
 			continue;
 		}
 
-		// check for text string 
+		// check for text string
 		if (c == '"')
 		{
 			in_quotation = true;
@@ -340,14 +446,43 @@ void lex_text(string text)
 		// after high priority text process
 		
 
-		//current char is a symbol
-		if (symbols.count(c) && !in_quotation && !in_apostrophe)
+		// check if need to output buffered token
+		if (escape.count(c) && !in_quotation && !in_apostrophe) //current is escape
 		{
-			if (c == '.' && is_int_lit(token)) //find an real number
+			output_token(token, line);
+			token.clear();
+		}
+		else if (symbols.count(c) && !in_quotation && !in_apostrophe) //current is symbol
+		{
+			// check for real number
+			if (in_real)
 			{
+				if (!isdigit(c) && c != 'e' && c != 'E')
+				{
+					in_real = false;
+					output_token(token, line);
+					token.clear();
+					continue;
+				}
+				else if (c == 'e' || c == 'E')
+				{
+					token.push_back(c);
+					if (c_next == '+' || c_next == '-')
+					{
+						token.push_back(c_next);
+						i++;
+					}
+					continue;
+				}
+			}
+
+			if (c == '.' && is_int_lit(token) == TOKEN_SUCC) //find an real number
+			{
+				in_real = true;
 				token.push_back(c);
 				continue;
 			}
+
 
 			//TODO need to deal with three symbols like === in operator check
 			//check for current and next char for operators
@@ -363,19 +498,12 @@ void lex_text(string text)
 			{
 				output_token(token, line);
 				token.clear();
-				token.push_back(c); //TODO this line push newline after meet a symbol
+				token.push_back(c);
 			}
 		}
-		else if (!is_escape(c))//reading normal characters and digits
+		else //reading normal characters and digits
 		{
 			token.push_back(c);
-		}
-
-		// check symbols again to avoid read newline
-		if ((is_escape(c) || symbols.count(c)) && !in_quotation && !in_apostrophe)
-		{
-			output_token(token, line);
-			token.clear();
 		}
 	}
 }

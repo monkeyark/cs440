@@ -3,11 +3,10 @@
 
 #include <string>
 
-using std::string;
-
-#define BUFFER_SIZE 4096
 #define find_max(x,y) (((x) >= (y)) ? (x) : (y))
 #define find_min(x,y) (((x) <= (y)) ? (x) : (y))
+
+using std::string;
 
 enum tokentype {
 	END     = 0,
@@ -74,8 +73,12 @@ enum tokentype {
 	RETURN    = 410,
 	SWITCH    = 411,
 	CASE      = 412,
-	DEFAULT   = 413
+	DEFAULT   = 413,
 
+/* Message */
+	TOKEN_SIZE_EXCEEDED    = -1,
+	TOKEN_ERR        = 0,
+	TOKEN_SUCC       = 1002,
 };
 
 void lex_file(string file_path);
