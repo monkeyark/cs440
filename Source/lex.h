@@ -76,9 +76,13 @@ enum tokentype {
 	DEFAULT   = 413,
 
 /* Message */
-	TOKEN_SIZE_EXCEEDED    = -1,
-	TOKEN_ERR        = 0,
-	TOKEN_SUCC       = 1002,
+
+	TOKEN_SUCC                 = 1,
+	TOKEN_ERR                  = 0,
+	TOKEN_UNRECOGNIZED         = -1,
+	TOKEN_SIZE_EXCEEDED        = -2,
+	TOKEN_ILLEGAL_CHARACTER    = -3,
+
 };
 
 void lex_file(string file_path);

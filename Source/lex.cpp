@@ -138,20 +138,23 @@ int is_escape(string token)
 
 int is_type(string token)
 {
-	if (types.find(token) != types.end()) return TYPE;
-	return 0;
+	if (types.find(token) != types.end())
+		return TYPE;
+	return TOKEN_ERR;
 }
 
 int is_keyword(string token)
 {
-	if (keywords.count(token)) return keywords[token];
-	return 0;
+	if (keywords.count(token))
+		return keywords[token];
+	return TOKEN_ERR;
 }
 
 int is_operator(string token)
 {
-	if (operators.count(token)) return operators[token];
-	return 0;
+	if (operators.count(token))
+		return operators[token];
+	return TOKEN_ERR;
 }
 
 int is_symbols(string token)
@@ -161,7 +164,7 @@ int is_symbols(string token)
 		char c = token[0];
 		if (symbols.count(c)) return c;
 	}
-	return 0;
+	return TOKEN_ERR;
 }
 
 int is_symbol(char c)
@@ -194,6 +197,15 @@ int is_cpp_comment_end(char a, char b)
 	return (a == '\n') && (b != '/');
 }
 
+int is_legal_character(string token)
+{
+	if (token.length() == 1 && !is_legal_symbol(token[0]))
+	{
+		return TOKEN_ILLEGAL_CHARACTER;
+	}
+	return TOKEN_SUCC;
+}
+
 int is_identifier(string token)
 {
 	char c = token[0];
@@ -213,20 +225,21 @@ int is_identifier(string token)
 	{
 		return TOKEN_SIZE_EXCEEDED;
 	}
-	return TOKEN_SUCC;
+	return IDENT;
 }
 
 int is_int_lit(string token)
 {
 	for (char const &c : token)
 	{
-		if (!isdigit(c)) return TOKEN_ERR;
+		if (!isdigit(c))
+			return TOKEN_ERR;
 	}
 	if (token.length() > 48)
 	{
 		return TOKEN_SIZE_EXCEEDED;
 	}
-	return TOKEN_SUCC;
+	return INT_LIT;
 }
 
 int is_real_lit(string token)
@@ -260,7 +273,7 @@ int is_real_lit(string token)
 	{
 		return TOKEN_SIZE_EXCEEDED;
 	}
-	return TOKEN_SUCC;
+	return REAL_LIT;
 }
 
 int is_char_lit(string token)
@@ -273,7 +286,7 @@ int is_char_lit(string token)
 		{
 			return TOKEN_SIZE_EXCEEDED;
 		}
-		return TOKEN_SUCC;
+		return CHAR_LIT;
 	}
 	return TOKEN_ERR;
 }
@@ -290,7 +303,7 @@ int is_str_lit(string token)
 	{
 		return TOKEN_SIZE_EXCEEDED;
 	}
-	return TOKEN_SUCC;
+	return STR_LIT;
 }
 
 int check_token(string token)
@@ -310,8 +323,29 @@ int search_tokenid(string token)
 	// 		return -1;
 	// }
 
+	// if (is_type(token))
+	// 	return TYPE;
+	// else if (is_symbols(token))
+	// 	return is_symbols(token);
+	// else if (is_keyword(token))
+	// 	return is_keyword(token);
+	// else if (is_operator(token))
+	// 	return is_operator(token);
+	// else if (is_identifier(token))
+	// 	return IDENT;
+	// else if (is_char_lit(token))
+	// 	return CHAR_LIT;
+	// else if (is_str_lit(token))
+	// 	return STR_LIT;
+	// else if (is_int_lit(token))
+	// 	return INT_LIT;
+	// else if (is_real_lit(token))
+	// 	return REAL_LIT;
+	// else
+	// 	return -1;
+
 	if (is_type(token))
-		return TYPE;
+		return is_type(token);
 	else if (is_symbols(token))
 		return is_symbols(token);
 	else if (is_keyword(token))
@@ -319,17 +353,19 @@ int search_tokenid(string token)
 	else if (is_operator(token))
 		return is_operator(token);
 	else if (is_identifier(token))
-		return IDENT;
+		return is_identifier(token);
 	else if (is_char_lit(token))
-		return CHAR_LIT;
+		return is_char_lit(token);
 	else if (is_str_lit(token))
-		return STR_LIT;
+		return is_str_lit(token);
 	else if (is_int_lit(token))
-		return INT_LIT;
+		return is_int_lit(token);
 	else if (is_real_lit(token))
-		return REAL_LIT;
+		return is_real_lit(token);
+	else if (is_legal_character(token))
+		return is_legal_character(token);
 	else
-		return -1;
+		return TOKEN_UNRECOGNIZED;
 }
 
 // void output_token(string lexeme, int line, int tokenid)
@@ -337,24 +373,11 @@ void output_token(string lexeme, int line)
 {
 	// check if current lexeme is empty string or an esacpe
 	if (lexeme.empty() || is_escape(lexeme)) return;
-	if (lexeme.length() == 1 && !is_legal_symbol(lexeme[0]))
-	{
-		cout
-			<< "Illegal character "
-			<< filename
-			<< " Line "
-			<< std::right
-			<< std::setw(5)
-			<< line
-			<< " Near Text "
-			<< lexeme
-			<< endl;
-	}
 	int tokenid = search_tokenid(lexeme);
-	if (tokenid < 0)
+	if (tokenid < TOKEN_ERR)
 	{
 		cout
-			<< "Lexer error "
+			<< "Lexer error in file "
 			<< filename
 			<< " Line "
 			<< std::right
@@ -363,6 +386,18 @@ void output_token(string lexeme, int line)
 			<< " Near Text "
 			<< lexeme
 			<< endl;
+		if (tokenid == TOKEN_UNRECOGNIZED)
+		{
+			cout << "	Token unrecognized" << endl;
+		}
+		if (tokenid == TOKEN_SIZE_EXCEEDED)
+		{
+			cout << "	Size exceeded" << endl;
+		}
+		if (tokenid == TOKEN_ILLEGAL_CHARACTER)
+		{
+			cout << "	Illegal character" << endl;
+		}
 	}
 	else
 	{
@@ -407,6 +442,7 @@ void lex_text(string text)
 				if (is_cpp_comment_end(c, c_next))
 				{
 					in_cpp_comment = false;
+					line++;
 					continue;
 				}
 			}
@@ -568,7 +604,7 @@ void lex_text(string text)
 			}
 
 			//find an real number with dot
-			if (c == '.' && is_int_lit(token) == TOKEN_SUCC)
+			if (c == '.' && is_int_lit(token) == INT_LIT)
 			{
 				in_real = true;
 				token.push_back(c);
@@ -617,7 +653,7 @@ void lex_text(string text)
 				}
 			}
 			//find an real number without dot
-			if ((c == 'e' || c == 'E') && is_int_lit(token) == TOKEN_SUCC) //find an real number
+			if ((c == 'e' || c == 'E') && is_int_lit(token) == INT_LIT) //find an real number
 			{
 				if (c)
 				// cout << "real after EEEEEEEEEE" <<endl;
