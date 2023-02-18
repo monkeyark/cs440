@@ -454,6 +454,13 @@ void lex_text(string text)
 
 		if (in_apostrophe && !in_c_comment && !in_cpp_comment)
 		{
+			if (c == '\\' && c_next == '\\')
+			{
+				token.push_back(c);
+				token.push_back(c_next);
+				i++;
+				continue;
+			}
 			if (in_apostrophe_esc)
 			{
 				if (c == '\\' && c_next == '\'')
@@ -485,13 +492,11 @@ void lex_text(string text)
 		{
 			in_apostrophe = true;
 			token.push_back(c);
-
+			continue;
 		}
 
 		// skip the backslash in the end of line
 		if (c == '\\' && c_next == '\n') continue;
-
-
 
 
 		// comments and string have higher priority than other chars
