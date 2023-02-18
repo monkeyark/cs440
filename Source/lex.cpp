@@ -445,6 +445,8 @@ void lex_text(string text)
 				{
 					in_cpp_comment = false;
 					line++;
+					output_token(token, line);
+					token.clear();
 					continue;
 				}
 			}
@@ -464,6 +466,8 @@ void lex_text(string text)
 			{
 				in_c_comment = false;
 				i++;
+				output_token(token, line);
+				token.clear();
 			}
 			continue;
 		}
@@ -475,6 +479,7 @@ void lex_text(string text)
 		if (is_c_comment_start(c, c_next) && !in_quotation && !in_apostrophe)
 		{
 			in_c_comment = true;
+			i++;
 			continue;
 		}
 		else if (is_cpp_comment_start(c, c_next) && !in_quotation && !in_apostrophe)
@@ -514,12 +519,14 @@ void lex_text(string text)
 				in_quotation = false;
 			}
 			token.push_back(c);
-			// output token when reach EOF
-			if (i == text.length()-1)
-			{
-				output_token(token, line);
-				token.clear();
-			}
+			output_token(token, line);
+			token.clear();
+			// // output token when reach EOF
+			// if (i == text.length()-1)
+			// {
+			// 	output_token(token, line);
+			// 	token.clear();
+			// }
 			continue;
 		}
 
@@ -552,12 +559,14 @@ void lex_text(string text)
 				in_apostrophe = false;
 			}
 			token.push_back(c);
-			// output token when reach EOF
-			if (i == text.length()-1)
-			{
-				output_token(token, line);
-				token.clear();
-			}
+			output_token(token, line);
+			token.clear();
+			// // output token when reach EOF
+			// if (i == text.length()-1)
+			// {
+			// 	output_token(token, line);
+			// 	token.clear();
+			// }
 			continue;
 		}
 
@@ -565,12 +574,16 @@ void lex_text(string text)
 		if (c == '"')
 		{
 			in_quotation = true;
+			output_token(token, line);
+			token.clear();
 			token.push_back(c);
 			continue;
 		}
 		if (c == '\'')
 		{
 			in_apostrophe = true;
+			output_token(token, line);
+			token.clear();
 			token.push_back(c);
 			continue;
 		}
@@ -593,6 +606,7 @@ void lex_text(string text)
 		}
 		else if (escape.count(c)) //current is escape
 		{
+			cout << "eeeeeeeeeeeeeesssssssssssssssccccccccccccc" << endl;
 			output_token(token, line);
 			token.clear();
 		}
