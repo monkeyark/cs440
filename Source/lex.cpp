@@ -385,18 +385,20 @@ void output_token(string lexeme, int line)
 			<< line
 			<< " Near Text "
 			<< lexeme
-			<< endl;
+			<< endl
+		<< "	";
+		
 		if (tokenid == TOKEN_UNRECOGNIZED)
 		{
-			cout << "	Token unrecognized" << endl;
+			cout << "Token unrecognized" << endl;
 		}
 		if (tokenid == TOKEN_SIZE_EXCEEDED)
 		{
-			cout << "	Size exceeded" << endl;
+			cout << "Size exceeded" << endl;
 		}
 		if (tokenid == TOKEN_ILLEGAL_CHARACTER)
 		{
-			cout << "	Illegal character" << endl;
+			cout << "Illegal character" << endl;
 		}
 	}
 	else
@@ -512,6 +514,12 @@ void lex_text(string text)
 				in_quotation = false;
 			}
 			token.push_back(c);
+			// output token when reach EOF
+			if (i == text.length()-1)
+			{
+				output_token(token, line);
+				token.clear();
+			}
 			continue;
 		}
 
@@ -539,8 +547,17 @@ void lex_text(string text)
 				i++;
 				continue;
 			}
-			if (c == '\'') in_apostrophe = false;
+			if (c == '\'')
+			{
+				in_apostrophe = false;
+			}
 			token.push_back(c);
+			// output token when reach EOF
+			if (i == text.length()-1)
+			{
+				output_token(token, line);
+				token.clear();
+			}
 			continue;
 		}
 
