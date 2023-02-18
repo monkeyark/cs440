@@ -232,9 +232,10 @@ int is_int_lit(string token)
 int is_real_lit(string token)
 {
 	bool seen_dot = false;
+	bool seen_exp = false;
 	for (char const &c : token)
 	{
-		if (isdigit(c) == 0 && c != '.')
+		if (!isdigit(c) && c != '.' && c != 'e' &&c != 'E' && c != '+' && c != '-')
 		{
 			return TOKEN_ERR;
 		}
@@ -242,9 +243,17 @@ int is_real_lit(string token)
 		{
 			return TOKEN_ERR;
 		}
+		else if ((c == 'e' || c == 'E') && seen_exp)
+		{
+			return TOKEN_ERR;
+		}
 		if (c == '.')
 		{
 			seen_dot = true;
+		}
+		if (c == 'e' || c == 'E')
+		{
+			seen_exp = true;
 		}
 	}
 	if (token.length() > 48)
@@ -256,12 +265,14 @@ int is_real_lit(string token)
 
 int is_char_lit(string token)
 {
-	if (token.length() > 1024)
+	char c = token[0];
+	char c_ = token[token.length()-1];
+	if (c == '\'' && c_ == '\'')
 	{
-		return TOKEN_SIZE_EXCEEDED;
-	}
-	if (token[0] == '\'' && token[token.length()-1] == '\'')
-	{
+		if (token.length() > 1024)
+		{
+			return TOKEN_SIZE_EXCEEDED;
+		}
 		return TOKEN_SUCC;
 	}
 	return TOKEN_ERR;
@@ -287,7 +298,7 @@ int check_token(string token)
 	return 1;
 }
 
-int find_tokenid(string token)
+int search_tokenid(string token)
 {
 	// int id = is_identifier(token);
 	// switch (check_token(token))
@@ -321,6 +332,7 @@ int find_tokenid(string token)
 		return -1;
 }
 
+// void output_token(string lexeme, int line, int tokenid)
 void output_token(string lexeme, int line)
 {
 	// check if current lexeme is empty string or an esacpe
@@ -338,8 +350,7 @@ void output_token(string lexeme, int line)
 			<< lexeme
 			<< endl;
 	}
-
-	int tokenid = find_tokenid(lexeme);
+	int tokenid = search_tokenid(lexeme);
 	if (tokenid < 0)
 	{
 		cout
@@ -375,7 +386,6 @@ void output_token(string lexeme, int line)
 void lex_text(string text)
 {
 	string token;
-	string output;
 	bool in_c_comment = false;
 	bool in_cpp_comment = false;
 	bool in_quotation = false;
@@ -384,6 +394,7 @@ void lex_text(string text)
 	bool in_apostrophe_esc = false;
 	bool in_real = false;
 	int line = 1;
+	// int tokenid = TOKEN_UNFOUND;
 	for (long long unsigned int i = 0; i < text.length(); i++)
 	{
 		char c = text[i];char c_next = text[i+1];
@@ -401,7 +412,9 @@ void lex_text(string text)
 			}
 			in_real = false;
 			output_token(token, line);
+			// tokenid = TOKEN_UNFOUND;
 			token.clear();
+
 			line++;
 			continue;
 		}
