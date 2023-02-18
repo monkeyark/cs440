@@ -189,9 +189,9 @@ int is_c_comment_end(char a, char b)
 	return (a == '*') && (b == '/');
 }
 
-int is_cpp_comment_end(char a)
+int is_cpp_comment_end(char a, char b)
 {
-	return (a == '\n');
+	return (a == '\n') && (b != '/');
 }
 
 int is_identifier(string token)
@@ -373,31 +373,22 @@ void lex_text(string text)
 	int line = 1;
 	for (long unsigned int i = 0; i < text.length(); i++)
 	{
-		char c = text[i];
-		char c_next = text[i+1];
-		
-		//TODO need to deal with EOF next to a token
-		if (c_next == EOF)
-		{
-			output_token(token, line);
-			token.clear();
-		}
+		char c = text[i];char c_next = text[i+1];
 
 		if (c == '\n') //line counter
 		{
-			line++;
 			//terminate c++ style comments
 			if (in_cpp_comment)
 			{
-				if (is_cpp_comment_end(c))
+				if (is_cpp_comment_end(c, c_next))
 				{
 					in_cpp_comment = false;
-					i++;
 					continue;
 				}
 			}
 			output_token(token, line);
 			token.clear();
+			line++;
 			continue;
 		}
 
@@ -430,6 +421,13 @@ void lex_text(string text)
 
 		if (in_quotation && !in_c_comment && !in_cpp_comment)
 		{
+			if (c == '\\' && c_next == '\\')
+			{
+				token.push_back(c);
+				token.push_back(c_next);
+				i++;
+				continue;
+			}
 			if (in_quotation_esc)
 			{
 				if (c == '\\' && c_next == '"')
@@ -480,14 +478,19 @@ void lex_text(string text)
 		if (c == '"')
 		{
 			in_quotation = true;
+			token.push_back(c);
+			continue;
 		}
 		if (c == '\'')
 		{
 			in_apostrophe = true;
+			token.push_back(c);
+
 		}
 
 		// skip the backslash in the end of line
 		if (c == '\\' && c_next == '\n') continue;
+
 
 
 
@@ -507,11 +510,14 @@ void lex_text(string text)
 		}
 		else if (escape.count(c) && !in_quotation && !in_apostrophe) //current is escape
 		{
+			cout << "eeeeeeeeeeeeeeeesssssssssssssscccccccc" << endl;
 			output_token(token, line);
 			token.clear();
 		}
 		else if (symbols.count(c) && !in_quotation && !in_apostrophe) //current is symbol
 		{
+			// cout << "sssssssyyyyyyyyyyymmmmmmm" << endl;
+
 			// check for real number
 			if (in_real)
 			{
@@ -559,9 +565,16 @@ void lex_text(string text)
 				token.push_back(c);
 			}
 		}
-		else //reading normal characters and digits
+		else if (!in_quotation && !in_apostrophe)//reading normal characters and digits
 		{
 			token.push_back(c);
+		}
+
+		// output token when reach EOF
+		if (i == text.length()-1)
+		{
+			output_token(token, line);
+			token.clear();
 		}
 	}
 }
