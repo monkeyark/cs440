@@ -643,7 +643,6 @@ void lex_text(string text)
 			}
 
 
-			//TODO need to deal with three symbols like === in operator check
 			//check for current and next char for operators
 			string s(1, c);
 			s.push_back(c_next);
@@ -652,6 +651,8 @@ void lex_text(string text)
 				token.push_back(c);
 				token.push_back(c_next);
 				i++;
+				output_token(token, line);
+				token.clear();
 			}
 			else //output previous token when meet a symbol
 			{
