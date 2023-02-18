@@ -275,10 +275,6 @@ int is_str_lit(string token)
 	{
 		return TOKEN_ERR;
 	}
-	// for (unsigned i = 1; i < token.length()-1; i++)
-	// {
-	// 	/* code */
-	// }
 	if (token.length() > 1024)
 	{
 		return TOKEN_SIZE_EXCEEDED;
@@ -331,32 +327,49 @@ void output_token(string lexeme, int line)
 	if (lexeme.empty() || is_escape(lexeme)) return;
 	if (lexeme.length() == 1 && !is_legal_symbol(lexeme[0]))
 	{
-		cout <<
-			"Illegal character " << filename <<
-			" Line " << std::right << std::setw(5) << line <<
-			" Near Text " << lexeme <<
-		endl;
+		cout
+			<< "Illegal character "
+			<< filename
+			<< " Line "
+			<< std::right
+			<< std::setw(5)
+			<< line
+			<< " Near Text "
+			<< lexeme
+			<< endl;
 	}
 
 	int tokenid = find_tokenid(lexeme);
 	if (tokenid < 0)
 	{
-		cout <<
-			"Lexer error " << filename <<
-			" Line " << std::right << std::setw(5) << line <<
-			" Near Text " << lexeme <<
-		endl;
+		cout
+			<< "Lexer error "
+			<< filename
+			<< " Line "
+			<< std::right
+			<< std::setw(5)
+			<< line
+			<< " Near Text "
+			<< lexeme
+			<< endl;
 	}
 	else
 	{
-		cout <<
-			"File " << filename <<
-			" Line " << std::right << std::setw(5) << line <<
-			" Token " << std::right << std::setw(5) << tokenid <<
-			" Text " << lexeme <<
-		endl;
+		cout
+			<< "File "
+			<< filename
+			<< " Line "
+			<< std::right
+			<< std::setw(5)
+			<< line
+			<< " Token "
+			<< std::right
+			<< std::setw(5)
+			<< tokenid
+			<< " Text "
+			<< lexeme
+			<< endl;
 	}
-
 }
 
 void lex_text(string text)
@@ -371,7 +384,7 @@ void lex_text(string text)
 	bool in_apostrophe_esc = false;
 	bool in_real = false;
 	int line = 1;
-	for (long unsigned int i = 0; i < text.length(); i++)
+	for (long long unsigned int i = 0; i < text.length(); i++)
 	{
 		char c = text[i];char c_next = text[i+1];
 
@@ -386,6 +399,7 @@ void lex_text(string text)
 					continue;
 				}
 			}
+			in_real = false;
 			output_token(token, line);
 			token.clear();
 			line++;
@@ -500,29 +514,24 @@ void lex_text(string text)
 
 
 		// comments and string have higher priority than other chars
-
 		// after high priority text process
 		
 
-
 		// check if need to output buffered token
-		if (!is_legal_symbol(c) && !in_quotation && !in_apostrophe)
+		if (!is_legal_symbol(c))
 		{
 			output_token(token, line);
 			token.clear();
 			string s(1, c);
 			output_token(s, line);
 		}
-		else if (escape.count(c) && !in_quotation && !in_apostrophe) //current is escape
+		else if (escape.count(c)) //current is escape
 		{
-			cout << "eeeeeeeeeeeeeeeesssssssssssssscccccccc" << endl;
 			output_token(token, line);
 			token.clear();
 		}
-		else if (symbols.count(c) && !in_quotation && !in_apostrophe) //current is symbol
+		else if (symbols.count(c)) //current is symbol
 		{
-			// cout << "sssssssyyyyyyyyyyymmmmmmm" << endl;
-
 			// check for real number
 			if (in_real)
 			{
@@ -545,7 +554,8 @@ void lex_text(string text)
 				}
 			}
 
-			if (c == '.' && is_int_lit(token) == TOKEN_SUCC) //find an real number
+			//find an real number with dot
+			if (c == '.' && is_int_lit(token) == TOKEN_SUCC)
 			{
 				in_real = true;
 				token.push_back(c);
@@ -570,8 +580,43 @@ void lex_text(string text)
 				token.push_back(c);
 			}
 		}
-		else if (!in_quotation && !in_apostrophe)//reading normal characters and digits
+		else //reading normal characters and digits
 		{
+			// check for real number
+			if (in_real)
+			{
+				if (!isdigit(c) && c != 'e' && c != 'E')
+				{
+					in_real = false;
+					output_token(token, line);
+					token.clear();
+					continue;
+				}
+				else if (c == 'e' || c == 'E')
+				{
+					token.push_back(c);
+					if (c_next == '+' || c_next == '-')
+					{
+						token.push_back(c_next);
+						i++;
+					}
+					continue;
+				}
+			}
+			//find an real number without dot
+			if ((c == 'e' || c == 'E') && is_int_lit(token) == TOKEN_SUCC) //find an real number
+			{
+				if (c)
+				// cout << "real after EEEEEEEEEE" <<endl;
+				in_real = true;
+				token.push_back(c);
+				if (c_next == '+' || c_next == '-')
+				{
+					token.push_back(c_next);
+					i++;
+				}
+				continue;
+			}
 			token.push_back(c);
 		}
 
@@ -586,6 +631,7 @@ void lex_text(string text)
 
 void lex_file(string path)
 {
+
 	ifstream file(path);
 	filename = path.substr(path.find_last_of("/\\") + 1);
 	if (!file.is_open())
