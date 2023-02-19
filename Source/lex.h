@@ -83,6 +83,7 @@ enum tokentype {
 	TOKEN_SIZE_EXCEEDED        = -2,
 	TOKEN_ILLEGAL_CHARACTER    = -3,
 	TOKEN_UNCLOSED_COMMENT     = -4,
+	TOKEN_UNCLOSED_QUOTE       = -5,
 
 };
 
