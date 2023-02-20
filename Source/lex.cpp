@@ -7,7 +7,6 @@
 #include <iomanip>
 
 using std::cout;
-using std::cerr;
 using std::endl;
 using std::vector;
 using std::ifstream;
@@ -66,7 +65,7 @@ unordered_map<char, int> special_c_symbols ({
 	{'_',95},
 });
 
-// unordered_map<char, int> symbols ({
+// unordered_map<char, int> symbols_char ({
 // 	{'!',33},
 // 	{'%',37},
 // 	{'&',38},
@@ -92,7 +91,33 @@ unordered_map<char, int> special_c_symbols ({
 // 	{'~',126},
 // });
 
-unordered_map<string, int> symbols ({
+unordered_set<char> symbols ({
+	'!',//33
+	'&',//38
+	'%',//37
+	'(',//40
+	')',//41
+	'*',//42
+	'+',//43
+	',',//44
+	'-',//45
+	'.',//46
+	'/',//47
+	':',//58
+	';',//59
+	'<',//60
+	'=',//61
+	'>',//62
+	'?',//63
+	'[',//91
+	']',//93
+	'{',//123
+	'|',//124
+	'}',//125
+	'~',//126
+});
+
+unordered_map<string, int> symbols_str ({
 	{"!",33},
 	{"%",37},
 	{"&",38},
@@ -160,8 +185,9 @@ int is_symbol(string token)
 {
 	if (token.length() == 1)
 	{
-		if (symbols.count(token))
-			return symbols[token];
+		char c = token[0];
+		if (symbols.count(c))
+			return c;
 	}
 	return TOKEN_ERR;
 }
