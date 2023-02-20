@@ -203,7 +203,7 @@ int is_symbol(string token)
 	return TOKEN_ERR;
 }
 
-int is_symbol(char c)
+int is_symbols(char c)
 {
 	if (c == '!'
 	|| c == '&'
@@ -256,7 +256,7 @@ int is_cpp_comment_end(char a, char b)
 
 int is_legal_character(char c)
 {
-	return isdigit(c) || isalpha(c) || is_symbol(c) || special_c_symbols.count(c);
+	return isdigit(c) || isalpha(c) || is_symbols(c) || special_c_symbols.count(c);
 }
 
 int is_legal_character(string token)
@@ -508,21 +508,22 @@ void output_token(string lexeme, int line, string path)
 	int tokenid = search_tokenid(lexeme);
 	if (tokenid < TOKEN_ERR)
 	{
-		cout << " Lexer Error Text " << lexeme.substr(0, 20)
-		<< endl << "                         ";
+		cout << " Lexer Error Text " << lexeme.substr(0, 20) << endl;
 		
+		string message = "                         ";
 		if (tokenid == TOKEN_SIZE_EXCEEDED)
 		{
-			cout << "\033[1;31m Size Exceeded \033[0m" << endl;
+			message += "Size Exceeded";
 		}
 		if (tokenid == TOKEN_UNRECOGNIZED)
 		{
-			cout << "\033[1;31m Token Unrecognized \033[0m" << endl;
+			message += "Token Unrecognized";
 		}
 		if (tokenid == TOKEN_ILLEGAL_CHARACTER)
 		{
-			cout << "\033[1;31m Illegal Character \033[0m" << endl;
+			message += "Illegal Character";
 		}
+		cout << "\033[1;31m" << message << "\033[0m" << endl;
 	}
 	else
 	{
@@ -733,7 +734,7 @@ void lex_text(string text, string fname)
 			output_token(token, line, fname);
 			token.clear();
 		}
-		else if (is_symbol(c)) //current is symbol
+		else if (is_symbols(c)) //current is symbol
 		{
 			// check for real number
 			if (in_real)
