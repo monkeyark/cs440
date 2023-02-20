@@ -15,7 +15,7 @@ Header file of the lexer. Defined token attributes and error messages.
 
 lex.cpp:
 
-A LL(2) lexer that read the current and next char from the input
+A lexer that read the current and next char from the input
 file and then output token when reach a token terminator or end of file.
 
 	void lex_file(string path)
