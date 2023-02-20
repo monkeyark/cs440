@@ -6,10 +6,29 @@ Next Generation Compiler But God Know If It Would Work.
 ## Description
 NGCBDKIIWW is a compiler for a subset of the C programming language.
 
-## Installation
-Move to the Source directory. All files will be generated in Source directory after compile.
+## Directory
 
-Compile
+	Documentation
+
+Developer Doc
+
+	Homework
+
+Homeowork file and code
+
+	Project
+
+Project description and test code
+
+	Source
+
+The NGCBDKIIWW compiler code
+
+
+## Installation
+For compiler
+
+Compile NGCBDKIIWW executable
 ```
 make
 ```
@@ -19,7 +38,24 @@ Remove compiled binary and linking files
 make clean 
 ```
 
-Remove backup files and documentations
+Remove all generated files
+```
+make clobber
+```
+
+For developer note
+
+Compile Latex file of developer notes
+```
+make
+```
+
+Remove generated documentations
+```
+make clean
+```
+
+Remove all generated files
 ```
 make clobber
 ```
@@ -31,7 +67,7 @@ Usage:
 
 Valid modes:
 
-	-0: Version information only
+	-0: Version information
 
 	-1: Lexer for C
 
@@ -41,7 +77,7 @@ Valid modes:
 
 	-4: Code generation: Expressions
 
-	-5: Part 5 (not yet implemented)
+	-5: Part 5
 
 Valid options:
 
@@ -49,6 +85,11 @@ Valid options:
 
 
 ## Project status
-Part 0 is implemented
+The part mark with * is under development.
 
-Part 1 is under development
+	-0: Version information only
+	-1: Lexer for C
+	*-2: C parser
+	*-3: Type checking
+	*-4: Code generation: Expressions
+	*-5: Part 5
