@@ -476,14 +476,29 @@ std::string get_str_between_two_str(const std::string &s,
     return s.substr(end_pos_of_first_delim, last_delim_pos - end_pos_of_first_delim);
 }
 
-void output_token(string lexeme, int line, string fname)
+std::string get_str_before_last_delim_inclusive(std::string const& s, const std::string &delim)
 {
+	std::string::size_type pos = s.find_last_of(delim);
+	if (pos != std::string::npos)
+	{
+		return s.substr(0, pos+1);
+	}
+	else
+	{
+		return "";
+	}
+}
+
+void output_token(string lexeme, int line, string path)
+{
+	string fname = path.substr(path.find_last_of("/\\") + 1);
 	// check if current lexeme is empty
 	if (lexeme.empty()) return;
 	if (lexeme.find("#include") != string::npos)
 	{
-		string path = get_str_between_two_str(lexeme, "\"", "\"");
-		lex_file(path);
+		string dir = get_str_before_last_delim_inclusive(path, "/");
+		string filename = get_str_between_two_str(lexeme, "\"", "\"");
+		lex_file(dir+filename);
 		return;
 	}
 
@@ -834,12 +849,10 @@ void lex_text(string text, string fname)
 
 void lex_file(string path)
 {
-
 	ifstream file(path);
-	string fname = path.substr(path.find_last_of("/\\") + 1);
 	if (!file.is_open())
 	{
-		cout << "Could not open the file - '" << fname << "'" << endl;
+		cout << "Could not open the file - '" << path << "'" << endl;
 		return;
 	}
 	char c;
@@ -851,7 +864,7 @@ void lex_file(string path)
 	file.close();
 
 	string text(bytes.begin(), bytes.end());
-	lex_text(text, fname);
+	lex_text(text, path);
 }
 
 string print_file();
