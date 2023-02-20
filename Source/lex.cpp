@@ -13,8 +13,6 @@ using std::ifstream;
 using std::unordered_set;
 using std::unordered_map;
 
-// string filename;
-
 unordered_map<string, int> operators ({
 	{"==", 351},
 	{"!=", 352},
@@ -91,57 +89,57 @@ unordered_map<char, int> special_c_symbols ({
 	{'_',95},
 });
 
-unordered_map<char, int> symbols_char ({
-	{'!',33},
-	{'%',37},
-	{'&',38},
-	{'(',40},
-	{')',41},
-	{'*',42},
-	{'+',43},
-	{',',44},
-	{'-',45},
-	{'.',46},
-	{'/',47},
-	{':',58},
-	{';',59},
-	{'<',60},
-	{'=',61},
-	{'>',62},
-	{'?',63},
-	{'[',91},
-	{']',93},
-	{'{',123},
-	{'|',124},
-	{'}',125},
-	{'~',126},
-});
+// unordered_map<char, int> symbols_char ({
+// 	{'!',33},
+// 	{'%',37},
+// 	{'&',38},
+// 	{'(',40},
+// 	{')',41},
+// 	{'*',42},
+// 	{'+',43},
+// 	{',',44},
+// 	{'-',45},
+// 	{'.',46},
+// 	{'/',47},
+// 	{':',58},
+// 	{';',59},
+// 	{'<',60},
+// 	{'=',61},
+// 	{'>',62},
+// 	{'?',63},
+// 	{'[',91},
+// 	{']',93},
+// 	{'{',123},
+// 	{'|',124},
+// 	{'}',125},
+// 	{'~',126},
+// });
 
-unordered_map<string, int> symbols_str ({
-	{"!",33},
-	{"%",37},
-	{"&",38},
-	{"(",40},
-	{")",41},
-	{"*",42},
-	{"+",43},
-	{",",44},
-	{"-",45},
-	{".",46},
-	{"/",47},
-	{":",58},
-	{";",59},
-	{"<",60},
-	{"=",61},
-	{">",62},
-	{"?",63},
-	{"[",91},
-	{"]",93},
-	{"{",123},
-	{"|",124},
-	{"}",125},
-	{"~",126},
-});
+// unordered_map<string, int> symbols_str ({
+// 	{"!",33},
+// 	{"%",37},
+// 	{"&",38},
+// 	{"(",40},
+// 	{")",41},
+// 	{"*",42},
+// 	{"+",43},
+// 	{",",44},
+// 	{"-",45},
+// 	{".",46},
+// 	{"/",47},
+// 	{":",58},
+// 	{";",59},
+// 	{"<",60},
+// 	{"=",61},
+// 	{">",62},
+// 	{"?",63},
+// 	{"[",91},
+// 	{"]",93},
+// 	{"{",123},
+// 	{"|",124},
+// 	{"}",125},
+// 	{"~",126},
+// });
 
 unordered_set<char> escapes ({
 	' ',
@@ -154,16 +152,16 @@ unordered_set<char> escapes ({
 	'\\'
 });
 
-unordered_map<char, int> escapes_char ({
-	{'\a',7},
-	{'\b',8},
-	{'\t',9},
-	{'\n',10},
-	{'\v',11},
-	{'\f',12},
-	{'\r',13},
-	{' ', 32},
-});
+// unordered_map<char, int> escapes_char ({
+// 	{'\a',7},
+// 	{'\b',8},
+// 	{'\t',9},
+// 	{'\n',10},
+// 	{'\v',11},
+// 	{'\f',12},
+// 	{'\r',13},
+// 	{' ', 32},
+// });
 
 
 int is_escape(char c)
@@ -205,29 +203,7 @@ int is_symbol(string token)
 
 int is_symbols(char c)
 {
-	if (c == '!'
-	|| c == '&'
-	|| c == '%'
-	|| c == '('
-	|| c == ')'
-	|| c == '*'
-	|| c == '+'
-	|| c == ','
-	|| c == '-'
-	|| c == '.'
-	|| c == '/'
-	|| c == ':'
-	|| c == ';'
-	|| c == '<'
-	|| c == '='
-	|| c == '>'
-	|| c == '?'
-	|| c == '['
-	|| c == ']'
-	|| c == '{'
-	|| c == '|'
-	|| c == '}'
-	|| c == '~')
+	if (symbols.count(c))
 	{
 		return c;
 	}
@@ -515,11 +491,11 @@ void output_token(string lexeme, int line, string path)
 		{
 			message += "Size Exceeded";
 		}
-		if (tokenid == TOKEN_UNRECOGNIZED)
+		else if (tokenid == TOKEN_UNRECOGNIZED)
 		{
 			message += "Token Unrecognized";
 		}
-		if (tokenid == TOKEN_ILLEGAL_CHARACTER)
+		else if (tokenid == TOKEN_ILLEGAL_CHARACTER)
 		{
 			message += "Illegal Character";
 		}
@@ -783,7 +759,7 @@ void lex_text(string text, string fname)
 				token.push_back(c);
 			}
 		}
-		else //reading normal characters and digits
+		else if (isdigit(c) || isalpha(c) || c == '_') //reading normal characters and digits
 		{
 			// check for real number
 			if (in_real)
@@ -820,6 +796,10 @@ void lex_text(string text, string fname)
 				}
 				continue;
 			}
+			token.push_back(c);
+		}
+		else
+		{
 			token.push_back(c);
 		}
 
