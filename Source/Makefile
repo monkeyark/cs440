@@ -24,10 +24,6 @@ $(BIN): $(OBJS)
 	@$(ECHO) Compiling $<
 	@$(CXX) $(CXXFLAGS) -MMD -MF $*.d -c $<
 
-doc: $(TEXFILE)
-	@$(ECHO) Generating Documentations $@
-	@$(TEX) $(TEXFLAGS) $(TEXFILE) $@
-
 clean:
 	@$(ECHO) Removing compiled files
 	@$(RM) *.o $(BIN) *.d TAGS core vgcore.* gmon.out
