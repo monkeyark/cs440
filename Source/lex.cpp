@@ -58,39 +58,6 @@ unordered_set<string> types ({
 	"bool",
 });
 
-unordered_map<char, int> special_c_symbols ({
-	{'#',35},
-	{'\\',92},
-	{'^',94},
-	{'_',95},
-});
-
-// unordered_map<char, int> symbols_char ({
-// 	{'!',33},
-// 	{'%',37},
-// 	{'&',38},
-// 	{'(',40},
-// 	{')',41},
-// 	{'*',42},
-// 	{'+',43},
-// 	{',',44},
-// 	{'-',45},
-// 	{'.',46},
-// 	{'/',47},
-// 	{':',58},
-// 	{';',59},
-// 	{'<',60},
-// 	{'=',61},
-// 	{'>',62},
-// 	{'?',63},
-// 	{'[',91},
-// 	{']',93},
-// 	{'{',123},
-// 	{'|',124},
-// 	{'}',125},
-// 	{'~',126},
-// });
-
 unordered_set<char> symbols ({
 	'!',//33
 	'&',//38
@@ -115,6 +82,39 @@ unordered_set<char> symbols ({
 	'|',//124
 	'}',//125
 	'~',//126
+});
+
+unordered_map<char, int> special_c_symbols ({
+	{'#',35},
+	{'\\',92},
+	{'^',94},
+	{'_',95},
+});
+
+unordered_map<char, int> symbols_char ({
+	{'!',33},
+	{'%',37},
+	{'&',38},
+	{'(',40},
+	{')',41},
+	{'*',42},
+	{'+',43},
+	{',',44},
+	{'-',45},
+	{'.',46},
+	{'/',47},
+	{':',58},
+	{';',59},
+	{'<',60},
+	{'=',61},
+	{'>',62},
+	{'?',63},
+	{'[',91},
+	{']',93},
+	{'{',123},
+	{'|',124},
+	{'}',125},
+	{'~',126},
 });
 
 unordered_map<string, int> symbols_str ({
@@ -143,7 +143,18 @@ unordered_map<string, int> symbols_str ({
 	{"~",126},
 });
 
-unordered_map<char, int> escape ({
+unordered_set<char> escapes ({
+	' ',
+	'\a',
+	'\b',
+	'\n',
+	'\r',
+	'\t',
+	'\'',
+	'\\'
+});
+
+unordered_map<char, int> escapes_char ({
 	{'\a',7},
 	{'\b',8},
 	{'\t',9},
@@ -157,7 +168,7 @@ unordered_map<char, int> escape ({
 
 int is_escape(char c)
 {
-	return escape.count(c);
+	return escapes.count(c);
 }
 
 int is_type(string token)
@@ -433,21 +444,15 @@ int search_tokenid(string token)
 
 void output_token(string lexeme, int line, string fname, int tokenid)
 {
+	//TODO
 	// check if current lexeme is empty
 	if (lexeme.empty()) return;
 	if (tokenid < TOKEN_ERR)
 	{
 		cout
-			<< "Lexer error in file "
-			<< fname
-			<< " Line "
-			<< std::right
-			<< std::setw(5)
-			<< line
-			<< " Near Text "
-			<< lexeme
-			<< endl
-		<< "	";
+		<< "Lexer error in file " << fname
+		<< " Line " << std::right << std::setw(5) << line
+		<< " Near Text " << lexeme << endl << "	";
 		
 		if (tokenid == TOKEN_UNCLOSED_COMMENT)
 		{
@@ -486,46 +491,34 @@ void output_token(string lexeme, int line, string fname)
 	if (tokenid < TOKEN_ERR)
 	{
 		cout
-			<< "Lexer error in file "
-			<< fname
-			<< " Line "
-			<< std::right
-			<< std::setw(5)
-			<< line
-			<< " Near Text "
-			<< lexeme
-			<< endl
-		<< "	";
+		<< "Lexer error in file " << fname
+		<< " Line " << std::right << std::setw(5)
+		<< line << " Near Text ";
 		
-		if (tokenid == TOKEN_UNRECOGNIZED)
-		{
-			cout << "Token unrecognized" << endl;
-		}
 		if (tokenid == TOKEN_SIZE_EXCEEDED)
 		{
-			cout << "Size exceeded" << endl;
+			lexeme = lexeme.substr(0, 8);
+			cout << lexeme << endl << "	"
+			<< "Size exceeded" << endl;
+		}
+		if (tokenid == TOKEN_UNRECOGNIZED)
+		{
+			cout << lexeme << endl << "	"
+			<< "Token unrecognized" << endl;
 		}
 		if (tokenid == TOKEN_ILLEGAL_CHARACTER)
 		{
-			cout << "Illegal character" << endl;
+			cout << lexeme << endl << "	"
+			<< "Illegal character" << endl;
 		}
 	}
 	else
 	{
 		cout
-			<< "File "
-			<< fname
-			<< " Line "
-			<< std::right
-			<< std::setw(5)
-			<< line
-			<< " Token "
-			<< std::right
-			<< std::setw(5)
-			<< tokenid
-			<< " Text "
-			<< lexeme
-			<< endl;
+		<< "File " << fname
+		<< " Line " << std::right << std::setw(5) << line
+		<< " Token " << std::right << std::setw(5) << tokenid
+		<< " Text " << lexeme << endl;
 	}
 }
 
