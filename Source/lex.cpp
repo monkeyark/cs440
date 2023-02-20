@@ -442,29 +442,6 @@ int search_tokenid(string token)
 		return TOKEN_UNRECOGNIZED;
 }
 
-void output_token(string lexeme, int line, string fname, int tokenid)
-{
-	//TODO
-	// check if current lexeme is empty
-	if (lexeme.empty()) return;
-	if (tokenid < TOKEN_ERR)
-	{
-		cout
-		<< "Lexer error in file " << fname
-		<< " Line " << std::right << std::setw(5) << line
-		<< " Near Text " << lexeme << endl << "	";
-		
-		if (tokenid == TOKEN_UNCLOSED_COMMENT)
-		{
-			cout << "Unclosed comment" << endl;
-		}
-		if (tokenid == TOKEN_UNCLOSED_QUOTE)
-		{
-			cout << "Unclosed quotation" << endl;
-		}
-	}
-}
-
 std::string get_str_between_two_str(const std::string &s,
         const std::string &start_delim,
         const std::string &stop_delim)
@@ -489,6 +466,28 @@ std::string get_str_before_last_delim_inclusive(std::string const& s, const std:
 	}
 }
 
+void output_token(string lexeme, int line, string fname, int tokenid)
+{
+	//TODO unclosed comment
+	if (lexeme.empty()) return;
+	if (tokenid < TOKEN_ERR)
+	{
+		cout
+		<< "Lexer error in file " << std::right << std::setw(9) << fname
+		<< " Line " << std::right << std::setw(5) << line
+		<< " Near Text " << lexeme << endl << "	";
+		
+		if (tokenid == TOKEN_UNCLOSED_COMMENT)
+		{
+			cout << "Unclosed comment" << endl;
+		}
+		if (tokenid == TOKEN_UNCLOSED_QUOTE)
+		{
+			cout << "Unclosed quotation" << endl;
+		}
+	}
+}
+
 void output_token(string lexeme, int line, string path)
 {
 	string fname = path.substr(path.find_last_of("/\\") + 1);
@@ -502,36 +501,32 @@ void output_token(string lexeme, int line, string path)
 		return;
 	}
 
+	cout
+	<< "File " << std::left << std::setw(9) << fname
+	<< " Line " << std::right << std::setw(5) << line;
+
 	int tokenid = search_tokenid(lexeme);
 	if (tokenid < TOKEN_ERR)
 	{
-		cout
-		<< "Lexer error in file " << fname
-		<< " Line " << std::right << std::setw(5)
-		<< line << " Near Text ";
+		cout << " Lexer Error Text " << lexeme.substr(0, 20)
+		<< endl << "                         ";
 		
 		if (tokenid == TOKEN_SIZE_EXCEEDED)
 		{
-			lexeme = lexeme.substr(0, 8);
-			cout << lexeme << endl << "	"
-			<< "Size exceeded" << endl;
+			cout << "\033[1;31m Size Exceeded \033[0m" << endl;
 		}
 		if (tokenid == TOKEN_UNRECOGNIZED)
 		{
-			cout << lexeme << endl << "	"
-			<< "Token unrecognized" << endl;
+			cout << "\033[1;31m Token Unrecognized \033[0m" << endl;
 		}
 		if (tokenid == TOKEN_ILLEGAL_CHARACTER)
 		{
-			cout << lexeme << endl << "	"
-			<< "Illegal character" << endl;
+			cout << "\033[1;31m Illegal Character \033[0m" << endl;
 		}
 	}
 	else
 	{
 		cout
-		<< "File " << fname
-		<< " Line " << std::right << std::setw(5) << line
 		<< " Token " << std::right << std::setw(5) << tokenid
 		<< " Text " << lexeme << endl;
 	}
