@@ -77,13 +77,18 @@ enum tokentype {
 
 /* Message */
 
-	TOKEN_SUCC                 = 1,
-	TOKEN_ERR                  = 0,
-	TOKEN_UNRECOGNIZED         = -1,
-	TOKEN_SIZE_EXCEEDED        = -2,
-	TOKEN_ILLEGAL_CHARACTER    = -3,
-	TOKEN_UNCLOSED_COMMENT     = -4,
-	TOKEN_UNCLOSED_QUOTE       = -5,
+	TOKEN_SUCC                  = 1,
+	TOKEN_ERR                   = 0,
+	TOKEN_UNRECOGNIZED          = -1,
+	TOKEN_ILLEGAL_CHARACTER     = -3,
+	TOKEN_SIZE_EXCEEDED_REAL    = -21,
+	TOKEN_SIZE_EXCEEDED_CHAR    = -22,
+	TOKEN_SIZE_EXCEEDED_STR     = -23,
+	TOKEN_SIZE_EXCEEDED_INT     = -24,
+	TOKEN_SIZE_EXCEEDED_IDENT   = -25,
+	TOKEN_UNCLOSED_COMMENT      = -31,
+	TOKEN_UNCLOSED_QUOTE        = -32,
+	TOKEN_UNCLOSED_CHARSEQ      = -33,
 
 };
 
