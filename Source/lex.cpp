@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <iomanip>
+#include <regex>
 
 using std::cout;
 using std::endl;
@@ -12,6 +13,7 @@ using std::vector;
 using std::ifstream;
 using std::unordered_set;
 using std::unordered_map;
+using std::regex;
 
 unordered_map<string, int> operators ({
 	{"==", 351},
@@ -291,6 +293,17 @@ int is_int_lit(string token)
 
 int is_real_lit(string token)
 {
+	regex real("^[+-]?(\\d+\\.?\\d*|\\.\\d+)([eE][+-]?\\d+)?$");
+	if (regex_match(token, real))
+	{
+		
+		return REAL_LIT;
+	}
+	return TOKEN_ERR;
+}
+
+int is_real_num(string token)
+{
 	bool seen_dot = false;
 	bool seen_exp = false;
 	for (char const &c : token)
@@ -315,6 +328,10 @@ int is_real_lit(string token)
 		{
 			seen_exp = true;
 		}
+	}
+	if (token.length() == 1 && !isdigit(token[0]))
+	{
+		return TOKEN_ERR;
 	}
 	if (token.length() > 48)
 	{
@@ -455,7 +472,7 @@ void output_token_err(string lexeme, int line, string fname, int tokenid)
 	switch (tokenid)
 	{
 		case TOKEN_UNRECOGNIZED:
-			msg = "Token Unrecognized";
+			msg = "Token unrecognized";
 			break;
 		case TOKEN_SIZE_EXCEEDED_REAL:
 			msg = "Real number size exceeded";
@@ -473,21 +490,26 @@ void output_token_err(string lexeme, int line, string fname, int tokenid)
 			msg = "Identifier is too long";
 			break;
 		case TOKEN_ILLEGAL_CHARACTER:
-			msg = "Illegal Character";
+			msg = "Illegal character";
 			break;
 		case TOKEN_UNCLOSED_COMMENT:
-			msg = "Unclosed Comment";
+			msg = "Unclosed comment";
 			break;
 		case TOKEN_UNCLOSED_QUOTE:
-			msg = "Unclosed Quote";
+			msg = "Unclosed quote";
 			break;
 		case TOKEN_UNCLOSED_CHARSEQ:
-			msg = "Unclose Character Sequence";
+			msg = "Unclose character sequence";
+			break;
+		case FILE_NOT_OPEN:
+			msg = get_str_between_two_str(lexeme, "\"", "\"");
+			msg = "Couldn't open file " + msg;
 			break;
 		default:
 			return;
 	}
 	cout << "\033[1;31m" << msg << "\033[0m" << endl;
+	// exit(1);
 }
 
 void output_token(string lexeme, int line, string path)
@@ -499,8 +521,11 @@ void output_token(string lexeme, int line, string path)
 	{
 		string dir = get_str_before_last_delim_inclusive(path, "/");
 		string filename = get_str_between_two_str(lexeme, "\"", "\"");
-		lex_file(dir+filename);
-		return;
+		if (lex_file(dir+filename) == FILE_NOT_OPEN)
+		{
+			output_token_err(lexeme, line, fname, FILE_NOT_OPEN);
+			return;
+		}
 	}
 
 	int tokenid = search_tokenid(lexeme);
@@ -545,13 +570,12 @@ void lex_text(string text, string fname)
 			}
 			if (in_quotation)
 			{
-				output_token_err("\"", token_line, fname, TOKEN_UNCLOSED_QUOTE);
+				output_token_err("\"", line, fname, TOKEN_UNCLOSED_QUOTE);
 				continue;
-
 			}
 			if (in_apostrophe)
 			{
-				output_token_err("\'", token_line, fname, TOKEN_UNCLOSED_CHARSEQ);
+				output_token_err("\'", line, fname, TOKEN_UNCLOSED_CHARSEQ);
 				continue;
 			}
 		}
@@ -569,6 +593,18 @@ void lex_text(string text, string fname)
 					line++;
 					continue;
 				}
+			}
+			if (in_quotation)
+			{
+				in_quotation = false;
+				output_token_err("\"", line, fname, TOKEN_UNCLOSED_QUOTE);
+				continue;
+			}
+			if (in_apostrophe)
+			{
+				in_apostrophe = false;
+				output_token_err("\'", line, fname, TOKEN_UNCLOSED_CHARSEQ);
+				continue;
 			}
 			in_hash = false;
 			in_real = false;
@@ -817,16 +853,19 @@ void lex_text(string text, string fname)
 				}
 			}
 			//find an real number without dot
-			if ((c == 'e' || c == 'E') && (is_int_lit(token) == INT_LIT || is_real_lit(token) == REAL_LIT))
+			if ((c == 'e' || c == 'E') && !token.empty())
 			{
-				in_real = true;
-				token.push_back(c);
-				if (c_next == '+' || c_next == '-')
+				if ((is_int_lit(token) == INT_LIT || is_real_lit(token) == REAL_LIT))
 				{
-					token.push_back(c_next);
-					i++;
+					in_real = true;
+					token.push_back(c);
+					if (c_next == '+' || c_next == '-')
+					{
+						token.push_back(c_next);
+						i++;
+					}
+					continue;
 				}
-				continue;
 			}
 
 			//if the previous char is a symbol and not in real number checking
@@ -869,13 +908,12 @@ void lex_text(string text, string fname)
 	}
 }
 
-void lex_file(string path)
+int lex_file(string path)
 {
 	ifstream file(path);
 	if (!file.is_open())
 	{
-		cout << "Could not open the file - " << path << endl;
-		return;
+		return FILE_NOT_OPEN;
 	}
 	char c;
 	vector<char> bytes;
@@ -887,6 +925,8 @@ void lex_file(string path)
 
 	string text(bytes.begin(), bytes.end());
 	lex_text(text, path);
+
+	return LEX_SUCC;
 }
 
 string print_file();

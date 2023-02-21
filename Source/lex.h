@@ -76,7 +76,8 @@ enum tokentype {
 	DEFAULT   = 413,
 
 /* Message */
-
+	LEX_SUCC                    = 1,
+	FILE_NOT_OPEN               = -100,
 	TOKEN_SUCC                  = 1,
 	TOKEN_ERR                   = 0,
 	TOKEN_UNRECOGNIZED          = -1,
@@ -92,7 +93,7 @@ enum tokentype {
 
 };
 
-void lex_file(string file_path);
+int lex_file(string file_path);
 
 
 #endif
