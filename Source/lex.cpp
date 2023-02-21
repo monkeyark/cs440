@@ -29,19 +29,19 @@ unordered_map<string, int> operators ({
 });
 
 unordered_map<string, int> keywords ({
-	{"const", 401},
-	{"struc", 402},
-	{"for", 403},
-	{"while", 404},
-	{"do", 405},
-	{"if", 406},
-	{"else", 407},
-	{"break", 408},
-	{"continue", 409},
-	{"return", 410},
-	{"switch", 411},
-	{"case", 412},
-	{"default", 413},
+	{"const",     401},
+	{"struc",     402},
+	{"for",       403},
+	{"while",     404},
+	{"do",        405},
+	{"if",        406},
+	{"else",      407},
+	{"break",     408},
+	{"continue",  409},
+	{"return",    410},
+	{"switch",    411},
+	{"case",      412},
+	{"default",   413},
 });
 
 unordered_set<string> types ({
@@ -266,7 +266,7 @@ int is_identifier(string token)
 	}
 	if (token.length() > 48)
 	{
-		return TOKEN_SIZE_EXCEEDED;
+		return TOKEN_SIZE_EXCEEDED_IDENT;
 	}
 	return IDENT;
 }
@@ -284,7 +284,7 @@ int is_int_lit(string token)
 	}
 	if (token.length() > 48)
 	{
-		return TOKEN_SIZE_EXCEEDED;
+		return TOKEN_SIZE_EXCEEDED_INT;
 	}
 	return INT_LIT;
 }
@@ -318,7 +318,7 @@ int is_real_lit(string token)
 	}
 	if (token.length() > 48)
 	{
-		return TOKEN_SIZE_EXCEEDED;
+		return TOKEN_SIZE_EXCEEDED_REAL;
 	}
 	return REAL_LIT;
 }
@@ -331,7 +331,7 @@ int is_char_lit(string token)
 	{
 		if (token.length() > 1024)
 		{
-			return TOKEN_SIZE_EXCEEDED;
+			return TOKEN_SIZE_EXCEEDED_CHAR;
 		}
 		return CHAR_LIT;
 	}
@@ -348,7 +348,7 @@ int is_str_lit(string token)
 	}
 	if (token.length() > 1024)
 	{
-		return TOKEN_SIZE_EXCEEDED;
+		return TOKEN_SIZE_EXCEEDED_STR;
 	}
 	return STR_LIT;
 }
@@ -442,26 +442,52 @@ std::string get_str_before_last_delim_inclusive(std::string const& s, const std:
 	}
 }
 
-void output_token(string lexeme, int line, string fname, int tokenid)
+void output_token_err(string lexeme, int line, string fname, int tokenid)
 {
-	//TODO unclosed comment
-	if (lexeme.empty()) return;
-	if (tokenid < TOKEN_ERR)
+	cout
+	<< "Lexer error in file " << fname
+	<< " line " << line
+	<< " at text " << lexeme.substr(0, 20)
+	<< endl << "	";
+	// cout << " Lexer Error Text " << lexeme.substr(0, 20) << endl;
+	
+	string msg;
+	switch (tokenid)
 	{
-		cout
-		<< "Lexer error in file " << std::right << std::setw(9) << fname
-		<< " Line " << std::right << std::setw(5) << line
-		<< " Near Text " << lexeme << endl << "	";
-		
-		if (tokenid == TOKEN_UNCLOSED_COMMENT)
-		{
-			cout << "Unclosed comment" << endl;
-		}
-		if (tokenid == TOKEN_UNCLOSED_QUOTE)
-		{
-			cout << "Unclosed quotation" << endl;
-		}
+		case TOKEN_UNRECOGNIZED:
+			msg = "Token Unrecognized";
+			break;
+		case TOKEN_SIZE_EXCEEDED_REAL:
+			msg = "Real number size exceeded";
+			break;
+		case TOKEN_SIZE_EXCEEDED_CHAR:
+			msg = "Char literal is too long";
+			break;
+		case TOKEN_SIZE_EXCEEDED_STR:
+			msg = "String is too long";
+			break;
+		case TOKEN_SIZE_EXCEEDED_INT:
+			msg = "Integer is too long";
+			break;
+		case TOKEN_SIZE_EXCEEDED_IDENT:
+			msg = "Identifier is too long";
+			break;
+		case TOKEN_ILLEGAL_CHARACTER:
+			msg = "Illegal Character";
+			break;
+		case TOKEN_UNCLOSED_COMMENT:
+			msg = "Unclosed Comment";
+			break;
+		case TOKEN_UNCLOSED_QUOTE:
+			msg = "Unclosed Quote";
+			break;
+		case TOKEN_UNCLOSED_CHARSEQ:
+			msg = "Unclose Character Sequence";
+			break;
+		default:
+			return;
 	}
+	cout << "\033[1;31m" << msg << "\033[0m" << endl;
 }
 
 void output_token(string lexeme, int line, string path)
@@ -477,33 +503,16 @@ void output_token(string lexeme, int line, string path)
 		return;
 	}
 
-	cout
-	<< "File " << std::left << std::setw(9) << fname
-	<< " Line " << std::right << std::setw(5) << line;
-
 	int tokenid = search_tokenid(lexeme);
 	if (tokenid < TOKEN_ERR)
 	{
-		cout << " Lexer Error Text " << lexeme.substr(0, 20) << endl;
-		
-		string message = "                         ";
-		if (tokenid == TOKEN_SIZE_EXCEEDED)
-		{
-			message += "Size Exceeded";
-		}
-		else if (tokenid == TOKEN_UNRECOGNIZED)
-		{
-			message += "Token Unrecognized";
-		}
-		else if (tokenid == TOKEN_ILLEGAL_CHARACTER)
-		{
-			message += "Illegal Character";
-		}
-		cout << "\033[1;31m" << message << "\033[0m" << endl;
+		output_token_err(lexeme, line, fname, tokenid);
 	}
 	else
 	{
 		cout
+		<< "File " << std::left << std::setw(9) << fname
+		<< " Line " << std::right << std::setw(5) << line
 		<< " Token " << std::right << std::setw(5) << tokenid
 		<< " Text " << lexeme << endl;
 	}
@@ -521,9 +530,31 @@ void lex_text(string text, string fname)
 	bool in_real = false;
 	bool in_hash = false;
 	int line = 1;
+	int token_line = line;
 	for (long long unsigned int i = 0; i < text.length(); i++)
 	{
 		char c = text[i];char c_next = text[i+1];
+
+		//deal with unclosed comment
+		if (i == text.length()-1)
+		{
+			if (in_c_comment)
+			{
+				output_token_err("/*", token_line, fname, TOKEN_UNCLOSED_COMMENT);
+				continue;
+			}
+			if (in_quotation)
+			{
+				output_token_err("\"", token_line, fname, TOKEN_UNCLOSED_QUOTE);
+				continue;
+
+			}
+			if (in_apostrophe)
+			{
+				output_token_err("\'", token_line, fname, TOKEN_UNCLOSED_CHARSEQ);
+				continue;
+			}
+		}
 
 		if (c == '\n') //line counter
 		{
@@ -542,6 +573,7 @@ void lex_text(string text, string fname)
 			in_hash = false;
 			in_real = false;
 			output_token(token, line, fname);
+			token_line = line;
 			token.clear();
 			line++;
 			continue;
@@ -550,17 +582,12 @@ void lex_text(string text, string fname)
 		//terminate c style comments
 		if (in_c_comment && !in_quotation && !in_apostrophe)
 		{
-			if (i == text.length()-1)
-			{
-				//TODO deal with unclosed comment
-				output_token("/*", line, fname, TOKEN_UNCLOSED_COMMENT);
-			}
-
 			if (is_c_comment_end(c, c_next))
 			{
 				in_c_comment = false;
 				i++;
 				output_token(token, line, fname);
+				token_line = line;
 				token.clear();
 			}
 			continue;
@@ -613,13 +640,13 @@ void lex_text(string text, string fname)
 				in_quotation = false;
 				token.push_back(c);
 				output_token(token, line, fname);
+				token_line = line;
 				token.clear();
 				continue;
 			}
 			token.push_back(c);
 			continue;
 		}
-
 
 		if (in_apostrophe && !in_c_comment && !in_cpp_comment &!in_hash)
 		{
@@ -650,12 +677,14 @@ void lex_text(string text, string fname)
 				in_apostrophe = false;
 				token.push_back(c);
 				output_token(token, line, fname);
+				token_line = line;
 				token.clear();
 				continue;
 			}
 			token.push_back(c);
 			continue;
 		}
+		
 		if (in_hash && !in_quotation && !in_apostrophe)
 		{
 			token.push_back(c);
@@ -667,6 +696,7 @@ void lex_text(string text, string fname)
 		{
 			in_quotation = true;
 			output_token(token, line, fname);
+			token_line = line;
 			token.clear();
 			token.push_back(c);
 			continue;
@@ -675,6 +705,7 @@ void lex_text(string text, string fname)
 		{
 			in_apostrophe = true;
 			output_token(token, line, fname);
+			token_line = line;
 			token.clear();
 			token.push_back(c);
 			continue;
@@ -683,6 +714,7 @@ void lex_text(string text, string fname)
 		{
 			in_hash = true;
 			output_token(token, line, fname);
+			token_line = line;
 			token.clear();
 			token.push_back(c);
 			continue;
@@ -700,14 +732,17 @@ void lex_text(string text, string fname)
 		if (is_escape(c)) //current is escape
 		{
 			output_token(token, line, fname);
+			token_line = line;
 			token.clear();
 		}
 		else if (!is_legal_character(c))
 		{
+			token_line = line;
 			output_token(token, line, fname);
 			token.clear();
 			string token(1, c);
-			output_token(token, line, fname);
+			token_line = line;
+			output_token_err(token, line, fname, TOKEN_ILLEGAL_CHARACTER);
 			token.clear();
 		}
 		else if (is_symbols(c)) //current is symbol
@@ -715,21 +750,10 @@ void lex_text(string text, string fname)
 			// check for real number
 			if (in_real)
 			{
-				if (!isdigit(c) && c != 'e' && c != 'E')
-				{
-					in_real = false;
-					output_token(token, line, fname);
-					token.clear();
-					continue;
-				}
-				else if (c == 'e' || c == 'E')
+				if (c == '-' || c == '+')
 				{
 					token.push_back(c);
-					if (c_next == '+' || c_next == '-')
-					{
-						token.push_back(c_next);
-						i++;
-					}
+					i++;
 					continue;
 				}
 			}
@@ -749,26 +773,36 @@ void lex_text(string text, string fname)
 				token.push_back(c);
 				token.push_back(c_next);
 				i++;
+				token_line = line;
 				output_token(token, line, fname);
 				token.clear();
 			}
 			else //output previous token when meet a symbol
 			{
+				token_line = line;
 				output_token(token, line, fname);
 				token.clear();
 				token.push_back(c);
 			}
 		}
-		else if (isdigit(c) || isalpha(c) || c == '_') //reading normal characters and digits
+		//reading normal characters and digits
+		else if (isdigit(c) || isalpha(c) || c == '_')
 		{
 			// check for real number
 			if (in_real)
 			{
-				if (!isdigit(c) && c != 'e' && c != 'E')
+				if (isdigit(c))
+				{
+					token.push_back(c);
+					continue;
+				}
+				else if (c != 'e' && c != 'E')
 				{
 					in_real = false;
+					token_line = line;
 					output_token(token, line, fname);
 					token.clear();
+					token.push_back(c);
 					continue;
 				}
 				else if (c == 'e' || c == 'E')
@@ -783,10 +817,8 @@ void lex_text(string text, string fname)
 				}
 			}
 			//find an real number without dot
-			if ((c == 'e' || c == 'E') && is_int_lit(token) == INT_LIT) //find an real number
+			if ((c == 'e' || c == 'E') && (is_int_lit(token) == INT_LIT || is_real_lit(token) == REAL_LIT))
 			{
-				if (c)
-				// cout << "real after EEEEEEEEEE" <<endl;
 				in_real = true;
 				token.push_back(c);
 				if (c_next == '+' || c_next == '-')
@@ -796,9 +828,22 @@ void lex_text(string text, string fname)
 				}
 				continue;
 			}
+
+			//if the previous char is a symbol and not in real number checking
+			char c_prev = token[token.length()-1];
+			if (is_symbols(c_prev))
+			{
+				if ((c_prev != '.') || c_prev != '-'|| c_prev != '+' ||
+				 (c_prev == '.' && !in_real))
+				{
+					token_line = line;
+					output_token(token, line, fname);
+					token.clear();
+				}
+			}
 			token.push_back(c);
 		}
-		else
+		else //all other cases append current char to token
 		{
 			token.push_back(c);
 		}
@@ -808,14 +853,15 @@ void lex_text(string text, string fname)
 		{
 			if (in_c_comment || in_cpp_comment)
 			{
-				output_token(token, line, fname, TOKEN_UNCLOSED_COMMENT);
+				output_token_err(token, token_line, fname, TOKEN_UNCLOSED_COMMENT);
 			}
 			else if (in_quotation || in_apostrophe)
 			{
-				output_token(token, line, fname, TOKEN_UNCLOSED_QUOTE);
+				output_token_err(token, token_line, fname, TOKEN_UNCLOSED_QUOTE);
 			}
 			else
 			{
+				token_line = line;
 				output_token(token, line, fname);
 			}
 			token.clear();
@@ -828,7 +874,7 @@ void lex_file(string path)
 	ifstream file(path);
 	if (!file.is_open())
 	{
-		cout << "Could not open the file - '" << path << "'" << endl;
+		cout << "Could not open the file - " << path << endl;
 		return;
 	}
 	char c;
