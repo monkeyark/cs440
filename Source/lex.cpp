@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <iomanip>
 #include <regex>
+#include <sstream>
 
 using std::cout;
 using std::endl;
@@ -14,6 +15,8 @@ using std::ifstream;
 using std::unordered_set;
 using std::unordered_map;
 using std::regex;
+
+std::ostringstream oss;
 
 unordered_map<string, int> operators ({
 	{"==", 351},
@@ -296,12 +299,12 @@ int is_real_lit(string token)
 	regex real("^[+-]?(\\d+\\.?\\d*|\\.\\d+)([eE][+-]?\\d+)?$");
 	if (regex_match(token, real))
 	{
-		
 		return REAL_LIT;
 	}
 	return TOKEN_ERR;
 }
 
+//TODO need to fix for ident: e1e2ee
 int is_real_num(string token)
 {
 	bool seen_dot = false;
@@ -461,12 +464,12 @@ std::string get_str_before_last_delim_inclusive(std::string const& s, const std:
 
 void output_token_err(string lexeme, int line, string fname, int tokenid)
 {
-	cout
+	std::cerr
 	<< "Lexer error in file " << fname
 	<< " line " << line
 	<< " at text " << lexeme.substr(0, 20)
 	<< endl << "	";
-	// cout << " Lexer Error Text " << lexeme.substr(0, 20) << endl;
+	// cerr << " Lexer Error Text " << lexeme.substr(0, 20) << endl;
 	
 	string msg;
 	switch (tokenid)
@@ -508,8 +511,8 @@ void output_token_err(string lexeme, int line, string fname, int tokenid)
 		default:
 			return;
 	}
-	cout << "\033[1;31m" << msg << "\033[0m" << endl;
-	// exit(1);
+	std::cerr << "\033[1;31m" << msg << "\033[0m" << endl;
+	exit(1);
 }
 
 void output_token(string lexeme, int line, string path)
@@ -535,7 +538,7 @@ void output_token(string lexeme, int line, string path)
 	}
 	else
 	{
-		cout
+		oss
 		<< "File " << std::left << std::setw(9) << fname
 		<< " Line " << std::right << std::setw(5) << line
 		<< " Token " << std::right << std::setw(5) << tokenid
@@ -926,7 +929,17 @@ int lex_file(string path)
 	string text(bytes.begin(), bytes.end());
 	lex_text(text, path);
 
+    // Write std::ostringstream to the file
+    std::ofstream outfile("infile.lexer");
+    outfile << oss.str();
+    outfile.close();
+
 	return LEX_SUCC;
 }
 
-string print_file();
+string print_file()
+{
+	std::string lexer_str(oss.str());
+	std::cout << lexer_str;
+	return lexer_str;
+}
