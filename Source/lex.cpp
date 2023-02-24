@@ -929,10 +929,17 @@ int lex_file(string path)
 	string text(bytes.begin(), bytes.end());
 	lex_text(text, path);
 
-    // Write std::ostringstream to the file
-    std::ofstream outfile("infile.lexer");
-    outfile << oss.str();
-    outfile.close();
+	// Extract filename from the filepath
+	std::string fname = path.substr(path.find_last_of("/") + 1);
+	size_t dot_pos = fname.find_last_of(".");
+	if (dot_pos != std::string::npos)
+	{
+		fname = fname.substr(0, dot_pos);
+	}
+	// Write std::ostringstream to the file
+	std::ofstream outfile(fname+".lexer");
+	outfile << oss.str();
+	outfile.close();
 
 	return LEX_SUCC;
 }
