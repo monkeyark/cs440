@@ -26,7 +26,7 @@ $(BIN): $(OBJS)
 
 clean:
 	@$(ECHO) Removing compiled files
-	@$(RM) *.o $(BIN) *.d TAGS core vgcore.* gmon.out
+	@$(RM) *.o $(BIN) *.d TAGS *.lexer
 
 clobber: clean
 	@$(ECHO) Removing all generated files
