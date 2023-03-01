@@ -1,0 +1,889 @@
+3/5 pts   README.txt / README.md
+    Instructions to build compiler and documentation are given.
+ -2 points Should also indicate which features are implemented for part 1.
+
+15/15 pts  developers.pdf
+    How the implementation works.
+    A high-level description of how tokens are recognized.
+
+10/10 pts  Ease of building
+
+5/5 pts  compiler works in mode 0
+
+
+        
+Basic lexer
+------------------------------------------------------------
+10/10 pts	Correct line numbers and output format.
+       
+14.5/15 pts	Keywords, types, identifiers.
+
+	test files: keywords_01.c ... keywords_15.c
+		
+		0 pass = 0 points
+		1 pass = 3 points
+		2 pass = 6 points
+		3 pass = 7.5 points
+		4 pass = 9 points
+		5 pass = 10 points
+		6 pass = 10.8 points
+		7 pass = 11.4 points
+		8 pass = 12.1 points
+		9 pass = 12.6 points
+		10 pass = 13.1 points
+		11 pass = 13.5 points
+		12 pass = 13.9 points
+		13 pass = 14.3 points
+		14 pass = 14.6 points
+		15 pass = 15 points
+
+       
+13.7/14 pts	Integer, real, string, character literals.
+
+	15 test files: literals_01.c ... literals_14.c
+
+
+		0 pass = 0  points
+		1 pass = 3  points
+		2 pass = 6  points
+		3 pass = 7.5 points
+		4 pass = 9 points
+		5 pass = 10 points
+		6 pass = 10.8 points
+		7 pass = 11.4 points
+		8 pass = 12.1 points
+		9 pass = 12.6 points
+		10 pass = 13.1 points
+		11 pass = 13.4 points
+		12 pass = 13.7 points
+		13 pass = 13.9 points
+		14 pass = 14   points
+		
+
+       
+6/6  pts	Comments.
+
+        6 test files: comments_1.c ... comments_6.c
+		0 pass = 0 points
+		1 pass = 2.5 points
+		2 pass = 3.9 points
+		3 pass = 4.6 points
+		4 pass = 5.2 points
+		5 pass = 5.7 points
+		6 pass = 6 points
+
+
+
+13.5/15 pts	Symbols.
+
+	15 test files: symbols_01.c ... symbols_15.c
+		0 pass = 0 points
+		1 pass = 3 points
+		2 pass = 6 points
+		3 pass = 7.5 points
+		4 pass = 9 points
+		5 pass = 10 points
+		6 pass = 10.8 points
+		7 pass = 11.4 points
+		8 pass = 12.1 points
+		9 pass = 12.6 points
+		10 pass = 13.1 points
+		11 pass = 13.5 points
+		12 pass = 13.9 points
+		13 pass = 14.3 points
+		14 pass = 14.6 points
+		15 pass = 15 points
+
+
+
+
+Extra features (tests 'pass' for output/errors matching "extra")
+------------------------------------------------------------
+
+2.2/3  pts	Char literals with escapes
+
+	
+        4 test files: x_char1.c ... x_char4.c
+	 0 pass:  0   points
+       1 pass:  1.5 points
+       2 pass:  2.2 points
+       3 pass:  2.7 points
+       4 pass:  3   points
+
+
+
+2.4/3  pts	Real literals with exponents
+
+
+        4 test files: x_real1.c ... x_real4.c
+	 0 pass:  0   points
+       1 pass:  1.5 points
+       2 pass:  2.2 points
+       3 pass:  2.7 points
+       4 pass:  3   points
+
+
+      
+3/3  pts	String literals with escapes
+
+	4 test files:	x_str1.c ... x_str4.c
+	 0 pass:  0   points
+       1 pass:  1.5 points
+       2 pass:  2.2 points
+       3 pass:  2.7 points
+       4 pass:  3   points
+
+
+        
+2.7/3  pts	Errors for long lexemes
+
+	4 test files: x_long1.c ... x_long4.c
+	 0 pass:  0   points
+       1 pass:  1.5 points
+       2 pass:  2.2 points
+       3 pass:  2.7 points
+       4 pass:  3   points
+
+2.7/3  pts	Error for invalid characters.
+
+	3 test files: x_invalid1.c, x_invalid2.c, x_invalid3.c
+	 0 pass:  0   points
+       1 pass:  1.5 points
+       2 pass:  2.2 points
+       3 pass:  2.7 points
+       4 pass:  3   points
+
+
+
+3/3  pts  Output file removed on error
+	 0 pass:  0   points
+       1 pass:  1.5 points
+       2 pass:  2.2 points
+       3 pass:  2.7 points
+       4 pass:  3   points
+    
+
+5.1/12 pts  Include directives
+	 11 test files: x_inc01.c ... x_inc11.c
+		0 pass = 0 points
+		1 pass = 4 points
+		2 pass = 6.1 points
+		3 pass = 7.4 points
+		4 pass = 8.4 points
+		5 pass = 9.2 points
+		6 pass = 9.7 points
+		7 pass = 10.3 points
+		8 pass = 10.6 points
+		9 pass = 11.1 points
+		10 pass = 11.4 points
+		11 pass = 11.7 points
+		12 pass = 12 points
+
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+
+
+[aziz@pyrite-n3 Grading_1]$ ./mycc -0
+Next-Generation-Compiler-But-God-Know-If-It-Would-Work
+        Wirrten by Zhi Wang (danryw@iastate.edu)
+        Version 0.01    Released Jan 26 2023
+[aziz@pyrite-n3 Grading_1]$ ./mycc -1 INPUTS/lineno1.c
+File lineno1.c Line     1 Token   303 Text 1
+File lineno1.c Line     3 Token   303 Text 3
+File lineno1.c Line     3 Token   306 Text three
+File lineno1.c Line     3 Token   304 Text 3.0
+File lineno1.c Line     4 Token   303 Text 4
+File lineno1.c Line     5 Token   303 Text 5
+File lineno1.c Line    10 Token   303 Text 10
+[aziz@pyrite-n3 Grading_1]$ ./mycc -1 INPUTS/lineno2.c
+File lineno2.c Line     1 Token   303 Text 1
+File lineno2.c Line    10 Token   303 Text 10
+File lineno2.c Line    15 Token   303 Text 15
+File lineno2.c Line    22 Token   303 Text 22
+File lineno2.c Line    33 Token   303 Text 33
+
+
+
+[aziz@pyrite-n2 Source]$ ./LexTest.sh ./mycc INPUTS/keywords*.c
+Running tests using compiler:
+  | Next-Generation-Compiler-But-God-Know-If-It-Would-Work
+  |     Wirrten by Zhi Wang (danryw@iastate.edu)
+  |     Version 0.01    Released Jan 26 2023
+
+keywords_01.c    Output    matches basic
+keywords_02.c    Different output
+                 Instructor basic output:
+                 ------------------------------------------------------------
+                 | File keywords_02.c Line 1 Token 402 Text
+                 | File keywords_02.c Line 2 Token 306 Text
+                 | File keywords_02.c Line 3 Token 306 Text
+                 | File keywords_02.c Line 4 Token 306 Text
+                 | File keywords_02.c Line 5 Token 306 Text
+                 | File keywords_02.c Line 6 Token 306 Text
+                 ------------------------------------------------------------
+                 Student output:
+                 ------------------------------------------------------------
+                 | File keywords_02.c Line 1 Token 306 Text struct
+                 | File keywords_02.c Line 2 Token 306 Text truct
+                 | File keywords_02.c Line 3 Token 306 Text ruct
+                 | File keywords_02.c Line 4 Token 306 Text uct
+                 | File keywords_02.c Line 5 Token 306 Text ct
+                 | File keywords_02.c Line 6 Token 306 Text t
+                 ------------------------------------------------------------
+keywords_03.c    Output    matches basic
+keywords_04.c    Output    matches basic
+keywords_05.c    Output    matches basic
+keywords_06.c    Output    matches basic
+keywords_07.c    Output    matches basic
+keywords_08.c    Output    matches basic
+keywords_09.c    Output    matches basic
+keywords_10.c    Output    matches basic
+keywords_11.c    Output    matches basic
+keywords_12.c    Output    matches basic
+keywords_13.c    Output    matches basic
+keywords_14.c    Output    matches basic
+keywords_15.c    Output    matches basic
+
+
+[aziz@pyrite-n2 Source]$ ./LexTest.sh ./mycc INPUTS/literals*.c
+Running tests using compiler:
+  | Next-Generation-Compiler-But-God-Know-If-It-Would-Work
+  |     Wirrten by Zhi Wang (danryw@iastate.edu)
+  |     Version 0.01    Released Jan 26 2023
+
+literals_01.c    Output    matches basic
+literals_02.c    Output    matches basic
+literals_03.c    Output    matches basic
+literals_04.c    Output    matches basic
+literals_05.c    Different output
+                 Instructor basic output:
+                 ------------------------------------------------------------
+                 | File literals_05.c Line 1 Token 304 Text
+                 | File literals_05.c Line 1 Token 46 Text
+                 | File literals_05.c Line 1 Token 303 Text
+                 ------------------------------------------------------------
+                 Student output:
+                 ------------------------------------------------------------
+                 | File literals_05.c Line 1 Token 304 Text 123.456
+                 | File literals_05.c Line 1 Token 304 Text .78
+                 ------------------------------------------------------------
+literals_06.c    Output    matches basic
+literals_07.c    Output    matches basic
+literals_08.c    Output    matches basic
+literals_09.c    1st Error line matches extra
+                 Input file relevant lines
+                 ------------------------------------------------------------
+              5  | "// this is pretty evil, right"
+              6  |
+              7  | "Should give an error for unclosed string.
+                 ------------------------------------------------------------
+                 Instructor error message:
+                 ------------------------------------------------------------
+                 | Lexer error in file literals_09.c line 7 at text "
+                 |      Unclosed string
+                 ------------------------------------------------------------
+                 Student error message (first 10 lines):
+                 ------------------------------------------------------------
+                 | Lexer error in file literals_09.c line 7 at text "
+                 |      Unclosed quote
+                 ------------------------------------------------------------
+literals_10.c    Output    matches basic
+literals_11.c    Output    matches basic
+literals_12.c    No error detected
+literals_13.c    Output    matches basic
+literals_14.c    Output    matches basic
+
+
+[aziz@pyrite-n2 Source]$ ./LexTest.sh ./mycc INPUTS/comments*.c
+Running tests using compiler:
+  | Next-Generation-Compiler-But-God-Know-If-It-Would-Work
+  |     Wirrten by Zhi Wang (danryw@iastate.edu)
+  |     Version 0.01    Released Jan 26 2023
+
+comments_1.c     Output    matches basic
+comments_2.c     Output    matches basic
+comments_3.c     Output    matches basic
+comments_4.c     Output    matches basic
+comments_5.c     Output    matches basic
+comments_6.c     Output    matches basic
+[aziz@pyrite-n2 Source]$ ./LexTest.sh ./mycc INPUTS/symbols*.c
+Running tests using compiler:
+  | Next-Generation-Compiler-But-God-Know-If-It-Would-Work
+  |     Wirrten by Zhi Wang (danryw@iastate.edu)
+  |     Version 0.01    Released Jan 26 2023
+
+symbols_01.c     Output    matches basic
+symbols_02.c     Output    matches basic
+symbols_03.c     Output    matches basic
+symbols_04.c     Output    matches basic
+symbols_05.c     Output    matches basic
+symbols_06.c     Output    matches basic
+symbols_07.c     Output    matches basic
+symbols_08.c     Output    matches basic
+symbols_09.c     Output    matches basic
+symbols_10.c     No output
+symbols_11.c     No output
+symbols_12.c     Output    matches basic
+symbols_13.c     Output    matches basic
+symbols_14.c     No output
+symbols_15.c     No output
+
+
+
+[aziz@pyrite-n2 Source]$ ./LexTest.sh ./mycc INPUTS/x_char*.c
+Running tests using compiler:
+  | Next-Generation-Compiler-But-God-Know-If-It-Would-Work
+  |     Wirrten by Zhi Wang (danryw@iastate.edu)
+  |     Version 0.01    Released Jan 26 2023
+
+x_char1.c        Output    matches extra
+x_char2.c        Output    matches extra
+x_char3.c        No error detected
+x_char4.c        No error detected
+[aziz@pyrite-n2 Source]$ ./LexTest.sh ./mycc INPUTS/x_real*.c
+Running tests using compiler:
+  | Next-Generation-Compiler-But-God-Know-If-It-Would-Work
+  |     Wirrten by Zhi Wang (danryw@iastate.edu)
+  |     Version 0.01    Released Jan 26 2023
+
+x_real1.c        Output    matches extra
+x_real2.c        Output    matches extra
+x_real3.c        No output
+x_real4.c        Different output
+                 Instructor basic output:
+                 ------------------------------------------------------------
+                 | File x_real4.c Line 1 Token 304 Text
+                 | File x_real4.c Line 3 Token 304 Text
+                 | File x_real4.c Line 3 Token 306 Text
+                 | File x_real4.c Line 3 Token 45 Text
+                 | File x_real4.c Line 3 Token 304 Text
+                 ------------------------------------------------------------
+                 Student output:
+                 ------------------------------------------------------------
+                 | File x_real4.c Line 1 Token 304 Text 1.11
+                 | File x_real4.c Line 3 Token 304 Text 2.3e-4
+                 | File x_real4.c Line 3 Token 304 Text .5
+                 ------------------------------------------------------------
+                 Instructor extra credit output:
+                 ------------------------------------------------------------
+                 | File x_real4.c Line 1 Token 304 Text
+                 | File x_real4.c Line 3 Token 304 Text
+                 | File x_real4.c Line 3 Token 46 Text
+                 | File x_real4.c Line 3 Token 303 Text
+                 ------------------------------------------------------------
+                 Student output:
+                 ------------------------------------------------------------
+                 | File x_real4.c Line 1 Token 304 Text 1.11
+                 | File x_real4.c Line 3 Token 304 Text 2.3e-4
+                 | File x_real4.c Line 3 Token 304 Text .5
+                 ----------------------------------------------------------
+
+
+[aziz@pyrite-n2 Source]$ ./LexTest.sh ./mycc INPUTS/x_str*.c
+Running tests using compiler:
+  | Next-Generation-Compiler-But-God-Know-If-It-Would-Work
+  |     Wirrten by Zhi Wang (danryw@iastate.edu)
+  |     Version 0.01    Released Jan 26 2023
+
+x_str1.c         Output    matches extra
+x_str2.c         Output    matches extra
+x_str3.c         Output    matches extra
+x_str4.c         1st Error line matches extra
+                 Input file relevant lines
+                 ------------------------------------------------------------
+              1  | "howedy"
+              2  | "escape \\ yup"
+              3  | "unclosed, should be an error or something
+              4  |
+              5  | "ho"
+                 ------------------------------------------------------------
+                 Instructor error message:
+                 ------------------------------------------------------------
+                 | Lexer error in file x_str4.c line 3 at text "
+                 |      Unclosed string
+                 ------------------------------------------------------------
+                 Student error message (first 10 lines):
+                 ------------------------------------------------------------
+                 | Lexer error in file x_str4.c line 3 at text "
+                 |      Unclosed quote
+                 -----------------------------------------------
+
+[aziz@pyrite-n2 Source]$ ./LexTest.sh ./mycc INPUTS/x_long*.c
+Running tests using compiler:
+  | Next-Generation-Compiler-But-God-Know-If-It-Would-Work
+  |     Wirrten by Zhi Wang (danryw@iastate.edu)
+  |     Version 0.01    Released Jan 26 2023
+
+x_long1.c        1st Error line number matches extra
+                 Input file relevant lines
+                 ------------------------------------------------------------
+              2  | "the next string is very long; should generate an error message."
+              3  |
+              4  | "When executed with a mode of 1, your compiler should read the specified input file and divide it into tokens; essentially this is the lexical analysis phase of the compiler (referred to as the “lexer”). The output stream should contain a line for each token, showing the file name, line number, and text corresponding to the token. More details (including the precise output and error formats, and the definitions for the tokens) are given below. The input file may be a C header file, a C source file, or an arbitrary text file. There are opportunities for extra credit.  All implementation must be C, C++, or Java. Instructor permission is required to use anything beyond the standard libraries for these languages. Submissions will be graded on pyrite.cs.iastate.edu, and therefore must build and run correctly there.  Students are strongly encouraged to encapsulate the functionality of this phase of the compiler, so that later parts of the project can easily examine and consume tokens from an input stream. 2 Tokens in our subset of C.  Your lexer must recognize the tokens given in Table 1. A useful list of integer constants for tokens may be found in tokens.h, distributed with the materials for this part of the project. Note that single-character symbols use their ASCII codes; all other tokens have integer values above 300. Whitespace (spaces, tabs, and carriage returns) serves only to separate tokens, and should otherwise be discarded. Any characters that are not part of a lexeme, such as $, should generate an error message.  You may notice that some of the C keywords and operators are missing. Students are welcome to implement additional language features if desired, but any extra keywords or operators must be part ot the C standard.  When executed with a mode of 1, your compiler should read the specified input file and divide it into tokens; essentially this is the lexical analysis phase of the compiler (referred to as the “lexer”). The output stream should contain a line for each token, showing the file name, line number, and text corresponding to the token. More details (including the precise output and error formats, and the definitions for the tokens) are given below. The input file may be a C header file, a C source file, or an arbitrary text file. There are opportunities for extra credit.  All implementation must be C, C++, or Java. Instructor permission is required to use anything beyond the standard libraries for these languages. Submissions will be graded on pyrite.cs.iastate.edu, and therefore must build and run correctly there.  Students are strongly encouraged to encapsulate the functionality of this phase of the compiler, so that later parts of the project can easily examine and consume tokens from an input stream. 2 Tokens in our subset of C.  Your lexer must recognize the tokens given in Table 1. A useful list of integer constants for tokens may be found in tokens.h, distributed with the materials for this part of the project. Note that single-character symbols use their ASCII codes; all other tokens have integer values above 300. Whitespace (spaces, tabs, and carriage returns) serves only to separate tokens, and should otherwise be discarded. Any characters that are not part of a lexeme, such as $, should generate an error message.  You may notice that some of the C keywords and operators are missing. Students are welcome to implement additional language features if desired, but any extra keywords or operators must be part ot the C standard.When executed with a mode of 1, your compiler should read the specified input file and divide it into tokens; essentially this is the lexical analysis phase of the compiler (referred to as the “lexer”). The output stream should contain a line for each token, showing the file name, line number, and text corresponding to the token. More details (including the precise output and error formats, and the definitions for the tokens) are given below. The input file may be a C header file, a C source file, or an arbitrary text file. There are opportunities for extra credit.When executed with a mode of 1, your compiler should read the specified input file and divide it into tokens; essentially this is the lexical analysis phase of the compiler (referred to as the “lexer”). The output stream should contain a line for each token, showing the file name, line number, and text corresponding to the token. More details (including the precise output and error formats, and the definitions for the tokens) are given below. The input file may be a C header file, a C source file, or an arbitrary text file. There are opportunities for extra credit.When executed with a mode of 1, your compiler should read the specified input file and divide it into tokens; essentially this is the lexical analysis phase of the compiler (referred to as the “lexer”). The output stream should contain a line for each token, showing the file name, line number, and text corresponding to the token. More details (including the precise output and error formats, and the definitions for the tokens) are given below. The input file may be a C header file, a C source file, or an arbitrary text file. There are opportunities for extra credit.When executed with a mode of 1, your compiler should read the specified input file and divide it into tokens; essentially this is the lexical analysis phase of the compiler (referred to as the “lexer”). The output stream should contain a line for each token, showing the file name, line number, and text corresponding to the token. More details (including the precise output and error formats, and the definitions for the tokens) are given below. The input file may be a C header file, a C source file, or an arbitrary text file. There are opportunities for extra credit.When executed with a mode of 1, your compiler should read the specified input file and divide it into tokens; essentially this is the lexical analysis phase of the compiler (referred to as the “lexer”). The output stream should contain a line for each token, showing the file name, line number, and text corresponding to the token. More details (including the precise output and error formats, and the definitions for the tokens) are given below. The input file may be a C header file, a C source file, or an arbitrary text file. There are opportunities for extra credit.When executed with a mode of 1, your compiler should read the specified input file and divide it into tokens; essentially this is the lexical analysis phase of the compiler (referred to as the “lexer”). The output stream should contain a line for each token, showing the file name, line number, and text corresponding to the token. More details (including the precise output and error formats, and the definitions for the tokens) are given below. The input file may be a C header file, a C source file, or an arbitrary text file. There are opportunities for extra credit.When executed with a mode of 1, your compiler should read the specified input file and divide it into tokens; essentially this is the lexical analysis phase of the compiler (referred to as the “lexer”). The output stream should contain a line for each token, showing the file name, line number, and text corresponding to the token. More details (including the precise output and error formats, and the definitions for the tokens) are given below. The input file may be a C header file, a C source file, or an arbitrary text file. There are opportunities for extra credit.When executed with a mode of 1, your compiler should read the specified input file and divide it into tokens; essentially this is the lexical analysis phase of the compiler (referred to as the “lexer”). The output stream should contain a line for each token, showing the file name, line number, and text corresponding to the token. More details (including the precise output and error formats, and the definitions for the tokens) are given below. The input file may be a C header file, a C source file, or an arbitrary text file. There are opportunities for extra credit.When executed with a mode of 1, your compiler should read the specified input file and divide it into tokens; essentially this is the lexical analysis phase of the compiler (referred to as the “lexer”). The output stream should contain a line for each token, showing the file name, line number, and text corresponding to the token. More details (including the precise output and error formats, and the definitions for the tokens) are given below. The input file may be a C header file, a C source file, or an arbitrary text file. There are opportunities for extra credit.When executed with a mode of 1, your compiler should read the specified input file and divide it into tokens; essentially this is the lexical analysis phase of the compiler (referred to as the “lexer”). The output stream should contain a line for each token, showing the file name, line number, and text corresponding to the token. More details (including the precise output and error formats, and the definitions for the tokens) are given below. The input file may be a C header file, a C source file, or an arbitrary text file. There are opportunities for extra credit.When executed with a mode of 1, your compiler should read the specified input file and divide it into tokens; essentially this is the lexical analysis phase of the compiler (referred to as the “lexer”). The output stream should contain a line for each token, showing the file name, line number, and text corresponding to the token. More details (including the precise output and error formats, and the definitions for the tokens) are given below. The input file may be a C header file, a C source file, or an arbitrary text file. There are opportunities for extra credit.When executed with a mode of 1, your compiler should read the specified input file and divide it into tokens; essentially this is the lexical analysis phase of the compiler (referred to as the “lexer”). The output stream should contain a line for each token, showing the file name, line number, and text corresponding to the token. More details (including the precise output and error formats, and the definitions for the tokens) are given below. The input file may be a C header file, a C source file, or an arbitrary text file. There are opportunities for extra credit."
+              5  |
+              6  | "line six"
+                 ------------------------------------------------------------
+                 Instructor error message:
+                 ------------------------------------------------------------
+                 | Lexer error in file x_long1.c line 4 at text "When ..."
+                 |      String literal is too long
+                 ------------------------------------------------------------
+                 Student error message (first 10 lines):
+                 ------------------------------------------------------------
+                 | Lexer error in file x_long1.c line 4 at text "When executed with
+                 |      String is too long
+                 ------------------------------------------------------------
+x_long2.c        1st Error line number matches extra
+                 Input file relevant lines
+                 ------------------------------------------------------------
+              4  | long_identifier_here
+              5  |
+              6  | really_long_identifier_that_will_cause_an_error____When_executed_with_a_mode_of_onecomma_your_compiler_should_read_the_specified_input_file_and_divide_it_into_tokenssemi_essentially_this_is_the_lexical_analysis_phase_of_the_compiler_leftparenreferred_to_as_the_quotelexerquoterightparenperiod_The_output_stream_should_contain_a_line_for_each_tokencomma_showing_the_file_namecomma_line_numbercomma_and_text_corresponding_to_the_tokenperiod_More_details_leftparenincluding_the_precise_output_and_error_formatscomma_and_the_definitions_for_the_tokensrightparen_are_given_belowperiod_The_input_file_may_be_a_C_header_filecomma_a_C_source_filecomma_or_an_arbitrary_text_fileperiod_There_are_opportunities_for_extra_creditperiod____really_long_identifier_that_will_be_truncated_When_executed_with_a_mode_of_onecomma_your_compiler_should_read_the_specified_input_file_and_divide_it_into_tokenssemi_essentially_this_is_the_lexical_analysis_phase_of_the_compiler_leftparenreferred_to_as_the_quotelexerquoterightparenperiod_The_output_stream_should_contain_a_line_for_each_tokencomma_showing_the_file_namecomma_line_numbercomma_and_text_corresponding_to_the_tokenperiod_More_details_leftparenincluding_the_precise_output_and_error_formatscomma_and_the_definitions_for_the_tokensrightparen_are_given_belowperiod_The_input_file_may_be_a_C_header_filecomma_a_C_source_filecomma_or_an_arbitrary_text_fileperiod_There_are_opportunities_for_extra_creditperiod__really_long_identifier_that_will_be_truncated_When_executed_with_a_mode_of_onecomma_your_compiler_should_read_the_specified_input_file_and_divide_it_into_tokenssemi_essentially_this_is_the_lexical_analysis_phase_of_the_compiler_leftparenreferred_to_as_the_quotelexerquoterightparenperiod_The_output_stream_should_contain_a_line_for_each_tokencomma_showing_the_file_namecomma_line_numbercomma_and_text_corresponding_to_the_tokenperiod_More_details_leftparenincluding_the_precise_output_and_error_formatscomma_and_the_definitions_for_the_tokensrightparen_are_given_belowperiod_The_input_file_may_be_a_C_header_filecomma_a_C_source_filecomma_or_an_arbitrary_text_fileperiod_There_are_opportunities_for_extra_creditperiod__really_long_identifier_that_will_be_truncated_When_executed_with_a_mode_of_onecomma_your_compiler_should_read_the_specified_input_file_and_divide_it_into_tokenssemi_essentially_this_is_the_lexical_analysis_phase_of_the_compiler_leftparenreferred_to_as_the_quotelexerquoterightparenperiod_The_output_stream_should_contain_a_line_for_each_tokencomma_showing_the_file_namecomma_line_numbercomma_and_text_corresponding_to_the_tokenperiod_More_details_leftparenincluding_the_precise_output_and_error_formatscomma_and_the_definitions_for_the_tokensrightparen_are_given_belowperiod_The_input_file_may_be_a_C_header_filecomma_a_C_source_filecomma_or_an_arbitrary_text_fileperiod_There_are_opportunities_for_extra_creditperiod__really_long_identifier_that_will_be_truncated_When_executed_with_a_mode_of_onecomma_your_compiler_should_read_the_specified_input_file_and_divide_it_into_tokenssemi_essentially_this_is_the_lexical_analysis_phase_of_the_compiler_leftparenreferred_to_as_the_quotelexerquoterightparenperiod_The_output_stream_should_contain_a_line_for_each_tokencomma_showing_the_file_namecomma_line_numbercomma_and_text_corresponding_to_the_tokenperiod_More_details_leftparenincluding_the_precise_output_and_error_formatscomma_and_the_definitions_for_the_tokensrightparen_are_given_belowperiod_The_input_file_may_be_a_C_header_filecomma_a_C_source_filecomma_or_an_arbitrary_text_fileperiod_There_are_opportunities_for_extra_creditperiod
+              7  |
+              8  | line8
+                 ------------------------------------------------------------
+                 Instructor error message:
+                 ------------------------------------------------------------
+                 | Lexer error in file x_long2.c line 6 at text reall...
+                 |      Identifier is too long
+                 ------------------------------------------------------------
+                 Student error message (first 10 lines):
+                 ------------------------------------------------------------
+                 | Lexer error in file x_long2.c line 6 at text really_long_identifi
+                 |      Identifier is too long
+                 ------------------------------------------------------------
+x_long3.c        1st Error line number matches extra
+                 Input file relevant lines
+                 ------------------------------------------------------------
+              2  | 2
+              3  |
+              4  | 1234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432123454321234543212345432
+              5  |
+              6  |
+                 ------------------------------------------------------------
+                 Instructor error message:
+                 ------------------------------------------------------------
+                 | Lexer error in file x_long3.c line 4 at text 12345...
+                 |      Integer literal is too long
+                 ------------------------------------------------------------
+                 Student error message (first 10 lines):
+                 ------------------------------------------------------------
+                 | Lexer error in file x_long3.c line 4 at text 12345432123454321234
+                 |      Integer is too long
+                 ------------------------------------------------------------
+x_long4.c        No error detected
+
+
+[aziz@pyrite-n2 Source]$ ./LexTest.sh ./mycc INPUTS/x_invalid*.c
+Running tests using compiler:
+  | Next-Generation-Compiler-But-God-Know-If-It-Would-Work
+  |     Wirrten by Zhi Wang (danryw@iastate.edu)
+  |     Version 0.01    Released Jan 26 2023
+
+x_invalid1.c     1st Error line matches extra
+                 Input file relevant lines
+                 ------------------------------------------------------------
+              4  | __
+              5  |
+              6  | $
+              7  |
+              8  | buh
+                 ------------------------------------------------------------
+                 Instructor error message:
+                 ------------------------------------------------------------
+                 | Lexer error in file x_invalid1.c line 6 at text $
+                 |      Unexpected symbol
+                 ------------------------------------------------------------
+                 Student error message (first 10 lines):
+                 ------------------------------------------------------------
+                 | Lexer error in file x_invalid1.c line 6 at text $
+                 |      Illegal character
+                 ------------------------------------------------------------
+x_invalid2.c     1st Error line matches extra
+                 Input file relevant lines
+                 ------------------------------------------------------------
+              1  |
+              2  | 3;
+              3  | `;
+              4  | 4;
+                 ------------------------------------------------------------
+                 Instructor error message:
+                 ------------------------------------------------------------
+                 | Lexer error in file x_invalid2.c line 3 at text `
+                 |      Unexpected symbol
+                 ------------------------------------------------------------
+                 Student error message (first 10 lines):
+                 ------------------------------------------------------------
+                 | Lexer error in file x_invalid2.c line 3 at text `
+                 |      Illegal character
+                 ------------------------------------------------------------
+x_invalid3.c     No error detected
+
+[aziz@pyrite-n2 Source]$  ./mycc INPUTS/x_invalid1.c
+[aziz@pyrite-n2 Source]$  ./mycc -1 INPUTS/x_invalid1.c
+Lexer error in file INPUTS/x_invalid1.c line 6 at text $
+        Illegal character
+[aziz@pyrite-n2 Source]$ ./LexTest.sh ./mycc INPUTS/x_inc*.c
+Running tests using compiler:
+  | Next-Generation-Compiler-But-God-Know-If-It-Would-Work
+  |     Wirrten by Zhi Wang (danryw@iastate.edu)
+  |     Version 0.01    Released Jan 26 2023
+
+x_inc01.c        Different output
+                 Instructor extra credit output:
+                 ------------------------------------------------------------
+                 | File x_inc01.c Line 2 Token 306 Text
+                 ------------------------------------------------------------
+                 Student output:
+                 ------------------------------------------------------------
+                 | File x_inc01.c Line 1 Token 305 Text #include "x_inc01.h"
+                 | File x_inc01.c Line 2 Token 306 Text a
+                 ------------------------------------------------------------
+x_inc02.c        Different output
+                 Instructor extra credit output:
+                 ------------------------------------------------------------
+                 | File x_inc02.h Line 1 Token 306 Text
+                 ------------------------------------------------------------
+                 Student output:
+                 ------------------------------------------------------------
+                 | File x_inc02.h Line 1 Token 306 Text identifier
+                 | File x_inc02.c Line 1 Token 305 Text #include "x_inc02.h"
+                 ------------------------------------------------------------
+x_inc03.c        Different output
+                 Instructor extra credit output:
+                 ------------------------------------------------------------
+                 | File x_inc03.h Line 2 Token 301 Text
+                 | File x_inc03.h Line 2 Token 306 Text
+                 | File x_inc03.h Line 2 Token 40 Text
+                 | File x_inc03.h Line 2 Token 301 Text
+                 | File x_inc03.h Line 2 Token 306 Text
+                 | File x_inc03.h Line 2 Token 44 Text
+                 | File x_inc03.h Line 2 Token 301 Text
+                 | File x_inc03.h Line 2 Token 306 Text
+                 | File x_inc03.h Line 2 Token 41 Text
+                 | File x_inc03.h Line 2 Token 59 Text
+                 | File x_inc03.h Line 4 Token 301 Text
+                 | File x_inc03.h Line 4 Token 306 Text
+                 | File x_inc03.h Line 4 Token 40 Text
+                 | File x_inc03.h Line 4 Token 306 Text
+                 | File x_inc03.h Line 4 Token 42 Text
+                 | File x_inc03.h Line 4 Token 306 Text
+                 | File x_inc03.h Line 4 Token 44 Text
+                 | File x_inc03.h Line 4 Token 306 Text
+                 | File x_inc03.h Line 4 Token 42 Text
+                 | File x_inc03.h Line 4 Token 306 Text
+                 | File x_inc03.h Line 4 Token 41 Text
+                 | File x_inc03.h Line 4 Token 59 Text
+                 ------------------------------------------------------------
+                 Student output:
+                 ------------------------------------------------------------
+                 | File x_inc03.h Line 2 Token 301 Text void
+                 | File x_inc03.h Line 2 Token 306 Text this_is_a_proper_header
+                 | File x_inc03.h Line 2 Token 40 Text (
+                 | File x_inc03.h Line 2 Token 301 Text int
+                 | File x_inc03.h Line 2 Token 306 Text with
+                 | File x_inc03.h Line 2 Token 44 Text ,
+                 | File x_inc03.h Line 2 Token 301 Text int
+                 | File x_inc03.h Line 2 Token 306 Text prototypes
+                 | File x_inc03.h Line 2 Token 41 Text )
+                 | File x_inc03.h Line 2 Token 59 Text ;
+                 | File x_inc03.h Line 4 Token 301 Text int
+                 | File x_inc03.h Line 4 Token 306 Text does_program_halt
+                 | File x_inc03.h Line 4 Token 40 Text (
+                 | File x_inc03.h Line 4 Token 306 Text FILE
+                 | File x_inc03.h Line 4 Token 42 Text *
+                 | File x_inc03.h Line 4 Token 306 Text program
+                 | File x_inc03.h Line 4 Token 44 Text ,
+                 | File x_inc03.h Line 4 Token 306 Text FILE
+                 | File x_inc03.h Line 4 Token 42 Text *
+                 | File x_inc03.h Line 4 Token 306 Text input
+                 | File x_inc03.h Line 4 Token 41 Text )
+                 | File x_inc03.h Line 4 Token 59 Text ;
+                 | File x_inc03.c Line 1 Token 305 Text #include "x_inc03.h"
+                 ------------------------------------------------------------
+x_inc04.c        Different output
+                 Instructor extra credit output:
+                 ------------------------------------------------------------
+                 | File x_inc04.c Line 2 Token 412 Text
+                 | File x_inc04.c Line 2 Token 306 Text
+                 | File x_inc04.c Line 2 Token 306 Text
+                 | File x_inc04.c Line 2 Token 306 Text
+                 | File x_inc04.c Line 2 Token 306 Text
+                 | File x_inc04.c Line 4 Token 306 Text
+                 | File x_inc04.c Line 4 Token 305 Text
+                 | File x_inc04.h Line 2 Token 306 Text
+                 | File x_inc04.h Line 4 Token 303 Text
+                 | File x_inc04.h Line 4 Token 59 Text
+                 | File x_inc04.h Line 7 Token 304 Text
+                 | File x_inc04.h Line 7 Token 59 Text
+                 | File x_inc04.c Line 10 Token 306 Text
+                 | File x_inc04.c Line 12 Token 303 Text
+                 | File x_inc04.c Line 12 Token 59 Text
+                 ------------------------------------------------------------
+                 Student output:
+                 ------------------------------------------------------------
+                 | File x_inc04.c Line 2 Token 412 Text case
+                 | File x_inc04.c Line 2 Token 306 Text that
+                 | File x_inc04.c Line 2 Token 306 Text might
+                 | File x_inc04.c Line 2 Token 306 Text be
+                 | File x_inc04.c Line 2 Token 306 Text tricky
+                 | File x_inc04.c Line 4 Token 306 Text include
+                 | File x_inc04.c Line 4 Token 305 Text "bad.h"
+                 | File x_inc04.c Line 8 Token 305 Text #    include    "x_inc04.h"
+                 | File x_inc04.c Line 10 Token 306 Text stuff_line_10
+                 | File x_inc04.c Line 12 Token 303 Text 12
+                 | File x_inc04.c Line 12 Token 59 Text ;
+                 ------------------------------------------------------------
+x_inc05.c        1st Error line number matches extra
+                 Input file relevant lines
+                 ------------------------------------------------------------
+              3  | //
+              4  |
+              5  | #include "nope.h"
+              6  |
+              7  | "was there an error?";
+                 ------------------------------------------------------------
+                 Instructor error message:
+                 ------------------------------------------------------------
+                 | Lexer error in file x_inc05.c line 5 at text "nope.h"
+                 |      Couldn't open file nope.h
+                 ------------------------------------------------------------
+                 Student error message (first 10 lines):
+                 ------------------------------------------------------------
+                 | Lexer error in file x_inc05.c line 5 at text #include "nope.h"
+                 |      Couldn't open file nope.h
+                 ------------------------------------------------------------
+x_inc06.c        Different output
+                 Instructor extra credit output:
+                 ------------------------------------------------------------
+                 | File x_inc06a.h Line 2 Token 303 Text
+                 | File x_inc06a.h Line 2 Token 59 Text
+                 | File x_inc06a.h Line 3 Token 302 Text
+                 | File x_inc06a.h Line 3 Token 59 Text
+                 | File x_inc06a.h Line 4 Token 305 Text
+                 | File x_inc06a.h Line 4 Token 59 Text
+                 | File x_inc06.c Line 3 Token 301 Text
+                 | File x_inc06.c Line 3 Token 306 Text
+                 | File x_inc06.c Line 3 Token 59 Text
+                 | File x_inc06b.h Line 1 Token 301 Text
+                 | File x_inc06b.h Line 1 Token 306 Text
+                 | File x_inc06b.h Line 1 Token 59 Text
+                 | File x_inc06.c Line 6 Token 306 Text
+                 | File x_inc06.c Line 6 Token 306 Text
+                 | File x_inc06.c Line 6 Token 306 Text
+                 | File x_inc06.c Line 6 Token 306 Text
+                 | File x_inc06.c Line 6 Token 306 Text
+                 | File x_inc06.c Line 6 Token 306 Text
+                 | File x_inc06.c Line 6 Token 58 Text
+                 | File x_inc06a.h Line 2 Token 303 Text
+                 | File x_inc06a.h Line 2 Token 59 Text
+                 | File x_inc06a.h Line 3 Token 302 Text
+                 | File x_inc06a.h Line 3 Token 59 Text
+                 | File x_inc06a.h Line 4 Token 305 Text
+                 | File x_inc06a.h Line 4 Token 59 Text
+                 | File x_inc06.c Line 10 Token 306 Text
+                 | File x_inc06.c Line 10 Token 59 Text
+                 ------------------------------------------------------------
+                 Student output:
+                 ------------------------------------------------------------
+                 | File x_inc06a.h Line 2 Token 303 Text 2
+                 | File x_inc06a.h Line 2 Token 59 Text ;
+                 | File x_inc06a.h Line 3 Token 302 Text '3'
+                 | File x_inc06a.h Line 3 Token 59 Text ;
+                 | File x_inc06a.h Line 4 Token 305 Text "4"
+                 | File x_inc06a.h Line 4 Token 59 Text ;
+                 | File x_inc06.c Line 2 Token 305 Text #include "x_inc06a.h"
+                 | File x_inc06.c Line 3 Token 301 Text int
+                 | File x_inc06.c Line 3 Token 306 Text b
+                 | File x_inc06.c Line 3 Token 59 Text ;
+                 | File x_inc06b.h Line 1 Token 301 Text int
+                 | File x_inc06b.h Line 1 Token 306 Text i
+                 | File x_inc06b.h Line 1 Token 59 Text ;
+                 | File x_inc06.c Line 4 Token 305 Text #include "x_inc06b.h"
+                 | File x_inc06.c Line 6 Token 306 Text this
+                 | File x_inc06.c Line 6 Token 306 Text should
+                 | File x_inc06.c Line 6 Token 306 Text not
+                 | File x_inc06.c Line 6 Token 306 Text be
+                 | File x_inc06.c Line 6 Token 306 Text a
+                 | File x_inc06.c Line 6 Token 306 Text problem
+                 | File x_inc06.c Line 6 Token 58 Text :
+                 | File x_inc06a.h Line 2 Token 303 Text 2
+                 | File x_inc06a.h Line 2 Token 59 Text ;
+                 | File x_inc06a.h Line 3 Token 302 Text '3'
+                 | File x_inc06a.h Line 3 Token 59 Text ;
+                 | File x_inc06a.h Line 4 Token 305 Text "4"
+                 | File x_inc06a.h Line 4 Token 59 Text ;
+                 | File x_inc06.c Line 8 Token 305 Text #include "x_inc06a.h"
+                 | File x_inc06.c Line 10 Token 306 Text done
+                 | File x_inc06.c Line 10 Token 59 Text ;
+                 ------------------------------------------------------------
+x_inc07.c        Different output
+                 Instructor extra credit output:
+                 ------------------------------------------------------------
+                 | File chain2.h Line 2 Token 302 Text
+                 | File chain2.h Line 2 Token 59 Text
+                 | File chain1.h Line 1 Token 303 Text
+                 | File chain1.h Line 1 Token 59 Text
+                 | File chain1.h Line 2 Token 303 Text
+                 | File chain1.h Line 2 Token 59 Text
+                 | File chain1.h Line 3 Token 303 Text
+                 | File chain1.h Line 3 Token 59 Text
+                 | File chain2.h Line 4 Token 302 Text
+                 | File chain2.h Line 4 Token 59 Text
+                 ------------------------------------------------------------
+                 Student output:
+                 ------------------------------------------------------------
+                 | File chain2.h Line 2 Token 302 Text '2'
+                 | File chain2.h Line 2 Token 59 Text ;
+                 | File chain1.h Line 1 Token 303 Text 1
+                 | File chain1.h Line 1 Token 59 Text ;
+                 | File chain1.h Line 2 Token 303 Text 2
+                 | File chain1.h Line 2 Token 59 Text ;
+                 | File chain1.h Line 3 Token 303 Text 3
+                 | File chain1.h Line 3 Token 59 Text ;
+                 | File chain2.h Line 3 Token 305 Text #include "chain1.h"
+                 | File chain2.h Line 4 Token 302 Text '3'
+                 | File chain2.h Line 4 Token 59 Text ;
+                 | File x_inc07.c Line 1 Token 305 Text #include "chain2.h"
+                 ------------------------------------------------------------
+x_inc08.c        Different output
+                 Instructor extra credit output:
+                 ------------------------------------------------------------
+                 | File x_inc08.c Line 2 Token 306 Text
+                 | File x_inc08.c Line 3 Token 306 Text
+                 | File x_inc08.c Line 3 Token 305 Text
+                 | File chain3.h Line 3 Token 304 Text
+                 | File chain3.h Line 3 Token 59 Text
+                 | File chain2.h Line 2 Token 302 Text
+                 | File chain2.h Line 2 Token 59 Text
+                 | File chain1.h Line 1 Token 303 Text
+                 | File chain1.h Line 1 Token 59 Text
+                 | File chain1.h Line 2 Token 303 Text
+                 | File chain1.h Line 2 Token 59 Text
+                 | File chain1.h Line 3 Token 303 Text
+                 | File chain1.h Line 3 Token 59 Text
+                 | File chain2.h Line 4 Token 302 Text
+                 | File chain2.h Line 4 Token 59 Text
+                 | File chain3.h Line 6 Token 304 Text
+                 | File chain3.h Line 6 Token 59 Text
+                 | File x_inc08.c Line 7 Token 403 Text
+                 | File x_inc08.c Line 7 Token 306 Text
+                 ------------------------------------------------------------
+                 Student output:
+                 ------------------------------------------------------------
+                 | File x_inc08.c Line 2 Token 306 Text nested
+                 | File x_inc08.c Line 3 Token 306 Text include
+                 | File x_inc08.c Line 3 Token 305 Text "tests"
+                 | File chain3.h Line 3 Token 304 Text 3.0
+                 | File chain3.h Line 3 Token 59 Text ;
+                 | File chain2.h Line 2 Token 302 Text '2'
+                 | File chain2.h Line 2 Token 59 Text ;
+                 | File chain1.h Line 1 Token 303 Text 1
+                 | File chain1.h Line 1 Token 59 Text ;
+                 | File chain1.h Line 2 Token 303 Text 2
+                 | File chain1.h Line 2 Token 59 Text ;
+                 | File chain1.h Line 3 Token 303 Text 3
+                 | File chain1.h Line 3 Token 59 Text ;
+                 | File chain2.h Line 3 Token 305 Text #include "chain1.h"
+                 | File chain2.h Line 4 Token 302 Text '3'
+                 | File chain2.h Line 4 Token 59 Text ;
+                 | File chain3.h Line 4 Token 305 Text #include "chain2.h"
+                 | File chain3.h Line 6 Token 304 Text 6.0
+                 | File chain3.h Line 6 Token 59 Text ;
+                 | File x_inc08.c Line 5 Token 305 Text #include "chain3.h"
+                 | File x_inc08.c Line 7 Token 403 Text for
+                 | File x_inc08.c Line 7 Token 306 Text fun
+                 ------------------------------------------------------------
+x_inc09.c        Different output
+                 Instructor extra credit output:
+                 ------------------------------------------------------------
+                 | File chain2.h Line 2 Token 302 Text
+                 | File chain2.h Line 2 Token 59 Text
+                 | File chain1.h Line 1 Token 303 Text
+                 | File chain1.h Line 1 Token 59 Text
+                 | File chain1.h Line 2 Token 303 Text
+                 | File chain1.h Line 2 Token 59 Text
+                 | File chain1.h Line 3 Token 303 Text
+                 | File chain1.h Line 3 Token 59 Text
+                 | File chain2.h Line 4 Token 302 Text
+                 | File chain2.h Line 4 Token 59 Text
+                 | File chain1.h Line 1 Token 303 Text
+                 | File chain1.h Line 1 Token 59 Text
+                 | File chain1.h Line 2 Token 303 Text
+                 | File chain1.h Line 2 Token 59 Text
+                 | File chain1.h Line 3 Token 303 Text
+                 | File chain1.h Line 3 Token 59 Text
+                 | File x_inc09.c Line 6 Token 306 Text
+                 | File x_inc09.c Line 6 Token 306 Text
+                 | File x_inc09.c Line 6 Token 306 Text
+                 | File x_inc09.c Line 6 Token 306 Text
+                 ------------------------------------------------------------
+                 Student output:
+                 ------------------------------------------------------------
+                 | File chain2.h Line 2 Token 302 Text '2'
+                 | File chain2.h Line 2 Token 59 Text ;
+                 | File chain1.h Line 1 Token 303 Text 1
+                 | File chain1.h Line 1 Token 59 Text ;
+                 | File chain1.h Line 2 Token 303 Text 2
+                 | File chain1.h Line 2 Token 59 Text ;
+                 | File chain1.h Line 3 Token 303 Text 3
+                 | File chain1.h Line 3 Token 59 Text ;
+                 | File chain2.h Line 3 Token 305 Text #include "chain1.h"
+                 | File chain2.h Line 4 Token 302 Text '3'
+                 | File chain2.h Line 4 Token 59 Text ;
+                 | File x_inc09.c Line 2 Token 305 Text #include "chain2.h"
+                 | File chain1.h Line 1 Token 303 Text 1
+                 | File chain1.h Line 1 Token 59 Text ;
+                 | File chain1.h Line 2 Token 303 Text 2
+                 | File chain1.h Line 2 Token 59 Text ;
+                 | File chain1.h Line 3 Token 303 Text 3
+                 | File chain1.h Line 3 Token 59 Text ;
+                 | File x_inc09.c Line 4 Token 305 Text #include "chain1.h"
+                 | File x_inc09.c Line 6 Token 306 Text should
+                 | File x_inc09.c Line 6 Token 306 Text be
+                 | File x_inc09.c Line 6 Token 306 Text no
+                 | File x_inc09.c Line 6 Token 306 Text problem
+                 ------------------------------------------------------------
+x_inc10.c        1st Error is different
+                 Input file relevant lines
+                 ------------------------------------------------------------
+              2  | Just
+              3  |
+              4  | #include "chain5.h"
+              5  |
+              6  | plain
+             18  | cases
+             19  |
+             20  | #include "chain1.h"     // Should be easy
+                 ------------------------------------------------------------
+                 Instructor basic message:
+                 ------------------------------------------------------------
+                 | Lexer error in file x_inc10.c line 4 at text #
+                 |      Unexpected symbol, ignoring.
+                 ------------------------------------------------------------
+                 Student error message (first 10 lines):
+                 ------------------------------------------------------------
+                 | Lexer error in file x_inc10.c line 20 at text #include "chain1.h"
+                 |      Token unrecognized
+                 ------------------------------------------------------------
+x_inc11.c        1st Error line number matches extra
+                 Input file relevant lines
+                 ------------------------------------------------------------
+              1  | top
+              2  | #include "nope3.h"
+              3  | top
+                 ------------------------------------------------------------
+                 Instructor error message:
+                 ------------------------------------------------------------
+                 | Lexer error in file x_inc11.c line 2 at text "nope3.h"
+                 |      Couldn't open file nope3.h
+                 ------------------------------------------------------------
+                 Student error message (first 10 lines):
+                 ------------------------------------------------------------
+                 | Lexer error in file x_inc11.c line 2 at text #include "nope3.h"
+                 |      Couldn't open file nope3.h
+                 --------------------------------------------
+
+
+
+       
