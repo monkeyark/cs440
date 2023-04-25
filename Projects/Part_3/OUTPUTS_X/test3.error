@@ -1,0 +1,3 @@
+Type checking error in file test3.c line 14
+	In call to int foo(int, float)
+	Not enough parameters given

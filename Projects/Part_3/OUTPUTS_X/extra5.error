@@ -1,0 +1,2 @@
+Type checking error in file extra5.c line 19
+	Unknown member 'nope' in struct thing

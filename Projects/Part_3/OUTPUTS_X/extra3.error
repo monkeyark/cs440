@@ -1,0 +1,2 @@
+Type checking error in file extra3.c line 7
+	Invalid operation: const int ++

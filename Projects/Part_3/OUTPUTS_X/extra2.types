@@ -1,0 +1,12 @@
+File extra2.c Line 6: expression has type const char[]
+File extra2.c Line 7: expression has type const char[]
+File extra2.c Line 8: expression has type const char
+File extra2.c Line 13: expression has type const int
+File extra2.c Line 14: expression has type int
+File extra2.c Line 15: expression has type int
+File extra2.c Line 23: expression has type const int
+File extra2.c Line 24: expression has type const int
+File extra2.c Line 25: expression has type const int
+File extra2.c Line 26: expression has type int
+File extra2.c Line 33: expression has type void
+File extra2.c Line 34: expression has type void

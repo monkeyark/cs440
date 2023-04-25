@@ -1,0 +1,6 @@
+File test1.c Line 6: expression has type int[]
+File test1.c Line 7: expression has type int
+File test1.c Line 8: expression has type int
+File test1.c Line 20: expression has type float
+File test1.c Line 22: expression has type int
+File test1.c Line 24: expression has type int

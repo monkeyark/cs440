@@ -1,0 +1,2 @@
+Type checking error in file test2.c line 4
+	Unknown function 'printf'

@@ -1,0 +1,3 @@
+Type checking error in file extra6.c line 11
+	In call to int modify(int[])
+	Parameter #1 should be int[], was const int[]

@@ -1,0 +1,3 @@
+Type checking error in file test3.c line 14
+	Parameter mismatch in call to foo(int, float)
+	Expected 2, received 1 parameters

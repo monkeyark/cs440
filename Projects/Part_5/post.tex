@@ -1,0 +1,354 @@
+
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{longtable}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{muave}{rgb}{0.58,0,0.82}
+\definecolor{dkred}{rgb}{0.6,0,0}
+\definecolor{dkblue}{rgb}{0,0,0.7}
+
+\lstset{frame=none,
+  language=C,
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=left,
+  keywordstyle=\color{dkblue},
+  directivestyle=\color{dkred},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{muave},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=2
+}
+
+\lstdefinestyle{jvm}{
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=left,
+  moredelim=[s][\color{black}]{Ljava}{;},
+  morecomment=[l][\color{dkgreen}]{;},
+  morecomment=[l][\color{magenta}]{;;},
+  keywords={class,public,static,super,method,code,end},
+  keywordstyle=\color{dkblue},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=8
+}
+
+\newcommand{\parser}{2}
+\newcommand{\typecheck}{3}
+\newcommand{\codegen}{4}
+\newcommand{\flowgen}{5}
+
+\newcommand{\gradeline}{ \cline{1-2} \cline{4-4} ~\\[-1.5ex] }
+
+\newenvironment{gradetable}{\begin{longtable}{@{~~}rrcp{5in}} \multicolumn{2}{l}{\bf Points} & & {\bf Description}\\ \gradeline}{\end{longtable}}
+
+\newcommand{\mainitem}[2]{\pagebreak[2] {\bf #1} &&& {\bf #2}}
+\newcommand{\mainpara}[1]{~ &&& {#1} }
+\newcommand{\inneritem}[2]{~ & #1 && #2}
+\newcommand{\innerpara}[1]{~ & ~ && #1}
+
+\newcommand{\markedinneritem}[2]{\multicolumn{1}{@{}l}{$\dagger$} & #1 && #2}
+
+
+\title{COM S 440/540 Project part \flowgen}
+\author{Code generation: control flow}
+\date{}
+
+\newenvironment{quotewide}[1]{\begin{minipage}[b]{#1} \vspace{1mm} \begin{quote}} {\end{quote} \vspace{1mm} \end{minipage}}
+
+\begin{document}
+
+\maketitle
+
+%======================================================================
+\section{Requirements for part \flowgen{}}
+%======================================================================
+
+When executed with a mode of \flowgen{},
+your compiler should read the specified input file,
+and check it for correctness (including type checking) as done in part~\typecheck.
+If there are no errors, then your compiler should output
+an equivalent program in our target language
+(still Java assembly).
+For this part of the project,
+your compiler must generate correct code for expressions (from part~\codegen),
+and for (possibly nested) branching statements and loops.
+As usual,
+error messages should be written to standard error,
+and your compiler may make a ``best effort'' to continue processing
+the input file, or exit.
+Specifically, your part~\codegen{} solution should be modified to include
+the following.
+\begin{itemize}
+  \item Type checking of conditions (expressions) within
+        if statements, while loops, do-while loops, and
+        for loops: the condition expression should be a numeric type
+        (char, int, or float).
+
+  \item Type checking of update expressions in for loops.
+
+  \item Code generation for
+        if statements (with and without else),
+        while loops,
+        do-while loops,
+        and for loops.
+
+  \item Code generation for break and continue statements;
+        error messages when they are not within a loop.
+
+\end{itemize}
+
+%======================================================================
+\section{Checking your generated code} \label{SEC:checking}
+%======================================================================
+
+The test scripts from Part~\codegen{} have been updated and
+can be used to test your compilers:
+\begin{description}
+    \item[RunTest.sh]
+      will run your compiler with mode {\tt -\flowgen{}}
+      on the C source code,
+      assemble the output into a {\tt .class} file,
+      and run the {\tt .class} file on a JVM.
+
+    \item[DotTest.sh]
+      will run your compiler on the C source code,
+      and check (only) the {\tt .class}, {\tt .super}, {\tt .method},
+      {\tt .code}, and {\tt .end} portions of the generated assembly.
+
+    \item[AsmTest.sh]
+      will run your compiler on the C source code,
+      and compare your generated assembly against
+      carefuly crafted specifications.
+\end{description}
+As always, students are encouraged to ensure that their compilers
+work well with the scripts.
+
+%======================================================================
+\section{Grading} \label{SEC:grading}
+%======================================================================
+
+For all students: implement as many or as few features listed below as you wish,
+but keep in mind that some features will make testing your code \emph{much}
+easier, and a deficit of points will impact your overall grade.
+Excess points will count as extra credit.
+
+For code generation ``without short circuiting'',
+your compilers will be tested using integer variables
+for the condition.
+The basic tests for each construct are as follows,
+where ${\tt x}$ is an integer variable.
+\begin{lstlisting}[numbers=none]
+  if (x) { /* statements */ }
+
+  if (x) { /* statements */ } else { /* statements */ }
+
+  while (x) { /* statements */ }
+
+  do { /* statements */ } while (x);
+
+  for (/* initialize */; x; /* update */) { /* statements */ }
+\end{lstlisting}
+More advanced tests will use an integer expression,
+or a single comparison as the condition.
+
+Code generation ``with short circuiting''
+will be tested with a variety of conditions
+(comparisons and numeric values)
+connected with operators \verb|&&|, \verb+||+, and \verb|!|.
+
+
+\noindent
+\begin{gradetable}
+  \mainitem{15}{Documentation}
+  \\[1mm]
+  \inneritem{3}{\tt README.txt}
+  \\[1mm]
+  \innerpara{%
+    How to build the compiler and documentation.
+    Updated to show which part \flowgen{} features are implemented.
+  }
+  \\[1mm]
+  \inneritem{12}{\tt developers.pdf}
+  \\[1mm]
+  \innerpara{%
+    New section for part \flowgen{}, that explains
+    the purpose of each source file,
+    the main data structures used (or how they were updated),
+    and gives a high-level overview of how the target code
+    is generated.
+  }
+  \\[4mm]
+
+  \mainitem{7}{Ease of grading}
+  \\[1mm]
+  \innerpara{%
+    How easy was it for the graders to build your compiler and
+    documentation?
+    Does your compiler work with the grading scripts?
+  }
+  \\[4mm]
+
+  \mainitem{8}{Still works in modes 0 through \codegen}
+  \\[4mm]
+
+  \mainitem{15}{Expressions and function calls}
+  \\[1mm]
+  \mainpara{%
+    This includes the most basic functionality from the previous part of the
+    project, namely function calls and assignments to variables,
+    that will be necessary to test this part of the project.
+  }
+  \\[4mm]
+
+  \mainitem{5}{Type checking}
+  \\[1mm]
+  \mainpara{%
+    Check that any expressions used as conditions in if statments
+    and while, do-while, or for loops
+    have a numeric type (char, or int, or float).
+    Generate an appropriate error message otherwise.
+  }
+  \\[4mm]
+
+  \mainitem{5}{Error checking {\tt break} and {\tt continue}}
+  \\[1mm]
+  \mainpara{%
+    Generate an appropriate error message for {\tt break} and {\tt continue}
+    statements outside of a loop.
+  }
+  \\[4mm]
+
+
+  \mainitem{55}{Without short circuiting}
+  \\[1mm]
+  \inneritem{5}{if--then}
+  \\[1mm]
+  \inneritem{5}{if--then--else}
+  \\[1mm]
+  \inneritem{5}{while}
+  \\[1mm]
+  \inneritem{5}{do--while}
+  \\[1mm]
+  \inneritem{8}{for}
+  \\[1mm]
+  \inneritem{5}{ternary operator {\tt ?:}}
+  \\[1mm]
+  \inneritem{5}{{\tt break} (requires a working loop)}
+  \\[1mm]
+  \inneritem{5}{{\tt continue} (requires a working loop)}
+  \\[1mm]
+  \inneritem{12}{comparisons: {\tt ==}, {\tt !=}, {\tt >}, {\tt >=}, {\tt <}, {\tt <=} }
+  \\[4mm]
+
+  \mainitem{30}{With short circuiting}
+  \\[1mm]
+  \inneritem{5}{and, or, not}
+  \\[1mm]
+  \inneritem{5}{comparisons: {\tt ==}, {\tt !=}, {\tt >}, {\tt >=}, {\tt <}, {\tt <=} }
+  \\[1mm]
+  \inneritem{5}{Boolean assignments}
+  \\[1mm]
+  \inneritem{5}{if--then, if--then--else, ternary operator}
+  \\[1mm]
+  \inneritem{5}{while, do--while}
+  \\[1mm]
+  \inneritem{5}{for}
+  \\[4mm]
+
+  \gradeline
+  \mainitem{100}{Total for students in 440 (max points is 120)}
+  \\
+  \mainitem{120}{Total for students in 540 (max points is 140)}
+\end{gradetable}
+
+
+%======================================================================
+\section{Submission}
+%======================================================================
+
+\begin{table}[h]
+\centering
+
+  \begin{tabular}{lcr}
+    {\bf Part} & ~~~~ & {\bf Penalty applied} \\ \cline{1-1}\cline{3-3}
+    Part 0 && 50\% off \\
+    Part 1 && 40\% off \\
+    Part \parser && 30\% off \\
+    Part \typecheck && 20\% off \\
+    Part \codegen && 10\% off
+  \end{tabular}
+
+\caption{Penalty applied when re-grading}
+\label{TAB:penalties}
+\end{table}
+
+Be sure to commit your source code and documentation to your
+git repository, and to upload (push) those commits to the server
+so that we may grade them.
+In Canvas,
+indicate which parts you would like us to re-grade for reduced credit
+(see Table~\ref{TAB:penalties} for penalty information).
+Otherwise, we will grade only part \flowgen{}.
+
+%======================================================================
+\section{Examples} \label{SEC:examples}
+%======================================================================
+
+\subsection{Input: {\tt hello.c}}
+
+\lstinputlisting{INPUTS/hello.c}
+
+\subsection{Output: {\tt hello.j}}
+
+\lstinputlisting[style=jvm]{OUTPUTS_B/hello.j}
+
+\subsection{Input: {\tt fib.c}}
+
+\lstinputlisting{INPUTS/fib.c}
+
+\subsection{Output: {\tt fib.j}}
+
+\lstinputlisting[style=jvm]{OUTPUTS_B/fib.j}
+
+\subsection{Input: {\tt short.c}}
+
+\lstinputlisting{INPUTS/short.c}
+
+\subsection{Output: {\tt short.j}}
+
+\lstinputlisting[style=jvm]{OUTPUTS_B/short.j}
+
+\subsection{Input: {\tt break1.c}}
+
+\lstinputlisting{INPUTS/break1.c}
+
+\subsection{Output: {\tt break1.j}}
+
+\lstinputlisting[style=jvm]{OUTPUTS_B/break1.j}
+
+\subsection{Input: {\tt break2.c}}
+
+\lstinputlisting{INPUTS/break2.c}
+
+\subsection{Error(s) for {\tt break2.c}}
+
+\lstinputlisting[keywordstyle={},numbers=none]{OUTPUTS_B/break2.error}
+
+\end{document}

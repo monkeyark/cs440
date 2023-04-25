@@ -1,0 +1,733 @@
+
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{url}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{longtable}
+
+\renewcommand{\topfraction}{0.99}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{muave}{rgb}{0.58,0,0.82}
+\definecolor{dkred}{rgb}{0.6,0,0}
+\definecolor{dkblue}{rgb}{0,0,0.7}
+
+\lstset{frame=none,
+  language=C,
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=left,
+  stepnumber=1,
+  keywordstyle=\color{dkblue},
+  directivestyle=\color{dkred},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{muave},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=2
+}
+
+\lstdefinestyle{Output}{
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=none,
+  keywordstyle=,
+  directivestyle=,
+  commentstyle=,
+  stringstyle=,
+  tabsize=2
+}
+
+\newcommand{\gradeline}{ \cline{1-2} \cline{4-4} ~\\[-1.5ex] }
+
+\newenvironment{gradetable}{\begin{longtable}{@{}rrcp{5in}} \multicolumn{2}{l}{\bf Points} & & {\bf Description}\\ \gradeline}{\end{longtable}}
+
+\newcommand{\mainitem}[2]{\pagebreak[2] {\bf #1} &&& {\bf #2}}
+\newcommand{\mainpara}[1]{~ &&& {#1} }
+\newcommand{\inneritem}[2]{~ & #1 && #2}
+\newcommand{\innerpara}[1]{~ & ~ && #1}
+
+\newcommand{\iseasier}{is$^\dagger$ }
+\newcommand{\isextra}{is$^\ddagger$ }
+
+\newcounter{rule}
+
+\newcommand{\rulenumber}[1]{\refstepcounter{rule}R\therule\label{RULE:#1}}
+
+\newcommand{\parser}{2}
+\newcommand{\typecheck}{3}
+\newcommand{\codegen}{4}
+
+
+\title{COM S 440/540 Project part \typecheck}
+\author{Type checking}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+
+%======================================================================
+\section{Requirements for part \typecheck}
+%======================================================================
+
+When executed with a mode of \typecheck,
+your compiler should read the specified input file
+and check that the file has correct C syntax
+(as done in part~\parser),
+and perform type checking on all expressions.
+For any type errors (discussed in Section~\ref{SEC:types}),
+write an error message to standard error, in the format
+\begin{quote}
+  \begin{tabbing}
+		{\tt Type ch}\={\tt ecking error in file }\emph{filename}
+		{\tt line }\emph{line number}
+	\\
+		\> \emph{Description}
+  \end{tabbing}
+\end{quote}
+where the \emph{Description} should be as detailed as possible.
+Your compiler should continue to catch and report errors
+at the lexing and parsing stages
+(i.e., errors from Parts 1 and \parser{} should remain).
+After the first error,
+your compiler may either make a ``best effort''
+attempt to continue processing the input file, or exit.
+
+If there are no errors,
+then your compiler should create an output file
+with extension {\tt .types},
+that gives, for each statement of the form
+\begin{quote}
+\emph{expression} ;
+\end{quote}
+the type of the expression.
+See Section~\ref{SEC:output}
+for more details.
+
+%======================================================================
+\section{Type checking} \label{SEC:types}
+%======================================================================
+
+
+\subsection{Literals, identifiers, and functions}
+
+Each expression will have a corresponding type.
+For literals, the type may be inferred based on the literal:
+character literals have type {\tt char},
+integer literals have type {\tt int},
+real literals have type {\tt float},
+and string literals have type {\tt char[]}.
+These may be modified by {\tt const}, see Section~\ref{SEC:constants}.
+For global variables, local variables, and parameters,
+the type should match how they are declared.
+The return type of a function specifies the type of any call to that
+function.
+Regarding functions and identifiers,
+an appropriate error message should be given for
+\begin{itemize}
+  \item
+  declaring a variable, parameter, or struct member
+    of type {\tt void};
+
+  \item
+  using a variable that has not been declared;
+
+  \item
+  declaring a local variable with the same name as another
+  local variable or parameter of the same function;
+
+  \item
+  declaring a parameter with the same name as another parameter
+  in the same prototype;
+
+  \item
+  declaring a global variable with the same name as another
+  global variable;
+
+  \item
+  calling a function that has not been defined or declared as a prototype;
+
+  \item
+  calling a function with the incorrect number of parameters;
+
+  \item
+  calling a function with passed parameters whose types
+  do not \emph{exactly} match the parameters given in its prototype
+    (see Section~\ref{SEC:widening} to relax this slightly);
+
+  \item
+  a {\tt return} statement inside a function,
+  that returns a value with a different type than the function's type
+  (do not worry yet about \emph{missing} {\tt return} statements);
+
+  \item
+  giving more than one definition for the same function name.
+
+\end{itemize}
+Note that these type checking rules are more strict than standard C.
+Extra features in Section~\ref{SEC:extras}
+may adjust these rules or (more likely)
+introduce additional rules,
+to bring type checking closer to the C standard.
+
+
+\subsection{Expressions}
+
+\begin{table}[t]
+\centering
+\begin{tabular}{cccc|c}
+  \# &
+  \multicolumn{3}{c|}{ Operation } & Result type
+\\ \hline
+  \rulenumber{ite} &
+  \multicolumn{3}{c|}{ $N$ ~ {\tt ?} ~ $T$ ~ {\tt :} ~ $T$ } & $T$
+\\
+  \multicolumn{4}{c}{~}
+\\[2mm]
+  \# &
+  Left type & operator & Right type & Result type
+\\ \hline
+  \rulenumber{tilde}  &       & \verb|~| & $I$ & $I$ \\[1mm]
+  \rulenumber{negate} &       & {\tt -} & $N$ & $N$ \\[1mm]
+  \rulenumber{not}    &       & {\tt !} & $N$ & {\tt char}  \\[1mm]
+  \rulenumber{makec}  &       & {\tt (char)} & $N$ & {\tt char} \\[1mm]
+  \rulenumber{makei}  &       & {\tt (int)}  & $N$ & {\tt int}  \\[1mm]
+  \rulenumber{makef}  &       & {\tt (float)} & $N$& {\tt float}
+    \\[2mm]
+  \rulenumber{mod} & $I$ &
+    {\tt \%}, {\tt \&}, {\tt |}
+    & $I$ & $I$
+  \\[1mm]
+  \rulenumber{plus} & $N$ &
+    {\tt +}, {\tt -}, {\tt *}, {\tt /}
+    & $N$ & $N$
+  \\[1mm]
+  \rulenumber{compare} & $N$ &
+    {\tt ==}, {\tt !=}, {\tt >}, {\tt >=}, {\tt <}, {\tt <=},
+    {\tt \&\&}, {\tt ||}
+    & $N$ & {\tt char}
+  \\[2mm]
+  \rulenumber{preinc} &  &
+    {\tt ++}, {\tt --}
+    & $N$ & $N$
+  \\[1mm]
+  \rulenumber{postinc} & $N$ &
+    {\tt ++}, {\tt --}
+    & & $N$
+  \\[1mm]
+  \rulenumber{update} & $N$ &
+    {\tt +=}, {\tt -=}, {\tt *=}, {\tt /=}
+    & $N$ & $N$
+  \\[1mm]
+  \rulenumber{assign} & $T$ &
+    {\tt =}
+    & $T$ & $T$
+  \\[2mm]
+  \rulenumber{array} & $T${\tt[]} &
+    {\tt [ int ]}
+    & & $T$
+\end{tabular}
+\caption{Operations on types.
+  $I \in \{\mathtt{char}, \mathtt{int}\}$ is any integer type,
+  $N \in \{\mathtt{char}, \mathtt{int}, \mathtt{float}\}$ is any numeric type,
+  and
+  $T$ is any type excluding arrays and $\mathtt{void}$.
+} \label{TAB:types}
+\end{table}
+
+All expressions should be checked for type errors.
+Table~\ref{TAB:types} shows
+how operators are defined for various types of operands,
+and the resulting type.
+Rules are numbered for later reference.
+It also shows which explicit coercions, or casts, are allowed
+(c.f. rules R\ref{RULE:makec}, R\ref{RULE:makei}, and R\ref{RULE:makef}).
+Note that the variables $I$, $N$, and $T$ represent the same type
+within a rule;
+for example,
+  rule~R\ref{RULE:plus} says the result of
+  {\tt char + char} has type {\tt char}.
+For a minimal implementation,
+you may give an error if the operand types
+do not \emph{exactly} match.
+For example,
+  rule~R\ref{RULE:plus} says the operands of {\tt +} must be
+  the same type;
+  thus an operation {\tt int + char} would produce a type error.
+Rule~R\ref{RULE:array} is for array indexing,
+and states both that
+  it is an error to index an item that is not an array type,
+  and that
+  array indices must be integers (specifically, {\tt int}s).
+
+
+\section{Extra features}
+\label{SEC:extras}
+
+\subsection{Prototype checking}
+\label{SEC:protos}
+
+Relax the type checking rules to allow function prototypes.
+Note that this requires your parser to support function prototypes,
+which was extra for part~\parser.
+
+Specifically,
+your compiler should allow any number of function prototypes
+for a given function, as long as the return types,
+number of parameters, and parameter types are consistent.
+In other words, prototypes for the same function name
+must match perfectly, except for parameter names.
+A type checking error should be given otherwise.
+
+In terms of type checking,
+presence of a function prototype does not require that a
+function definition also appears.
+Relative to function prototypes,
+the corresponding function definition may
+appear before or after any of its prototypes,
+or not appear at all.
+
+\subsection{Automatic type widening}
+\label{SEC:widening}
+
+\begin{table}[t]
+\centering
+  \begin{tabular}{c|c}
+    Original & Widened \\ \hline
+    {\tt char} & {\tt int} \\
+    {\tt int}  & {\tt float}
+  \end{tabular}
+\caption{Allowed type widenings.} \label{TAB:widenings}
+\end{table}
+
+Relax the type checking rules slightly by
+automatically coercing types,
+by widening only (according to Table~\ref{TAB:widenings})
+as necessary.
+Note that more than one widening may be possible, and desired.
+For example, for operation {\tt char + float},
+the left operand of type {\tt char} can be widened to {\tt int}
+which can then be widened to {\tt float}.
+Once the left operand has automatically been widened to type {\tt float},
+rule~R\ref{RULE:plus}
+  indicates that the resulting type is {\tt float}.
+
+For this extra feature,
+your compiler should automatically widen types any place it is needed:
+for operations shown in Table~\ref{TAB:types},
+for assignments,
+for parameter passing,
+and for function return values.
+For example, if we have the following function defined:
+\begin{quote}
+  \begin{lstlisting}
+    float widen(int a)
+    {
+      a += 'x';
+      return a;
+    }
+  \end{lstlisting}
+\end{quote}
+then the expression in line~3 would automatically widen
+the character constant \verb|'x'| to type {\tt int},
+and the return statement in line~4 would automatically
+widen variable {\tt a} from type {\tt int} to type {\tt float}
+as required for the return type of function {\tt widen()}.
+Calling the function as \verb|widen('q')|
+would be allowed, as the character \verb|'q'| can
+be automatically widened to type {\tt int} as required.
+
+
+\subsection{Variable initialization}
+\label{SEC:initialize}
+
+Implement type checking for variable initialization.
+Note that this requires your parser to support variable initialization,
+which was extra for part~\parser.
+Note that several variables may be declared and initialized at once:
+\begin{quote}
+  \begin{lstlisting}[numbers=none]
+    void foo(int a)
+    {
+      int b = a,      /* OK */
+          c,
+          d = 0,      /* OK */
+          e = d,      /* OK */
+          f = 3.14,   /* ERROR, type mismatch */
+          g;
+    }
+  \end{lstlisting}
+\end{quote}
+
+\subsection{Enforcing constants}
+\label{SEC:constants}
+
+Implement type checking for the {\tt const} modifier.
+Note that this requires your parser to support the {\tt const}
+modifier, which was extra for part~\parser.
+
+For this extra feature,
+an appropriate error message should be generated
+for attempted modifications of any {\tt const} item.
+This says the left side of any assignment operator
+(rules R\ref{RULE:update} and R\ref{RULE:assign})
+cannot be {\tt const},
+and items with an increment or decrement operator
+(rules R\ref{RULE:preinc} and R\ref{RULE:postinc})
+cannot be {\tt const}.
+The only exception is for variable initializations during declaration
+(if this has been implemented):
+\begin{quote}
+  \begin{lstlisting}[numbers=none]
+    void bar(int a)
+    {
+      const int b = a;  /* OK, declare and initialize  */
+      const int c;
+      c = 4;            /* ERROR, assignment to a const */
+    }
+  \end{lstlisting}
+\end{quote}
+
+Additionally,
+when determining (and displaying) the type of an expression,
+the following adjustments should be made.
+\begin{itemize}
+  \item
+    The type of a string literal should be {\tt const char[]}.
+
+  \item
+    The type displayed for a variable should be {\tt const}
+    if it was declared {\tt const}.
+
+  \item
+    The type displayed for an array element should be {\tt const}
+    if the array is {\tt const}.
+
+  \item
+    All other operator rules (R\ref{RULE:ite} through R\ref{RULE:compare})
+    should discard {\tt const} information.
+    For example,
+    it is legal to add a {\tt const int} to a {\tt const int} or to an {\tt int},
+    and in both cases the resulting expression should have type {\tt int}.
+
+
+\end{itemize}
+
+
+\subsection{User-defined structs}
+\label{SEC:userstructs}
+
+Implement type checking for user-defined structs.
+Note that this requires your parser to support user-defined structs,
+which was extra for part~\parser.
+This means that appropriate error messages should be given for the following.
+\begin{itemize}
+  \item
+  It is an error to define two global structs with the same name.
+
+  \item
+  It is an error to define two local structs with the same name.
+
+  \item
+  When declaring a global variable, local variable,
+  or parameter that is a struct type,
+  it is an error if that struct type has not been defined.
+\end{itemize}
+
+
+
+\subsection{Member selection}
+\label{SEC:members}
+
+Implement type checking for member selection of structs.
+Note that this requires your parser to support member selection
+with the `` {\tt .} '' operator,
+which was extra for part~\parser.
+Practically, it also requires you to implement user-defined structs
+as discussed in Section~\ref{SEC:userstructs},
+otherwise this will be impossible to test.
+
+This means to implement the following type checking rule
+\begin{center}
+  \begin{tabular}{cc|c}
+    \# & ~ \qquad Operation \qquad ~ & Result type
+  \\ \hline
+    \rulenumber{members}
+    & $S$ ~\verb|.|~ m & $T$
+  \end{tabular}
+\end{center}
+where $T$ is the type of member ``m'' in struct $S$.
+That is,
+  for any expression of the form ``item.m'':
+\begin{itemize}
+  \item
+  It is a type error if ``item'' is not a {\tt struct} type.
+
+  \item
+  It is a type error if the struct ``item''
+  does not have a member named ``m''.
+
+  \item
+  Otherwise, ``item.m''
+  has type as given by the type of member ``m'',
+  as defined in the struct corresponding to ``item''.
+
+  \item
+  If a struct variable is {\tt const},
+    then all of its members become {\tt const}
+    (for students who implemented {\tt const}).
+
+\end{itemize}
+Note that this is complicated by the fact that ``item''
+may also involve member selection and array indexing.
+This extra feature is to type check expressions of the form
+\begin{quote}
+\begin{lstlisting}[numbers=none]
+  window[3].upperleft.x = mouse.x.stack[mouse.x.top];
+\end{lstlisting}
+\end{quote}
+
+
+%======================================================================
+\section{Format of output} \label{SEC:output}
+%======================================================================
+
+For each statement of the form
+\begin{quote}
+  \emph{expression} {\tt ;}
+\end{quote}
+write a line of the form
+\begin{quote}
+  {\tt File} \emph{filename} {\tt Line } \emph{linenum}{\tt : expression has type}~\emph{type}
+\end{quote}
+to the output stream.
+The \emph{filename} and \emph{linenum} given
+should be the location of the expression statement
+(specifically, the location of the ``\verb|;|'')
+and \emph{type} should be the type of the expression,
+as one of the four basic types
+{\tt void}, {\tt char}, {\tt int}, or {\tt float},
+or a user-defined {\tt struct structname}
+(if that extra feature has been implemented),
+followed by ``\verb|[]|'' if it is an array.
+For example, the source lines from a file {\tt input.c}
+\begin{quote}
+\begin{lstlisting}[firstnumber=23]
+    putchar(72);
+    3.14159265 / 2.0;
+    "Hello, world!";
+\end{lstlisting}
+\end{quote}
+should generate the lines
+\begin{quote}
+  \begin{lstlisting}[style=Output]
+  File input.c Line 23: expression has type int
+  File input.c Line 24: expression has type float
+  File input.c Line 25: expression has type char[]
+  \end{lstlisting}
+\end{quote}
+in the output file {\tt input.types}.
+
+
+
+
+%======================================================================
+\section{Basic examples} \label{SEC:exmin}
+%======================================================================
+
+\subsection{Input: {\tt test1.c}}
+
+\lstinputlisting{INPUTS/test1.c}
+
+\subsection{Output: {\tt test1.types}}
+
+\lstinputlisting[style=Output]{OUTPUTS_B/test1.types}
+
+\subsection{Input: {\tt test2.c}}
+
+\lstinputlisting{INPUTS/test2.c}
+
+\subsection{Error for {\tt test2.c}}
+
+\lstinputlisting[style=Output]{OUTPUTS_B/test2.error}
+
+\subsection{Input: {\tt test3.c}}
+
+\lstinputlisting{INPUTS/test3.c}
+
+\subsection{Error for {\tt test3.c}}
+
+\lstinputlisting[style=Output]{OUTPUTS_B/test3.error}
+
+
+%======================================================================
+\section{Extra feature examples} \label{SEC:exmax}
+%======================================================================
+
+\subsection{Input: {\tt extra3.c}}
+
+\lstinputlisting{INPUTS/extra3.c}
+
+\subsection{Error for {\tt extra3.c}}
+
+\lstinputlisting[style=Output]{OUTPUTS_X/extra3.error}
+
+\subsection{Input: {\tt extra4.c}}
+
+\lstinputlisting{INPUTS/extra4.c}
+
+\subsection{Output: {\tt extra4.types}}
+
+\lstinputlisting[style=Output]{OUTPUTS_X/extra4.types}
+
+
+
+%======================================================================
+\section{Grading}
+%======================================================================
+
+Our testing script, {\tt TypesTest.sh}, is published on the course
+git repository, along with \LaTeX{} source for these specifications.
+Students are \emph{strongly} encouraged to test their code
+using the script, especially on {\tt pyrite.cs.iastate.edu},
+before submission.
+The script works in the same way as the previous grading scripts,
+{\tt LexTest.sh} and {\tt ParseTest.sh}.
+
+
+\noindent
+\begin{gradetable}
+  \mainitem{15}{Documentation}
+  \\[1mm]
+  \inneritem{3}{\tt README.txt}
+  \\[1mm]
+  \innerpara{%
+    How to build the compiler and documentation.
+    Updated to show which part \typecheck{} features are implemented.
+  }
+  \\[1mm]
+  \inneritem{12}{\tt developers.pdf}
+  \\[1mm]
+  \innerpara{%
+    New section for part \typecheck, that explains
+    the purpose of each source file,
+    the main data structures used (or how they were updated),
+    and gives a high-level overview of how the various
+    features are implemented.
+  }
+  \\[4mm]
+
+  \mainitem{6}{Ease of building}
+  \\[1mm]
+  \innerpara{%
+    How easy was it for the graders to build your compiler and
+    documentation?
+    For full credit, simply running ``{\tt make}''
+    should build both the documentation and the compiler executable,
+    and running ``{\tt make clean}'' should remove
+    all generated files.
+  }
+  \\[4mm]
+
+  \mainitem{8}{Still works in modes 0, 1, and \parser}
+  \\[1mm]
+  \mainpara{%
+    We will test earlier modes only using source files
+    that are syntactically correct,
+    with no type errors.
+  }
+  \\[4mm]
+
+  \mainitem{66}{Type checking}
+  \\[1mm]
+  \inneritem{4}{Literals}
+  \\[1mm]
+  \inneritem{10}{Identifiers (global variables, local variables, parameters)}
+  \\[1mm]
+  \inneritem{10}{Function calls}
+  \\[1mm]
+  \inneritem{4}{Function returns}
+  \\[1mm]
+  \inneritem{4}{Unary operators}
+  \\[1mm]
+  \inneritem{4}{Casts}
+  \\[1mm]
+  \inneritem{6}{Binary operators: arithmetic}
+  \\[1mm]
+  \inneritem{6}{Binary operators: comparison and logic}
+  \\[1mm]
+  \inneritem{6}{Assignment and update operators}
+  \\[1mm]
+  \inneritem{4}{Increment and decrement}
+  \\[1mm]
+  \inneritem{4}{Array indexing}
+  \\[1mm]
+  \inneritem{4}{Ternary operator}
+  \\[4mm]
+
+  \mainitem{35}{Extra features}
+  \\[1mm]
+  \inneritem{5}{Prototype checking (c.f. Section~\ref{SEC:protos})}
+  \\[1mm]
+  \inneritem{5}{Automatic widening (c.f. Section~\ref{SEC:widening})}
+  \\[1mm]
+  \inneritem{5}{Variable initializations (c.f. Section~\ref{SEC:initialize})}
+  \\[1mm]
+  \inneritem{5}{Constants (c.f. Section~\ref{SEC:constants})}
+  \\[1mm]
+  \inneritem{5}{User-defined structs (c.f. Section~\ref{SEC:userstructs})}
+  \\[1mm]
+  \inneritem{5}{Struct member selection (c.f. Section~\ref{SEC:members})}
+  \\[1mm]
+  \inneritem{5}{{\tt const} with {\tt struct}}
+  \\[4mm]
+
+  \gradeline
+  \mainitem{100}{Total for students in 440 (max points is 120)}
+  \\
+  \mainitem{115}{Total for students in 540}
+\end{gradetable}
+
+
+\section{Submission}
+
+\begin{table}[h]
+\centering
+
+  \begin{tabular}{lcr}
+    {\bf Part} & ~~~~ & {\bf Penalty applied} \\ \cline{1-1}\cline{3-3}
+    Part 0 && 30\% off \\
+    Part 1 && 20\% off \\
+    Part \parser && 10\% off
+  \end{tabular}
+
+\caption{Penalty applied when re-grading}
+\label{TAB:penalties}
+\end{table}
+
+Be sure to commit your source code and documentation to your
+git repository, and to upload (push) those commits to the server
+so that we may grade them.
+In Canvas,
+indicate which parts you would like us to re-grade for reduced credit
+(see Table~\ref{TAB:penalties} for penalty information).
+Otherwise, we will grade only part \typecheck.
+
+
+
+
+\end{document}
+

@@ -1,0 +1,2 @@
+Type checking error in file test4.c line 6
+	Cannot assign to int from char[]

@@ -1,0 +1,12 @@
+File extra4.c Line 15: expression has type struct pair
+File extra4.c Line 16: expression has type int
+File extra4.c Line 17: expression has type int
+File extra4.c Line 27: expression has type const struct ornament
+File extra4.c Line 28: expression has type const struct pair
+File extra4.c Line 29: expression has type const int
+File extra4.c Line 30: expression has type const struct triangle[]
+File extra4.c Line 31: expression has type const struct triangle
+File extra4.c Line 32: expression has type const char
+File extra4.c Line 33: expression has type const struct pair
+File extra4.c Line 34: expression has type const int
+File extra4.c Line 35: expression has type const char[]
