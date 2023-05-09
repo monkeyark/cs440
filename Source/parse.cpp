@@ -284,7 +284,7 @@ void parse_statement()
 	{
 		i++;
 		if(get_string(toks[i++]) != "(")print_error();
-		expression_check();
+		parse_expression();
 		if(get_string(toks[i++]) != ")")print_error();
 		if(get_string(toks[i]) != "{")
 			parse_statement();
@@ -299,7 +299,7 @@ void parse_statement()
 		{
 			i++;
 			if(get_string(toks[i++]) != "(")print_error();
-			expression_check();
+			parse_expression();
 			if(get_string(toks[i++]) != ")")print_error();
 			if(get_string(toks[i]) != "{")
 				parse_statement();
@@ -320,13 +320,13 @@ void parse_statement()
 		i++;
 		// check (
 		if (get_string(toks[i++]) != "(")print_error();
-		expression_check();
+		parse_expression();
 		// check ;
 		if (get_string(toks[i++]) != ";")print_error();
-		expression_check();
+		parse_expression();
 		// check ;
 		if (get_string(toks[i++]) != ";")print_error();
-		expression_check();
+		parse_expression();
 		// check )
 		if (get_string(toks[i++]) != ")")print_error();
 	}
@@ -334,7 +334,7 @@ void parse_statement()
 	{
 		i++;
 		if(get_string(toks[i++]) != "(")print_error();
-		expression_check();
+		parse_expression();
 		if(get_string(toks[i++]) != ")")print_error();
 		if(get_string(toks[i++]) != "{")
 			parse_statement();
@@ -350,28 +350,28 @@ void parse_statement()
 		parse_code_block();
 		if(get_string(toks[i++]) != "while")print_error();
 		if(get_string(toks[i++]) != "(")print_error();
-		expression_check();
+		parse_expression();
 		if(get_string(toks[i++]) != ")")print_error();
 	}
 	else
 	{
-		expression_check();
+		parse_expression();
 		//TODO // check ;
 		if(get_string(toks[i++]) != ";")print_error();
 	}
-
 }
 
 // only enter this when you see [
-void array_check()
+void parse_array()
 {
 	i++; // pass [
 	// check if is number
 	// check and pass ]
 }
 
-void expression_check()
+void parse_expression()
 {
+	//TODO what if expression start with TYPE
 	if(toks[i] == IDENT)
 	{
 		i++;
@@ -381,10 +381,15 @@ void expression_check()
 			i++;
 			parse_function_call();
 		}
-		else if(tok == "+=")
+		else if(assign_op.count(tok) != 0) // find assignment operator
 		{
 			i++;
-			expression_check();
+			parse_expression();
+		}
+		else if(tok == "--" || tok == "++")
+		{
+			i++;
+			return; //TODO ?????
 		}
 		else
 		{
@@ -392,13 +397,48 @@ void expression_check()
 		}
 
 	}
+	else if(unary_op.count(get_string(toks[i])) != 0) //unary operation
+	{
+		i++;
+		parse_expression();
+	}
+	else if (binary_op.count(get_string(toks[i])) != 0) //TODO NOT check first EXPR, bin_op, expr
+	{
+		i++;
+		parse_expression();
+	}
+	else if(get_string(toks[i]) == "?")
+	{
+		i++;
+		parse_expression();
+		if(get_string(toks[i++]) != ":")print_error();
+		parse_expression();
+	}
+	else if(get_string(toks[i]) == "(")
+	{
+		i++;
+		if (toks[i] == TYPE)
+		{
+			i++;
+			if(get_string(toks[i++]) != ")")print_error();
+			parse_expression();
+		}
+		else if()
+		{
+			if(get_string(toks[i++]) != ")")print_error();
+		}
+		else
+		{
+			print_error();
+		}
+	}
 }
 
 void parse_function_call()
 {
 	while(get_string(toks[i]) != ")")
 	{
-		expression_check();
+		parse_expression();
 		// check , or )
 	}
 }
