@@ -3,9 +3,52 @@
 #include <string> 
 #include <unordered_map>
 #include <unordered_set>
-#include "lex.h"
+#include "lex.hpp"
 
-using namespace std;
+using std::unordered_set;
+using std::unordered_map;
+using std::vector;
+using std::cout;
+using std::endl;
+using std::cerr;
+
+
+string opt[] = {
+	",",
+	"/=",
+	"*=",
+	"-=",
+	"+=",
+	"=",
+	":",
+	"?",
+	"||",
+	"&&",
+	"|",
+	"&",
+	"==",
+	"!=",
+	"<",
+	"<=",
+	">",
+	">=",
+	"+",
+	"-",
+	"*",
+	"/",
+	"%",
+	"TYPE",
+	"++",
+	"--",
+	"UNARY",
+	"~",
+	"!",
+	"(",
+	")",
+	"[",
+	"]",
+	"."
+};
 
 unordered_set<string> assign_op({
 	"=",
@@ -422,10 +465,6 @@ void parse_expression()
 			i++;
 			if(get_string(toks[i++]) != ")")print_error();
 			parse_expression();
-		}
-		else if()
-		{
-			if(get_string(toks[i++]) != ")")print_error();
 		}
 		else
 		{

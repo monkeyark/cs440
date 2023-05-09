@@ -3,7 +3,7 @@
 #include <string>
 #include <cstring>
 #include <cctype>
-#include "lex.h"
+#include "lex.hpp"
 
 using std::cout;
 using std::endl;

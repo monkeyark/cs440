@@ -1,5 +1,5 @@
-# ifndef LEX_H
-# define LEX_H
+# ifndef LEX_HPP
+# define LEX_HPP
 
 #include <string>
 

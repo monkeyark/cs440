@@ -1,4 +1,4 @@
-#include "lex.h"
+#include "lex.hpp"
 #include <iostream>
 #include <fstream>
 #include <vector>

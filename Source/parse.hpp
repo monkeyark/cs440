@@ -1,5 +1,8 @@
+# ifndef PARSE_HPP
+# define PARSE_HPP
+
 #include <iostream>
-#include "lex.h"
+#include "lex.hpp"
 
 int global_val();
 
@@ -42,3 +45,6 @@ int lval();
 int unary_oprt();
 int binary_oprt();
 int assign_oprt();
+
+
+#endif
