@@ -148,7 +148,7 @@ unordered_map<int, string> types ({
 
 
 int i = 0;
-vector<int> tokens;
+vector<int> toks;
 
 
 unordered_map<int, string> token_names;
@@ -157,7 +157,7 @@ unordered_map<int, string> token_names;
 
 void parse_token(vector<int> v)
 {
-		// add all operator names to token_names
+	// add all operator names to token_names
 	for (auto& [code, name] : operators) {
 			token_names[code] = name;
 	}
@@ -171,9 +171,9 @@ void parse_token(vector<int> v)
 	for (auto& [code, symbol] : symbols_char) {
 			token_names[code] = string(1, symbol);
 	}
-	tokens = v;
+	toks = v;
 
-	while(i < tokens.size())
+	while(i < toks.size())
 	{
 
 	}
@@ -199,23 +199,23 @@ string get_string(int x)
 
 void parse_global()
 {
-	if(tokens[i++] != TYPE)
+	if(toks[i++] != TYPE)
 	{
 		print_error();
 	}
 
-	if(tokens[i++] != IDENT)
+	if(toks[i++] != IDENT)
 	{
 		print_error();
 	}
 
-	if(get_string(tokens[i]) == ";")
+	if(get_string(toks[i]) == ";")
 	{
 		i++;
 		return;
 	}
 
-	if(get_string(tokens[i]) == "(")
+	if(get_string(toks[i]) == "(")
 	{
 		i++;
 		parse_function();
@@ -227,108 +227,137 @@ void parse_function()
 {
 	parse_parameter();
 
-	if(get_string(tokens[i]) == ";")
+	if(get_string(toks[i]) == ";")
 	{
 		i++;
 		return;
 	}
 
-	if(get_string(tokens[i++]) != "{")print_error();
+	if(get_string(toks[i++]) != "{")print_error();
 	parse_code_block();
 }
 
 void parse_parameter()
 {
-	while(get_string(tokens[i]) != ")")
+	while(get_string(toks[i]) != ")")
 	{
 		parse_parameter_variable();
-		string temp = get_string(tokens[i]);
-		if(temp != "," || temp != ")")print_error();
+		string tok = get_string(toks[i]);
+		if(tok != "," || tok != ")")print_error();
 	}
 	i++;
 }
 void parse_parameter_variable()
 {
-	if(tokens[i++] != TYPE)print_error;
-	if(tokens[i++] != IDENT)print_error;
+	if(toks[i++] != TYPE)print_error;
+	if(toks[i++] != IDENT)print_error;
 }
 
 
 void parse_code_block()
 {
 
-	while(get_string(tokens[i]) != "}")
+	while(get_string(toks[i]) != "}")
 	{
 		parse_statement();
 	}
 	i++;
-
-
 }
 
 void parse_statement()
 {
-	string temp = get_string(tokens[i]);
-	if(temp == ";")i++;
-	else if (temp == "break")
+	string tok = get_string(toks[i]);
+	if(tok == ";")i++;
+	else if (tok == "break")
 	{
 		i++;
-		if(get_string(tokens[i]) != ";")print_error();
+		if(get_string(toks[i]) != ";")print_error();
 		i++;
 	}
-	else if (temp == "continue")
+	else if (tok == "continue")
 	{
 		i++;
-		if(get_string(tokens[i]) != ";")print_error();
+		if(get_string(toks[i]) != ";")print_error();
 		i++;
 	}
-	else if (temp == "if")
+	else if (tok == "if")
 	{
 		i++;
-		if(get_string(tokens[i++]) != "(")print_error();
+		if(get_string(toks[i++]) != "(")print_error();
 		expression_check();
-		if(get_string(tokens[i++]) != ")")print_error();
-		if(get_string(tokens[i]) != "{")
+		if(get_string(toks[i++]) != ")")print_error();
+		if(get_string(toks[i]) != "{")
 			parse_statement();
 		else
 			parse_code_block();
 	}
-	else if (temp == "else")
+	else if (tok == "else")
 	{
-		// TODO 
+		// TODO
+		i++;
+		if(get_string(toks[i]) == "if") //else if
+		{
+			i++;
+			if(get_string(toks[i++]) != "(")print_error();
+			expression_check();
+			if(get_string(toks[i++]) != ")")print_error();
+			if(get_string(toks[i]) != "{")
+				parse_statement();
+			else
+				parse_code_block();
+		}
+		else //single else
+		{
+			if(get_string(toks[i++]) != "{")
+				parse_statement();
+			else
+				parse_code_block();
+		}
 	}
-	else if (temp == "for")
+	else if (tok == "for")
 	{
+		// TODO
 		i++;
 		// check (
+		if (get_string(toks[i++]) != "(")print_error();
 		expression_check();
 		// check ;
+		if (get_string(toks[i++]) != ";")print_error();
 		expression_check();
 		// check ;
+		if (get_string(toks[i++]) != ";")print_error();
 		expression_check();
 		// check )
+		if (get_string(toks[i++]) != ")")print_error();
 	}
-	else if (temp == "while")
+	else if (tok == "while")
 	{
 		i++;
-		if(get_string(tokens[i++]) != "(")print_error();
+		if(get_string(toks[i++]) != "(")print_error();
 		expression_check();
-		if(get_string(tokens[i++]) != ")")print_error();
-		if(get_string(tokens[i]) != "{")
+		if(get_string(toks[i++]) != ")")print_error();
+		if(get_string(toks[i++]) != "{")
 			parse_statement();
 		else
 			parse_code_block();
 	}
-	else if (temp == "do")
+	else if (tok == "do")
 	{
+		// check while and condition here
+		//TODO
 		i++;
+		if(get_string(toks[i++]) != "{")print_error();
 		parse_code_block();
-		// Check while and condition here
+		if(get_string(toks[i++]) != "while")print_error();
+		if(get_string(toks[i++]) != "(")print_error();
+		expression_check();
+		if(get_string(toks[i++]) != ")")print_error();
 	}
 	else
 	{
 		expression_check();
-		// check ;
+		//TODO // check ;
+		if(get_string(toks[i++]) != ";")print_error();
 	}
 
 }
@@ -343,16 +372,16 @@ void array_check()
 
 void expression_check()
 {
-	if(tokens[i] == IDENT)
+	if(toks[i] == IDENT)
 	{
 		i++;
-		string temp = get_string(tokens[i]);
-		if(temp == "(")
+		string tok = get_string(toks[i]);
+		if(tok == "(")
 		{
 			i++;
 			parse_function_call();
 		}
-		else if(temp == "+=")
+		else if(tok == "+=")
 		{
 			i++;
 			expression_check();
@@ -367,7 +396,7 @@ void expression_check()
 
 void parse_function_call()
 {
-	while(get_string(tokens[i]) != ")")
+	while(get_string(toks[i]) != ")")
 	{
 		expression_check();
 		// check , or )
