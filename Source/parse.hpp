@@ -1,5 +1,5 @@
-# ifndef PARSE_HPP
-# define PARSE_HPP
+#ifndef PARSE_HPP
+#define PARSE_HPP
 
 #include <iostream>
 #include "lex.hpp"
