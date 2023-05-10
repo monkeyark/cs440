@@ -398,7 +398,10 @@ void parse_statement()
 	}
 	else
 	{
-		parse_expression();
+		vector<int> exp_toks;
+		while(get_string(toks[i]) != ";")
+			exp_toks.push_back(toks[i++]);
+		parse_expression(exp_toks);
 		//TODO // check ;
 		if(get_string(toks[i++]) != ";")print_error();
 	}
@@ -412,72 +415,107 @@ void parse_array()
 	// check and pass ]
 }
 
-void parse_expression()
+// void parse_expression()
+// {
+// 	//TODO what if expression start with TYPE
+// 	if(toks[i] == IDENT)
+// 	{
+// 		i++;
+// 		string tok = get_string(toks[i]);
+// 		if(tok == "(")
+// 		{
+// 			i++;
+// 			parse_function_call();
+// 		}
+// 		else if(assign_op.count(tok) != 0) // find assignment operator
+// 		{
+// 			i++;
+// 			parse_expression();
+// 		}
+// 		else if(tok == "--" || tok == "++")
+// 		{
+// 			i++;
+// 			return; //TODO ?????
+// 		}
+// 		else
+// 		{
+// 			print_error();
+// 		}
+
+// 	}
+// 	else if(unary_op.count(get_string(toks[i])) != 0) //unary operation
+// 	{
+// 		i++;
+// 		parse_expression();
+// 	}
+// 	else if (binary_op.count(get_string(toks[i])) != 0) //TODO NOT check first EXPR, bin_op, expr
+// 	{
+// 		i++;
+// 		parse_expression();
+// 	}
+// 	else if(get_string(toks[i]) == "?")
+// 	{
+// 		i++;
+// 		parse_expression();
+// 		if(get_string(toks[i++]) != ":")print_error();
+// 		parse_expression();
+// 	}
+// 	else if(get_string(toks[i]) == "(")
+// 	{
+// 		i++;
+// 		if (toks[i] == TYPE)
+// 		{
+// 			i++;
+// 			if(get_string(toks[i++]) != ")")print_error();
+// 			parse_expression();
+// 		}
+// 		else
+// 		{
+// 			print_error();
+// 		}
+// 	}
+// }
+
+void parse_expression(vector<int> exp_toks)
 {
-	//TODO what if expression start with TYPE
-	if(toks[i] == IDENT)
+	if(exp_toks.size() == 1)
 	{
-		i++;
-		string tok = get_string(toks[i]);
-		if(tok == "(")
-		{
-			i++;
-			parse_function_call();
-		}
-		else if(assign_op.count(tok) != 0) // find assignment operator
-		{
-			i++;
-			parse_expression();
-		}
-		else if(tok == "--" || tok == "++")
-		{
-			i++;
-			return; //TODO ?????
-		}
-		else
-		{
+		if(exp_toks[0] != IDENT) // TODO add iteral
 			print_error();
+		return;
+	}
+	for(auto x : opt)
+	{
+		int l = 0;
+
+		for(int n : exp_toks)
+		{
+			if(get_string(n) == x && l == 0)
+			{
+				
+			}
+
 		}
 
+		// () cases
 	}
-	else if(unary_op.count(get_string(toks[i])) != 0) //unary operation
-	{
-		i++;
-		parse_expression();
-	}
-	else if (binary_op.count(get_string(toks[i])) != 0) //TODO NOT check first EXPR, bin_op, expr
-	{
-		i++;
-		parse_expression();
-	}
-	else if(get_string(toks[i]) == "?")
-	{
-		i++;
-		parse_expression();
-		if(get_string(toks[i++]) != ":")print_error();
-		parse_expression();
-	}
-	else if(get_string(toks[i]) == "(")
-	{
-		i++;
-		if (toks[i] == TYPE)
-		{
-			i++;
-			if(get_string(toks[i++]) != ")")print_error();
-			parse_expression();
-		}
-		else
-		{
-			print_error();
-		}
-	}
+
+	// type checking
 }
 
-void parse_function_call()
+void parse_lvalue(vector<int> exp_toks)
 {
-	while(get_string(toks[i]) != ")")
+	// base case
+
+	if(exp_toks[0] != IDENT)print_error();
+
+	if(exp_toks.size()>1)
 	{
-		parse_expression();
-		// check , or )
+		vector<int> arr_exp;
+		// get everything between []
+		
+		parse_expression(arr_exp);
 	}
+
+
 }
