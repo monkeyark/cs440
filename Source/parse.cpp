@@ -1,521 +1,587 @@
 #include <iostream>
 #include <vector>
-#include <string> 
-#include <unordered_map>
 #include <unordered_set>
-#include "lex.hpp"
+#include <unordered_map>
+#include <string>
+
+#include "parse.hpp"
+
 
 using std::unordered_set;
-using std::unordered_map;
 using std::vector;
+using std::string;
 using std::cout;
 using std::endl;
 using std::cerr;
 
 
-string opt[] = {
-	",",
-	"/=",
-	"*=",
-	"-=",
-	"+=",
-	"=",
-	":",
-	"?",
-	"||",
-	"&&",
-	"|",
-	"&",
-	"==",
-	"!=",
-	"<",
-	"<=",
-	">",
-	">=",
-	"+",
-	"-",
-	"*",
-	"/",
-	"%",
-	"TYPE",
-	"++",
-	"--",
-	"UNARY",
-	"~",
-	"!",
-	"(",
-	")",
-	"[",
-	"]",
-	"."
-};
+////////////////////////////////////////////////////////
+// void output_parse_err(string msg);
 
-unordered_set<string> assign_op({
-	"=",
-	"+=",
-	"-=",
-	"*=",
-	"/=",
-});
+// bool is_syntax_match(int value);
+// bool next_syntax_match(int value);
+// void hard_syntax_match(int value, string msg);
+// void output_parse_result(int idx, string entity);
 
-unordered_set<string> unary_op({
-	"-",
-	"!",
-	"~",
-});
+// void declare_syntax();
+// void declare_var();
+// void parse_declare();
+// void parse_statement();
+// void parse_const();
+// void parse_bracket();
+// void parse_function();
+// void parse_variable();
+// void parse_parameter();
+// void parse_parameter_end();
+// void parse_ident();
+// void parse_code_block();
+// void parse_expression();
+// void parse_struct();
+// void parse_function_call();
+// void parse_struct_function_call();
+// void parse_struct_declare();
+// void Esub();
+//////////////////////////////////////////////////////
 
-unordered_set<string> binary_op({
-	"==",
-	"!=",
-	">",
-	">=",
-	"<",
-	"<=",
-	"+",
-	"-",
-	"*",
-	"/",
-	"%",
-	"|",
-	"&",
-	"||",
-	"&&",
-});
-
-unordered_map<int, string> operators ({
-	{351, "=="},
-	{352, "!="},
-	{353, ">="},
-	{354, "<="},
-	{355, "++"},
-	{356, "--"},
-	{357, "||"},
-	{358, "&&"},
-	{361, "+="},
-	{362, "-="},
-	{363, "*="},
-	{364, "/="},
-});
-
-unordered_map<int, string> keywords ({
-	{401, "const"},
-	{402, "struc"},
-	{403, "for"},
-	{404, "while"},
-	{405, "do"},
-	{406, "if"},
-	{407, "else"},
-	{408, "break"},
-	{409, "continue"},
-	{410, "return"},
-	{411, "switch"},
-	{412, "case"},
-	{413, "default"},
-});
+/////////////////////////////////
+// void declare_syntax();
+// void D();
+// void Func();
+// void End();
+// void Var();
+// void Sign();
+// void SigE();
+// void I();
+// void VD();
+// void S();
+// void Stmt();
+// void B();
+// void Else();
+// void E();
+// void Esub();
+// void Es();
+// void Inc();
+// void U();
+// void Bin();
+// void As();
+// void C();
+// void St();
+// void StD();
+// void StF();
+///////////////////////////////
 
 
-unordered_map<int, char> symbols_char ({
-{33, '!'},
-{37, '%'},
-{38, '&'},
-{40, '('},
-{41, ')'},
-{42, '*'},
-{43, '+'},
-{44, ','},
-{45, '-'},
-{46, '.'},
-{47, '/'},
-{58, ':'},
-{59, ';'},
-{60, '<'},
-{61, '='},
-{62, '>'},
-{63, '?'},
-{91, '['},
-{93, ']'},
-{123, '{'},
-{124, '|'},
-{125, '}'},
-{126, '~'},
-});
-
-unordered_map<int, string> types ({
-	{TYPE, "void"},
-	{TYPE, "int"},
-	{TYPE, "double"},
-	{TYPE, "float"},
-	{TYPE, "char"},
-	{TYPE, "byte"},
-	{TYPE, "short"},
-	{TYPE, "long"},
-	{TYPE, "bool"},
-});
-
-// unordered_map<string, int> operators_precedence ({
-// 	{"(", (},
-// 	{")", },
-// 	{"[", },
-// 	{"]", },
-// 	{".", },
-// 	{"!", },//right to left
-// 	{"~", },//right to left
-// 	{"-", },//unary //right to left
-// 	{"--", },//right to left
-// 	{"++", },//right to left
-// 	{"", },//type //right to left
-// 	{"*", },
-// 	{"/", },
-// 	{"%", },
-// 	{"+", },
-// 	{"-", },
-// 	{"<", },
-// 	{"<=", },
-// 	{">", },
-// 	{">=", },
-// 	{"==", },
-// 	{"!=", },
-// 	{"&", },
-// 	{"|", },
-// 	{"&&", },
-// 	{"||", },
-// 	{"?", },//right to left
-// 	{":", },//right to left
-// 	{"=", },
-// 	{"+=", },
-// 	{"-=", },
-// 	{"*=", },
-// 	{"/=", },
-// 	{",", },
-// });
-
-
-int i = 0;
-vector<int> toks;
-
-
-unordered_map<int, string> token_names;
+string file_name;
+vector<int> lines;
+vector<int> tokens;
+vector<string> words;
+vector<string> result;
+long unsigned int tok_idx = 0;
+int in_block = 0;
+int in_struct = 0;
+unordered_set<int> assign_op({ASSIGN, PLUSASSIGN, MINUSASSIGN, STARASSIGN, SLASHASSIGN});
+unordered_set<int> binary_op({EQ, NE, GT, GE, LT, LE, PLUS, MINUS, STAR, SLASH, MOD, PIPE, AMP, DPIPE, DAMP});
+unordered_set<int> unary_op({BANG, MINUS, TILDE});
 
 
 
-void parse_token(vector<int> v)
+
+int parse_file(string filename, bool is_output)
 {
-	// add all operator names to token_names
-	for (auto& [code, name] : operators) {
-			token_names[code] = name;
-	}
-
-	// add all keyword names to token_names
-	for (auto& [code, name] : keywords) {
-			token_names[code] = name;
-	}
-
-	// add all symbol names to token_names
-	for (auto& [code, symbol] : symbols_char) {
-			token_names[code] = string(1, symbol);
-	}
-	toks = v;
-
-	while(i < toks.size())
-	{
-
-	}
-
+    lex_file(filename , false);
+    tokens = get_tokens();
+    lines = get_lines();
+    words = get_words();
+    file_name = filename;
+    while(tok_idx < tokens.size())
+    {
+        declare_syntax();
+    }
+    if(is_output)
+    {
+        cout << "\tFile "+ filename +" is syntactically correct." << endl;
+        for(auto x : result)
+        {
+            cout << x << endl;
+        }
+        return -1;
+    }
+    return 1;
 }
 
-bool is_type(int x){
-	return types.find(x) != types.end();
-}
-
-void print_error(){
-	cout << "error" << endl;
-	exit(0);
-}
-
-string get_string(int x)
+bool is_syntax_match(int value)
 {
-	if(token_names.find(x) == token_names.end())
-		print_error();
-	
-	return token_names[x];
+    if(tok_idx >= tokens.size())
+        output_parse_err("expect some thing follow but it's the end");
+    return tokens[tok_idx] == value;
 }
 
-void parse_global()
+bool next_syntax_match(int value)
 {
-	if(toks[i++] != TYPE)
-	{
-		print_error();
-	}
-
-	if(toks[i++] != IDENT)
-	{
-		print_error();
-	}
-
-	if(get_string(toks[i]) == ";")
-	{
-		i++;
-		return;
-	}
-
-	if(get_string(toks[i]) == "(")
-	{
-		i++;
-		parse_function();
-	}
-	// TODO add initialization for variable '=' case 
+    if(tok_idx+1 >= tokens.size())
+        output_parse_err("expect some thing follow but it's the end");
+    return tokens[tok_idx+1] == value;
 }
 
-void parse_function()
+void hard_syntax_match(int value , string msg)
 {
-	parse_parameter();
-
-	if(get_string(toks[i]) == ";")
-	{
-		i++;
-		return;
-	}
-
-	if(get_string(toks[i++]) != "{")print_error();
-	parse_code_block();
+    if(value != tokens[tok_idx])
+        output_parse_err(msg);
+    tok_idx++;
 }
 
-void parse_parameter()
+void output_parse_result(int idx, string entity)
 {
-	while(get_string(toks[i]) != ")")
-	{
-		parse_parameter_variable();
-		string tok = get_string(toks[i]);
-		if(tok != "," || tok != ")")print_error();
-	}
-	i++;
+    int output = idx;
+    string s = "File file_name Line " + std::to_string(lines[output]) + ": " + entity + " " + words[output];
+    result.push_back(s);  
 }
-void parse_parameter_variable()
+
+void output_parse_err(string msg)
+{ 
+    cout << "parser error in file " << file_name << " line " << lines[tok_idx] << " near text " << words[tok_idx] << endl;
+    cout << "\t"<< msg << endl; 
+    exit(0);
+}
+
+void declare_syntax()
 {
-	if(toks[i++] != TYPE)print_error;
-	if(toks[i++] != IDENT)print_error;
+    if(is_syntax_match(STRUCT) || next_syntax_match(STRUCT))
+    {
+        St();
+        return;
+    }
+
+    if(is_syntax_match(CONST) || next_syntax_match(CONST))
+    {
+        C();
+    }
+    else
+    {
+        hard_syntax_match(TYPE , "Expect type_literal");
+    }
+    hard_syntax_match(IDENT , "Expect an identifier");
+    D();
 }
 
 
-void parse_code_block()
+void C()
 {
-
-	while(get_string(toks[i]) != "}")
-	{
-		parse_statement();
-	}
-	i++;
+    if(is_syntax_match(CONST))
+    {
+        tok_idx++;
+        if(is_syntax_match(STRUCT))
+        {
+            tok_idx++;
+            hard_syntax_match(IDENT , "Expect an identifier");
+        }
+        else
+            hard_syntax_match(TYPE , "Expect an Type Literal");
+    }
+    else if(is_syntax_match(TYPE))
+    {
+        tok_idx++;
+        hard_syntax_match(CONST , "Expect an constant Declearation");
+    }
+    else
+    {
+        output_parse_err("Expect const keyword or Type Literal");
+    }
 }
 
-void parse_statement()
+
+void D()
 {
-	string tok = get_string(toks[i]);
-	if(tok == ";")i++;
-	else if (tok == "break")
-	{
-		i++;
-		if(get_string(toks[i]) != ";")print_error();
-		i++;
-	}
-	else if (tok == "continue")
-	{
-		i++;
-		if(get_string(toks[i]) != ";")print_error();
-		i++;
-	}
-	else if (tok == "if")
-	{
-		i++;
-		if(get_string(toks[i++]) != "(")print_error();
-		parse_expression();
-		if(get_string(toks[i++]) != ")")print_error();
-		if(get_string(toks[i]) != "{")
-			parse_statement();
-		else
-			parse_code_block();
-	}
-	else if (tok == "else")
-	{
-		// TODO
-		i++;
-		if(get_string(toks[i]) == "if") //else if
-		{
-			i++;
-			if(get_string(toks[i++]) != "(")print_error();
-			parse_expression();
-			if(get_string(toks[i++]) != ")")print_error();
-			if(get_string(toks[i]) != "{")
-				parse_statement();
-			else
-				parse_code_block();
-		}
-		else //single else
-		{
-			if(get_string(toks[i++]) != "{")
-				parse_statement();
-			else
-				parse_code_block();
-		}
-	}
-	else if (tok == "for")
-	{
-		// TODO
-		i++;
-		// check (
-		if (get_string(toks[i++]) != "(")print_error();
-		parse_expression();
-		// check ;
-		if (get_string(toks[i++]) != ";")print_error();
-		parse_expression();
-		// check ;
-		if (get_string(toks[i++]) != ";")print_error();
-		parse_expression();
-		// check )
-		if (get_string(toks[i++]) != ")")print_error();
-	}
-	else if (tok == "while")
-	{
-		i++;
-		if(get_string(toks[i++]) != "(")print_error();
-		parse_expression();
-		if(get_string(toks[i++]) != ")")print_error();
-		if(get_string(toks[i++]) != "{")
-			parse_statement();
-		else
-			parse_code_block();
-	}
-	else if (tok == "do")
-	{
-		// check while and condition here
-		//TODO
-		i++;
-		if(get_string(toks[i++]) != "{")print_error();
-		parse_code_block();
-		if(get_string(toks[i++]) != "while")print_error();
-		if(get_string(toks[i++]) != "(")print_error();
-		parse_expression();
-		if(get_string(toks[i++]) != ")")print_error();
-	}
-	else
-	{
-		vector<int> exp_toks;
-		while(get_string(toks[i]) != ";")
-			exp_toks.push_back(toks[i++]);
-		parse_expression(exp_toks);
-		//TODO // check ;
-		if(get_string(toks[i++]) != ";")print_error();
-	}
+    if(is_syntax_match(LPAR))
+    {
+        output_parse_result(tok_idx - 1 , "function");
+        Func();
+    }
+    else if(is_syntax_match(LBRAK) || is_syntax_match(COMMA) || is_syntax_match(SEMI) || is_syntax_match(ASSIGN))
+    {
+        output_parse_result(tok_idx - 1 ,"global variable");
+        VD();
+    }
+    else
+        output_parse_err("Expecting a '(' keyword (for function) or keyword that is needed for variable declaration");
 }
 
-// only enter this when you see [
-void parse_array()
+
+void VD()
 {
-	i++; // pass [
-	// check if is number
-	// check and pass ]
+    if(is_syntax_match(LBRAK))
+    {
+        tok_idx++;
+        hard_syntax_match(INT_LIT , "Expecting an int Literal");
+        hard_syntax_match(RBRAK , "Expecting a ']' keyword");
+        Var();
+    }
+    else if(is_syntax_match(ASSIGN))
+    {
+        tok_idx++;
+        E();
+        Var();
+    }
+    else if(is_syntax_match(COMMA) || is_syntax_match(SEMI))
+    {
+        Var();
+    }
+    else
+        output_parse_err("Expecting a variable declaration keyword");
 }
 
-// void parse_expression()
+void Func()
+{
+    hard_syntax_match(LPAR , "Expecting '(' for function parameter");
+    Sign();
+    hard_syntax_match(RPAR , "Expecting ')' for function parameter");
+    End();
+}
+
+void End()
+{
+    if(is_syntax_match(SEMI))
+    {
+        tok_idx++;
+    }
+    else if(is_syntax_match(LBRACE))
+    {
+        hard_syntax_match(LBRACE , "Expect '{");
+        S();
+        hard_syntax_match(RBRACE , "expect '}");
+    }
+}
+
+void Var()
+{
+   if(is_syntax_match(SEMI))
+    {
+        tok_idx++;
+    }
+    else if(is_syntax_match(COMMA))
+    {
+        tok_idx++; // change
+        output_parse_result(tok_idx , (in_struct > 0? "member" : (in_block >0? "local variable" : "gobal variable")));
+        I();
+        VD();
+    }
+}
+
+void Sign()
+{
+    if(is_syntax_match(RPAR))
+        return;
+
+    if(is_syntax_match(STRUCT) || next_syntax_match(STRUCT))
+    {
+        if(is_syntax_match(CONST))
+            tok_idx+=2;
+        else if(is_syntax_match(STRUCT))
+            tok_idx++;
+        else
+            output_parse_err("Expect struct in here");
+
+        hard_syntax_match(IDENT , "Expect struct identifier");
+        
+    }
+    else if(is_syntax_match(CONST) || next_syntax_match(CONST))
+        C();
+    else
+        hard_syntax_match(TYPE , "Expect a Type literal");
+    output_parse_result(tok_idx , "parameter");
+    I();
+    SigE();
+    Sign();
+}
+
+void SigE()
+{
+    if(is_syntax_match(RPAR))
+        return;
+    
+    hard_syntax_match(COMMA , "Expecting ','");
+}
+
+void I()
+{
+    hard_syntax_match(IDENT , "Expecting an identifier");
+    if(is_syntax_match(LBRAK))
+    {
+        hard_syntax_match(LBRAK, "Expecting an '['");
+        if(!is_syntax_match(RBRAK))
+            E();
+        hard_syntax_match(RBRAK, "Expecting an ']'");
+    }
+}
+
+void S()
+{
+    in_block++;
+    while(!is_syntax_match(RBRACE))
+    {
+        if(is_syntax_match(TYPE) || next_syntax_match(TYPE))
+        {
+            if(is_syntax_match(CONST) || next_syntax_match(CONST))
+            {
+                C();
+            }
+            else
+            {
+                tok_idx++;
+            }
+            hard_syntax_match(IDENT , "Expect an identifier");
+            output_parse_result(tok_idx-1 , "local variable");
+            VD();
+        }
+        else
+            Stmt();
+    }
+    in_block--;
+}
+
+
+void Stmt()
+{
+    if(is_syntax_match(SEMI)){tok_idx++;return;}
+    if(is_syntax_match(BREAK) || is_syntax_match(CONTINUE))
+    {
+        tok_idx++;
+        hard_syntax_match(SEMI , "Expect ;");
+    }
+    else if(is_syntax_match(RETURN))
+    {
+        tok_idx++;
+        if(!is_syntax_match(SEMI))
+            E();
+        hard_syntax_match(SEMI , "Expect ;");
+    }
+    else if(is_syntax_match(IF))
+    {
+        tok_idx++;
+        hard_syntax_match(LPAR , "Expect ( ");
+        E();
+        hard_syntax_match(RPAR , "Expect ) ");
+        B();
+        Else();
+    }
+    else if(is_syntax_match(FOR))
+    {
+        tok_idx++;
+        hard_syntax_match(LPAR , "Expect (");
+        if(!is_syntax_match(SEMI))E();
+        hard_syntax_match(SEMI , "Expect ;");
+        if(!is_syntax_match(SEMI))E();
+        hard_syntax_match(SEMI , "expect ;");
+        if(!is_syntax_match(RPAR))E();
+        hard_syntax_match(RPAR , "expect )");
+        B();
+    }
+    else if(is_syntax_match(WHILE))
+    {
+        tok_idx++;
+        B();
+        hard_syntax_match(DO , "expect while");
+        hard_syntax_match(LPAR , "expect (");
+        E();
+        hard_syntax_match(RPAR , "expect )");
+        hard_syntax_match(SEMI , "expect ;");
+    }
+    else if(is_syntax_match(STRUCT))
+    {
+        St();
+    }
+    else
+    {
+        E();
+        hard_syntax_match(SEMI , "expect ;");
+    }
+}
+
+void B()
+{
+    if(is_syntax_match(LBRACE))
+    {
+        hard_syntax_match(LBRACE , "Expect { ");
+        S();
+        hard_syntax_match(RBRACE , "Expect } ");
+    }
+    else
+        Stmt();
+}
+
+void Else()
+{
+    if(is_syntax_match(ELSE))
+    {
+        hard_syntax_match(ELSE , "Expect keyword else");
+        B();
+    }
+}
+
+void E()
+{
+    Esub();
+
+    if(binary_op.find(tokens[tok_idx]) != binary_op.end())
+    {
+        tok_idx++;
+        E();
+    }
+    else if(is_syntax_match(QUEST))
+    {
+        tok_idx++;
+        E();
+        hard_syntax_match(COLON , "Expect :");
+        E();
+    }
+}
+void Esub()
+{
+    if(tokens[tok_idx] >= CHAR_LIT && tokens[tok_idx] <= STR_LIT)
+    {
+        tok_idx++;
+        return;
+    }
+
+    if(is_syntax_match(IDENT))
+    {
+        if(next_syntax_match(LPAR))
+        {
+            tok_idx += 2;
+            Es();
+            hard_syntax_match(RPAR , "Expect )");
+            return;
+        }
+
+        I();
+
+        while(is_syntax_match(DOT))
+        {
+            tok_idx++;
+            I();
+        }
+
+        if(is_syntax_match(INCR) || is_syntax_match(DECR))
+            tok_idx++;
+        else if(assign_op.find(tokens[tok_idx]) != assign_op.end())
+        {
+            tok_idx++;
+            E();
+        }
+    }
+    else if(is_syntax_match(INCR) || is_syntax_match(DECR))
+    {
+        tok_idx++;
+        Esub();
+    }
+    else if(unary_op.find(tokens[tok_idx]) != unary_op.end())
+    {
+        tok_idx++;
+        E();
+    }
+    else if(is_syntax_match(LPAR))
+    {
+        tok_idx++;
+        if(is_syntax_match(TYPE))
+        {
+            tok_idx++;
+            hard_syntax_match(RPAR , "Expect )");
+            E();
+        }
+        else
+        {
+            E();
+            hard_syntax_match(RPAR , "Expect )");
+        }
+    }
+    else
+        output_parse_err("Expecting expression");
+}
+
+void Es()
+{
+    while(!is_syntax_match(RPAR))
+    {
+        E();
+        if(is_syntax_match(COMMA))
+            tok_idx++;
+    }
+}
+void St()
+{
+    if(is_syntax_match(CONST))
+    {
+        tok_idx++;
+        hard_syntax_match(STRUCT , "expect struct keyword");
+    }
+    else if(is_syntax_match(STRUCT))
+    {
+        tok_idx++;
+    }
+    else 
+        output_parse_err("expect struct");
+    
+    hard_syntax_match(IDENT , "expect an identifier");
+
+    if(is_syntax_match(LBRACE))
+    {
+        output_parse_result(tok_idx-1, (in_block > 0)? "local struct":"global struct");
+        StF();
+        hard_syntax_match(SEMI , "expecting ;");
+    }   
+    else if(is_syntax_match(IDENT))
+    {
+        if(next_syntax_match(LPAR))
+        {
+            output_parse_result(tok_idx , "function");
+            hard_syntax_match(IDENT , "expecting ident ");
+            Func();
+        }
+        else
+        {
+            StD();
+            hard_syntax_match(SEMI , "expecting ;");
+        }
+        
+    }
+}
+
+void StF()
+{
+    in_struct++;
+    hard_syntax_match(LBRACE , "expecting a { for struct initialization");
+    while(!is_syntax_match(RBRACE))
+    {
+        if(is_syntax_match(STRUCT))
+        {
+            tok_idx++;
+            hard_syntax_match(IDENT , "expecting ident ");
+            StD();
+            hard_syntax_match(SEMI , "expecting ; ");
+        }
+        else
+        {
+            hard_syntax_match(TYPE , "expecting type ");
+            output_parse_result(tok_idx , "member");
+            hard_syntax_match(IDENT , "expecting ident");
+            VD();
+        }   
+    }
+    in_struct--;
+    hard_syntax_match(RBRACE , "expecting a } for struct initialization");
+}
+
+void StD()
+{
+    output_parse_result(tok_idx , (in_struct > 0? "member" : (in_block >0? "local variable" : "global variable")));
+    I();
+}
+
+// int main()
 // {
-// 	//TODO what if expression start with TYPE
-// 	if(toks[i] == IDENT)
-// 	{
-// 		i++;
-// 		string tok = get_string(toks[i]);
-// 		if(tok == "(")
-// 		{
-// 			i++;
-// 			parse_function_call();
-// 		}
-// 		else if(assign_op.count(tok) != 0) // find assignment operator
-// 		{
-// 			i++;
-// 			parse_expression();
-// 		}
-// 		else if(tok == "--" || tok == "++")
-// 		{
-// 			i++;
-// 			return; //TODO ?????
-// 		}
-// 		else
-// 		{
-// 			print_error();
-// 		}
-
-// 	}
-// 	else if(unary_op.count(get_string(toks[i])) != 0) //unary operation
-// 	{
-// 		i++;
-// 		parse_expression();
-// 	}
-// 	else if (binary_op.count(get_string(toks[i])) != 0) //TODO NOT check first EXPR, bin_op, expr
-// 	{
-// 		i++;
-// 		parse_expression();
-// 	}
-// 	else if(get_string(toks[i]) == "?")
-// 	{
-// 		i++;
-// 		parse_expression();
-// 		if(get_string(toks[i++]) != ":")print_error();
-// 		parse_expression();
-// 	}
-// 	else if(get_string(toks[i]) == "(")
-// 	{
-// 		i++;
-// 		if (toks[i] == TYPE)
-// 		{
-// 			i++;
-// 			if(get_string(toks[i++]) != ")")print_error();
-// 			parse_expression();
-// 		}
-// 		else
-// 		{
-// 			print_error();
-// 		}
-// 	}
+//     start_parser();
 // }
 
-void parse_expression(vector<int> exp_toks)
-{
-	if(exp_toks.size() == 1)
-	{
-		if(exp_toks[0] != IDENT) // TODO add iteral
-			print_error();
-		return;
-	}
-	for(auto x : opt)
-	{
-		int l = 0;
-
-		for(int n : exp_toks)
-		{
-			if(get_string(n) == x && l == 0)
-			{
-				
-			}
-
-		}
-
-		// () cases
-	}
-
-	// type checking
-}
-
-void parse_lvalue(vector<int> exp_toks)
-{
-	// base case
-
-	if(exp_toks[0] != IDENT)print_error();
-
-	if(exp_toks.size()>1)
-	{
-		vector<int> arr_exp;
-		// get everything between []
-		
-		parse_expression(arr_exp);
-	}
 
 
-}
+

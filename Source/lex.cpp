@@ -1,7 +1,6 @@
 #include "lex.hpp"
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <unordered_set>
 #include <unordered_map>
 #include <iomanip>
@@ -15,8 +14,46 @@ using std::ifstream;
 using std::unordered_set;
 using std::unordered_map;
 using std::regex;
+using std::string;
 
 std::ostringstream oss;
+
+vector<int> lines;
+vector<int> token_ids;
+vector<string> lexemes;
+
+vector<int> get_lines()
+{
+	return lines;
+}
+
+vector<int> get_tokens()
+{
+	return token_ids;
+}
+
+vector<string> get_words()
+{
+	return lexemes;
+}
+
+enum token_msg {
+/* Message */
+	LEX_SUCC                    = 1,
+	FILE_NOT_OPEN               = -100,
+	TOKEN_SUCC                  = 1,
+	TOKEN_ERR                   = 0,
+	TOKEN_UNRECOGNIZED          = -1,
+	TOKEN_ILLEGAL_CHARACTER     = -3,
+	TOKEN_SIZE_EXCEEDED_REAL    = -21,
+	TOKEN_SIZE_EXCEEDED_CHAR    = -22,
+	TOKEN_SIZE_EXCEEDED_STR     = -23,
+	TOKEN_SIZE_EXCEEDED_INT     = -24,
+	TOKEN_SIZE_EXCEEDED_IDENT   = -25,
+	TOKEN_UNCLOSED_COMMENT      = -31,
+	TOKEN_UNCLOSED_QUOTE        = -32,
+	TOKEN_UNCLOSED_CHARSEQ      = -33,
+};
 
 unordered_map<string, int> operators ({
 	{"==", 351},
@@ -439,14 +476,14 @@ int search_tokenid(string token)
 }
 
 std::string get_str_between_two_str(const std::string &s,
-        const std::string &start_delim,
-        const std::string &stop_delim)
+				const std::string &start_delim,
+				const std::string &stop_delim)
 {
-    unsigned first_delim_pos = s.find(start_delim);
-    unsigned end_pos_of_first_delim = first_delim_pos + start_delim.length();
-    unsigned last_delim_pos = s.find_first_of(stop_delim, end_pos_of_first_delim);
-    
-    return s.substr(end_pos_of_first_delim, last_delim_pos - end_pos_of_first_delim);
+		unsigned first_delim_pos = s.find(start_delim);
+		unsigned end_pos_of_first_delim = first_delim_pos + start_delim.length();
+		unsigned last_delim_pos = s.find_first_of(stop_delim, end_pos_of_first_delim);
+		
+		return s.substr(end_pos_of_first_delim, last_delim_pos - end_pos_of_first_delim);
 }
 
 std::string get_str_before_last_delim_inclusive(std::string const& s, const std::string &delim)
@@ -524,7 +561,7 @@ void output_token(string lexeme, int line, string path)
 	{
 		string dir = get_str_before_last_delim_inclusive(path, "/");
 		string filename = get_str_between_two_str(lexeme, "\"", "\"");
-		if (lex_file(dir+filename) == FILE_NOT_OPEN)
+		if (lex_file(dir+filename, false) == FILE_NOT_OPEN)
 		{
 			output_token_err(lexeme, line, fname, FILE_NOT_OPEN);
 			return;
@@ -543,6 +580,9 @@ void output_token(string lexeme, int line, string path)
 		<< " Line " << std::right << std::setw(5) << line
 		<< " Token " << std::right << std::setw(5) << tokenid
 		<< " Text " << lexeme << endl;
+		token_ids.push_back(tokenid);
+		lines.push_back(line);
+		lexemes.push_back(lexeme);
 	}
 }
 
@@ -876,7 +916,7 @@ void lex_text(string text, string fname)
 			if (is_symbols(c_prev))
 			{
 				if ((c_prev != '.') || c_prev != '-'|| c_prev != '+' ||
-				 (c_prev == '.' && !in_real))
+				(c_prev == '.' && !in_real))
 				{
 					token_line = line;
 					output_token(token, line, fname);
@@ -911,7 +951,7 @@ void lex_text(string text, string fname)
 	}
 }
 
-int lex_file(string path)
+int lex_file(string path, bool is_output)
 {
 	ifstream file(path);
 	if (!file.is_open())
@@ -936,10 +976,14 @@ int lex_file(string path)
 	{
 		fname = fname.substr(0, dot_pos);
 	}
-	// Write std::ostringstream to the file
-	std::ofstream outfile(fname+".lexer");
-	outfile << oss.str();
-	outfile.close();
+
+	if (is_output)
+	{
+		// Write std::ostringstream to the file
+		std::ofstream outfile(fname+".lexer");
+		outfile << oss.str();
+		outfile.close();
+	}
 
 	return LEX_SUCC;
 }

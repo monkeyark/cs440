@@ -2,11 +2,11 @@
 #define LEX_HPP
 
 #include <string>
+#include <vector>
+
 
 #define find_max(x,y) (((x) >= (y)) ? (x) : (y))
 #define find_min(x,y) (((x) <= (y)) ? (x) : (y))
-
-using std::string;
 
 enum tokentype {
 	END     = 0,
@@ -74,26 +74,13 @@ enum tokentype {
 	SWITCH    = 411,
 	CASE      = 412,
 	DEFAULT   = 413,
-
-/* Message */
-	LEX_SUCC                    = 1,
-	FILE_NOT_OPEN               = -100,
-	TOKEN_SUCC                  = 1,
-	TOKEN_ERR                   = 0,
-	TOKEN_UNRECOGNIZED          = -1,
-	TOKEN_ILLEGAL_CHARACTER     = -3,
-	TOKEN_SIZE_EXCEEDED_REAL    = -21,
-	TOKEN_SIZE_EXCEEDED_CHAR    = -22,
-	TOKEN_SIZE_EXCEEDED_STR     = -23,
-	TOKEN_SIZE_EXCEEDED_INT     = -24,
-	TOKEN_SIZE_EXCEEDED_IDENT   = -25,
-	TOKEN_UNCLOSED_COMMENT      = -31,
-	TOKEN_UNCLOSED_QUOTE        = -32,
-	TOKEN_UNCLOSED_CHARSEQ      = -33,
-
+	
 };
 
-int lex_file(string file_path);
 
+int lex_file(std::string file_path, bool is_output);
+std::vector<std::string> get_words();
+std::vector<int> get_tokens();
+std::vector<int> get_lines();
 
 #endif

@@ -3,7 +3,9 @@
 #include <string>
 #include <cstring>
 #include <cctype>
+
 #include "lex.hpp"
+#include "parse.hpp"
 
 using std::cout;
 using std::endl;
@@ -83,11 +85,12 @@ void part0(int out, string out_path)
 
 void part1(int in, int out, string in_path, string out_path)
 {
-	lex_file(in_path);
+	lex_file(in_path, true);
 }
 
 void part2(int in, int out, string in_path, string out_path)
 {
+	parse_file(in_path, true);
 }
 
 void part3(int in, int out, string in_path, string out_path)

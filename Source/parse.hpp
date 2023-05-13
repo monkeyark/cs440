@@ -2,49 +2,86 @@
 #define PARSE_HPP
 
 #include <iostream>
-#include "lex.hpp"
-
-int global_val();
-
-int var_decr();
-
-int type();
-
-int func_dclr();
-
-int formal_para();
-
-int func_dfin();
+#include <string>
+#include <vector>
 
 
+// enum tokentype {
+// 	END     = 0,
+// 	COMMA   = ',',
+// 	DOT     = '.',
+// 	SEMI    = ';',
+// 	LPAR    = '(',
+// 	RPAR    = ')',
+// 	LBRAK   = '[',
+// 	RBRAK   = ']',
+// 	LBRACE  = '{',
+// 	RBRACE  = '}',
+// 	GT      = '>',
+// 	LT      = '<',
+// 	ASSIGN  = '=',
+// 	PLUS    = '+',
+// 	MINUS   = '-',
+// 	STAR    = '*',
+// 	SLASH   = '/',
+// 	MOD     = '%',
+// 	COLON   = ':',
+// 	QUEST   = '?',
+// 	TILDE   = '~',
+// 	PIPE    = '|',
+// 	AMP     = '&',
+// 	BANG    = '!',
 
-int stat();
-int stat_nothing();
-int stat_expr();
-int stat_keywords();
-int stat_return();
-int stat_if();
-int stat_for();
-int stat_while();
-int stat_do_while();
+// /* Stuff with attributes */
 
-int expr();
-// A literal value
-int expr_lit();
-int expr_ident();
-int expr_lval();
-int expr_lval_assign();
-int expr_lval_oprt();
-int expr_unary_oprt();
-int expr_binary_oprt();
-int expr_question();
-int expr_type();
-int expr_parent();
+// 	TYPE      = 301,
+// 	CHAR_LIT  = 302,
+// 	INT_LIT   = 303,
+// 	REAL_LIT  = 304,
+// 	STR_LIT   = 305,
+// 	IDENT     = 306,
 
-int lval();
-int unary_oprt();
-int binary_oprt();
-int assign_oprt();
+// /* Symbols */
+
+// 	EQ        = 351,
+// 	NE        = 352,
+// 	GE        = 353,
+// 	LE        = 354,
+// 	INCR      = 355,
+// 	DECR      = 356,
+// 	DPIPE     = 357,
+// 	DAMP      = 358,
+
+// 	PLUSASSIGN    = 361,
+// 	MINUSASSIGN   = 362,
+// 	STARASSIGN    = 363,
+// 	SLASHASSIGN   = 364,
+
+// /* Keywords */
+
+// 	CONST     = 401,
+// 	STRUCT    = 402,
+// 	FOR       = 403,
+// 	WHILE     = 404,
+// 	DO        = 405,
+// 	IF        = 406,
+// 	ELSE      = 407,
+// 	BREAK     = 408,
+// 	CONTINUE  = 409,
+// 	RETURN    = 410,
+// 	SWITCH    = 411,
+// 	CASE      = 412,
+// 	DEFAULT   = 413,
+// };
+//
+// int lex_file(std::string file_path, bool is_output);
+// std::vector<std::string> get_words();
+// std::vector<int> get_tokens();
+// std::vector<int> get_lines();
+
+
+
+int parse_file(std::string file_path, bool is_output);
 
 
 #endif
