@@ -74,7 +74,7 @@ class function {
 string dup(string dup_input);
 void is_match();
 void next_match();
-vector<function*> start_typeCheck(string filename ,bool need_print);
+vector<function*> type_check_file(string filename ,bool is_output);
 void Declear();
 void Gobal_declear(string type , bool is_const, bool is_gobal, bool is_struct);
 void Function_declear(string type , bool is_struct);

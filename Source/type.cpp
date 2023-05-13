@@ -189,7 +189,7 @@ void hard_match(int value , string msg)
     //cout << line[idx] << " : " << word[idx] << endl;
     idx++;
 }
-vector<function*> start_typeCheck(string filename , bool need_print)
+vector<function*> type_check_file(string filename , bool is_output)
 {
     parse_file(filename ,false);
     token = get_tokens();
@@ -229,7 +229,7 @@ vector<function*> start_typeCheck(string filename , bool need_print)
     {
         while(!output.empty())
         {
-            if(need_print)
+            if(is_output)
                 cout << output.front() << endl;
             output.pop();
         }
