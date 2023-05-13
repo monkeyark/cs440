@@ -7,7 +7,7 @@ CFLAGS = -Wall -Werror -ggdb3 -funroll-loops
 CXXFLAGS = -std=c++20 -Wall -Werror -ggdb3 -funroll-loops
 
 BIN = mycc
-OBJS = mycc.o lex.o parse.o type.o gen.o
+OBJS = mycc.o lex.o parse.o type.o gen.o gencf.o
 
 all: $(BIN) etags
 

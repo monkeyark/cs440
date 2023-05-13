@@ -1,5 +1,5 @@
-#ifndef AST_HPP
-#define AST_HPP
+#ifndef GEN_HPP
+#define GEN_HPP
 
 #include<string>
 

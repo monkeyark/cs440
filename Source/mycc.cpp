@@ -8,6 +8,7 @@
 #include "parse.hpp"
 #include "type.hpp"
 #include "gen.hpp"
+#include "gencf.hpp"
 
 using std::cout;
 using std::endl;
@@ -107,7 +108,7 @@ void part4(int in, int out, string in_path, string out_path)
 
 void part5(int in, int out, string in_path, string out_path)
 {
-	gen_file(in_path, true);
+	gen_cf_file(in_path, true);
 }
 
 int main(int argc, char *argv[])
