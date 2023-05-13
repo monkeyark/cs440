@@ -6,6 +6,8 @@
 
 #include "lex.hpp"
 #include "parse.hpp"
+#include "type.hpp"
+#include "gen.hpp"
 
 using std::cout;
 using std::endl;
@@ -95,14 +97,17 @@ void part2(int in, int out, string in_path, string out_path)
 
 void part3(int in, int out, string in_path, string out_path)
 {
+	type_check_file(in_path, true);
 }
 
 void part4(int in, int out, string in_path, string out_path)
 {
+	gen_file(in_path, true);
 }
 
 void part5(int in, int out, string in_path, string out_path)
 {
+	gen_file(in_path, true);
 }
 
 int main(int argc, char *argv[])
