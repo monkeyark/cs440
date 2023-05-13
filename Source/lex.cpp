@@ -18,13 +18,13 @@ using std::string;
 
 std::ostringstream oss;
 
-vector<int> lines;
+vector<int> lines_lex;
 vector<int> token_ids;
 vector<string> lexemes;
 
 vector<int> get_lines()
 {
-	return lines;
+	return lines_lex;
 }
 
 vector<int> get_tokens()
@@ -581,7 +581,7 @@ void output_token(string lexeme, int line, string path)
 		<< " Token " << std::right << std::setw(5) << tokenid
 		<< " Text " << lexeme << endl;
 		token_ids.push_back(tokenid);
-		lines.push_back(line);
+		lines_lex.push_back(line);
 		lexemes.push_back(lexeme);
 	}
 }

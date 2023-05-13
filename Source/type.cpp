@@ -209,7 +209,7 @@ vector<function*> start_typeCheck(string filename , bool need_print)
     functions["getchar"] = getchar;
     functions["putchar"] = putchar;
 
-    while(idx < token.size())
+    while((long unsigned int) idx < token.size())
     {
         Declear();
     }
@@ -623,7 +623,7 @@ void Statement(string type)
 
         Gobal_declear(cur_type , is_const , false , is_struct);
     }
-    else if(is_match(301) || next_match(301) && !is_match(40))
+    else if(is_match(301) || (next_match(301) && !is_match(40)))
     {
         string cur_type = "";
         bool is_const = false;
@@ -665,7 +665,6 @@ void Statement(string type)
 string Expression(bool report , bool in_func)
 {
     string result = "void";
-    bool isconst = false;
     bool is_literal = false;
     if(is_match(306) || (token[idx] >=302 && token[idx] <= 305))
     {
@@ -752,7 +751,7 @@ string Expression(bool report , bool in_func)
                 error_output.push("Error ilne " + std::to_string(line[idx-1]) + ":\n\t incorrect number of paramter for function " + func_name);
             else
             {
-                for(int i = 0 ; i< cur_func->idents.size() ; i++)
+                for(long unsigned int i = 0 ; i< cur_func->idents.size() ; i++)
                 {
                     //cout << types[i] << " : " << cur_func->idents[i]->get_type() << endl;
                     string temp = cur_func->idents[i]->get_type();
@@ -998,7 +997,8 @@ string Lvalue(bool report , bool in_func)
             if((*stemp)[temp->type]->idents.find(next) == (*stemp)[temp->type]->idents.end())
             {
                 error_output.push("error in line " + std::to_string(line[idx-1]) +"\n\t" +name + " not have member");
-                temp == NULL;
+                //TODO
+                // temp == NULL;
             }
             else
             {
