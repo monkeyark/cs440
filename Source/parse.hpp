@@ -5,7 +5,13 @@
 #include <string>
 #include <vector>
 
+#include "lex.hpp"
 
+int parse_file(std::string file_path, bool is_output);
+
+
+
+/////////////////////////////////////
 // enum tokentype {
 // 	END     = 0,
 // 	COMMA   = ',',
@@ -80,8 +86,36 @@
 // std::vector<int> get_lines();
 
 
+/////////////////////////////////
+void declare_syntax();
+void output_parse_err(std::string msg);
+void D();
+void Func();
+void End();
+void Var();
+void Sign();
+void SigE();
+void I();
+void VD();
+void S();
+void Stmt();
+void B();
+void Else();
+void E();
+void Esub();
+void Es();
+void Inc();
+void U();
+void Bin();
+void As();
+void C();
+void St();
+void StD();
+void StF();
+///////////////////////////////
 
-int parse_file(std::string file_path, bool is_output);
+
+
 
 
 #endif

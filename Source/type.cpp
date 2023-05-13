@@ -27,16 +27,20 @@ queue<Express*> condi_exp;
 int idx = 0;
 int label_count = 0;
 bool need_label = false;
-unordered_set<int> assign ({61,361,362,363,364});
-//= , += , -= , *= , /=
-unordered_set<int> binary ({351,352,62,353,60,354,43,45,42,47,37,124,38,357,358});
-//==, !=, >, >=, <, <=, +, -, *, /, %, |, &, ||, &&
-unordered_set<int> binary2 ({60,62,351,352,353,354,357,358});
-unordered_set<int> unary ({33,45 , '~'});
+// unordered_set<int> assign ({61,361,362,363,364});
+// unordered_set<int> binary ({351,352,62,353,60,354,43,45,42,47,37,124,38,357,358});
+// unordered_set<int> binary2 ({60,62,351,352,353,354,357,358});
+// unordered_set<int> unary ({33,45 , '~'});
+unordered_set<int> assign({ASSIGN, PLUSASSIGN, MINUSASSIGN, STARASSIGN, SLASHASSIGN});
+unordered_set<int> binary({EQ, NE, GT, GE, LT, LE, PLUS, MINUS, STAR, SLASH, MOD, PIPE, AMP, DPIPE, DAMP});
+unordered_set<int> binary2({LT, GT, EQ, NE, GE, LE, PLUS, MINUS, STAR, SLASH, MOD, PIPE, AMP, DPIPE, DAMP});
+unordered_set<int> unary({BANG, MINUS, TILDE});
+
 function* last_function;
 unordered_set<string> type_N ({"char", "int" , "float" , "const char", "const int" , "const float"});
 unordered_set<string> type_I ({"char" , "int" , "const char" , "const int"});
 unordered_set<string> type_C ({"const char[]","char[]","string"});
+
 ident::ident(string s)
 {
     type = s;
