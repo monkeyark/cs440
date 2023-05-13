@@ -72,7 +72,7 @@ using std::cerr;
 
 
 string file_name;
-vector<int> lines;
+vector<int> lines_parse;
 vector<int> tokens;
 vector<string> words;
 vector<string> result;
@@ -90,7 +90,7 @@ int parse_file(string filename, bool is_output)
 {
     lex_file(filename , false);
     tokens = get_tokens();
-    lines = get_lines();
+    lines_parse = get_lines();
     words = get_words();
     file_name = filename;
     while(tok_idx < tokens.size())
@@ -133,13 +133,13 @@ void hard_syntax_match(int value , string msg)
 void output_parse_result(int idx, string entity)
 {
     int output = idx;
-    string s = "File file_name Line " + std::to_string(lines[output]) + ": " + entity + " " + words[output];
+    string s = "File file_name Line " + std::to_string(lines_parse[output]) + ": " + entity + " " + words[output];
     result.push_back(s);  
 }
 
 void output_parse_err(string msg)
 { 
-    cout << "parser error in file " << file_name << " line " << lines[tok_idx] << " near text " << words[tok_idx] << endl;
+    cout << "parser error in file " << file_name << " line " << lines_parse[tok_idx] << " near text " << words[tok_idx] << endl;
     cout << "\t"<< msg << endl; 
     exit(0);
 }
