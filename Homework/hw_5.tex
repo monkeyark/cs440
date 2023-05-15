@@ -86,18 +86,19 @@ are terminal symbols (i.e., tokens).
 Determine the LR(0) \textsc{Closure} of item ~~
 $S$ $\rightarrow$ $\mathit{lbrace}$ $\bullet$ $L$ $\mathit{rbrace}$
 %============================================================
-% \begin{framed}
-$$
-  \begin{aligned}
-    \textsc{Closure}(S \rightarrow \mathit{lbrace} \bullet \  L \  \mathit{rbrace}) = \{ & S \rightarrow \mathit{lbrace} \bullet \  L \  \mathit{rbrace},       \\                                                                      & L \rightarrow  \bullet \  L \ \mathit{comma} \ I, \\
-                                                                                         & L \rightarrow  \bullet \  I,                                         \\
-                                                                                         & I \rightarrow  \bullet \ \mathit{number},                            \\
-                                                                                         & I \rightarrow  \bullet \ S,                                          \\
-                                                                                         & S \rightarrow \bullet \  \mathit{lbrace}  \  L \  \mathit{rbrace} \} \\
-  \end{aligned}
-$$
-
-% \end{framed}
+\begin{framed}
+\begin{align*}
+\textsc{Closure}(S &\rightarrow \mathit{lbrace} \bullet \  L \  \mathit{rbrace}) = \\
+\{ \\
+  & S \rightarrow \mathit{lbrace} \bullet \  L \  \mathit{rbrace}, \\
+  & L \rightarrow \bullet \  L \ \mathit{comma} \ I, \\
+  & L \rightarrow \bullet \  I, \\
+  & I \rightarrow \bullet \ \mathit{number}, \\
+  & I \rightarrow \bullet \ S, \\
+  & S \rightarrow \bullet \ \mathit{lbrace} \  L \  \mathit{rbrace} \\
+\}
+\end{align*}
+\end{framed}
 %============================================================
 
 %============================================================
@@ -126,30 +127,23 @@ for this grammar.
 Indicate if there are any conflicts.
 
 %============================================================
-% \begin{framed}
-
-\begin{table}[h]
+\begin{framed}
   \centering
   \begin{tabular}{c|ccccc|ccc}
-    \toprule
-          & \multicolumn{5}{c|}{Action} & \multicolumn{3}{c}{Goto}                                     \\
-    State & number                      & lbrace                   & rbrace & comma & \$  & S & L & I  \\
+    State & lbrace & rbrace & comma  & number & \$    & S      & L      & I  \\
     \midrule
-    0     &                             & s1                       &        &       &     & 2 &   &    \\
-    1     & s3                          & s1                       &        &       &     & 4 & 5 & 6  \\
-    2     &                             &                          &        &       & acc &   &   &    \\
-    3     & r4                          & r4                       & r4     & r4    & r4  &   &   &    \\
-    4     & r5                          & r5                       & r5     & r5    & r5  &   &   &    \\
-    5     &                             &                          & s8     & s9    &     &   &   &    \\
-    6     & r3                          & r3                       & r3     & r3    & r3  &   &   &    \\
-    8     & r1                          & r1                       & r1     & r1    & r1  &   &   &    \\
-    9     & s3                          & s1                       &        &       &     & 4 &   & 10 \\
-    10    & r2                          & r2                       & r2     & r2    & r2  &   &   &    \\
-    \bottomrule
+    0     & s1     &        &        &        &       & 2      &        &    \\
+    1     & s1     &        &        & s3     &       & 4      & 5      & 6  \\
+    2     &        &        &        &        & acc   &        &        &    \\
+    3     & r4     & r4     & r4     & r4     & r4    &        &        &    \\
+    4     & r5     & r5     & r5     & r5     & r5    &        &        &    \\
+    5     &        & s8     & s9     &        &       &        &        &    \\
+    6     & r3     & r3     & r3     & r3     & r3    &        &        &    \\
+    8     & r1     & r1     & r1     & r1     & r1    &        &        &    \\
+    9     & s1     &        &        & s3     &       & 4      &        & 10 \\
+    10    & r2     & r2     & r2     & r2     & r2    &        &        &    \\
   \end{tabular}
-\end{table}
-
-% \end{framed}
+\end{framed}
 %============================================================
 
 %============================================================
@@ -164,12 +158,8 @@ Trace the execution of your LR(0) parser on the input string
 by indicating the stack contents, remaining input, and
 action(s) taken at each step.
 %============================================================
-% \begin{framed}
-
-\begin{table}[h]
-  \centering
+\begin{framed}
   \begin{tabular}{l|l|l|l}
-    \toprule
     Stack                             & Input                                                         & Action & Reduction                                              \\
     \midrule
     0                                 & \emph{lbrace}  ~\emph{lbrace}  ~\emph{number}  ~\emph{rbrace}
@@ -189,11 +179,9 @@ action(s) taken at each step.
     0 1 5 9 3                         & ~\$                                                           & r4     & $I \rightarrow \mathit{number}$                        \\
     0 1 5 9 10                        & ~\$                                                           & r2     & $L \rightarrow L \  \mathit{comma} \  I$               \\
     0 1 5                             & ~\$                                                           & Reject &                                                        \\
-    % 0 1 5 8                           & ~\$                                                           & r1     & $S \rightarrow \mathit{lbrace} \  L \ \mathit{rbrace}$ \\
   \end{tabular}
-\end{table}
+\end{framed}
 
-% \end{framed}
 %============================================================
 
 \end{document}
