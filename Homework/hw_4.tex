@@ -5,6 +5,7 @@
 \usepackage{listings}
 \usepackage{framed}
 \usepackage{booktabs}
+\usepackage{tcolorbox}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{dkred}{rgb}{0.6,0,0}
@@ -128,8 +129,7 @@ are terminals.
 Build the LL(1) parse table $M$ for this grammar.
 For full credit, show how each entry was obtained.
 %============================================================
-% \begin{framed}
-\begin{table}[h]
+\begin{framed}
     \centering
     \begin{tabular}{c|c|c|c|c|c}
         \toprule
@@ -142,8 +142,7 @@ For full credit, show how each entry was obtained.
         $O$ &         & (7) & (8) &     &     \\
         \bottomrule
     \end{tabular}
-\end{table}
-% \end{framed}
+\end{framed}
 %============================================================
 
 %============================================================
@@ -155,71 +154,76 @@ write a predictive, recursive-descent parser,
 as pseudocode for each non-terminal grammar symbol.
 
 %============================================================
+\newpage
 \begin{framed}
-
-\begin{lstlisting}{style=jvm}
-    S() {
-    if( next == ident || next == '*') {
-        L();
-        match(=);
-        match(literal);
-        match(;)
-        return;
-       }
-       sytaxError();
-    }
-
-    L() {
-        if( next == ident) {
-            match(ident);
-            return;
-        }
-        else if(next == '*') {
-            match('*');
-            P();
-        }
-        sytaxError();
-    }
-
-    P() {
-        if (next == ident || next == '*') {
-            L();
-            return;
-        }
-        else if(next == '(' ){
-            match('(');
-            A();
-            match(')');
-            return;
-        }
-        sytaxError();
-    }
-
-    A() {
-        if (next == ident || next == '*') {
-            L();
-            O();
-            match(literal);
-            return;
-        }
-        sytaxError();
-    }
-
-    O() {
-        if (next == '+') {
-            match('+');
-            return;
-        }
-        else if (next == '-') {
-            match('-');
-            return;
-        }
-        sytaxError();
-    }
+\begin{lstlisting}[language=Java, style=jvm]
+S:
+    IF next = ident OR next = *
+        run L
+        MATCH IS
+        MATCH literal
+        RETURN
+    ELSE
+        SYNTAX ERROR
 \end{lstlisting}
-
 \end{framed}
-%============================================================
+
+\begin{framed}
+\begin{lstlisting}[language=Java, style=jvm]
+L:
+    IF next = ident
+        MATCH ident
+        RETURN
+    ELSE IF next = *
+        MATCH *
+        run P
+    ELSE
+        SYNTAX ERROR
+\end{lstlisting}
+\end{framed}
+
+\begin{framed}
+\begin{lstlisting}[language=Java, style=jvm]
+P:
+    IF next = ident OR next = *
+        run L
+        RETURN
+    ELSE IF next = (
+        MATCH (
+        run A
+        MATCH )
+        RETURN
+    ELSE
+        SYNTAX ERROR
+\end{lstlisting}
+\end{framed}
+
+\begin{framed}
+\begin{lstlisting}[language=Java, style=jvm]
+A:
+    IF next = ident OR next = *
+        run L
+        run O
+        MATCH literal
+        RETURN
+    ELSE
+        SYNTAX ERROR
+\end{lstlisting}
+\end{framed}
+
+\begin{framed}
+\begin{lstlisting}[language=Java, style=jvm]
+O:
+    IF next = +
+        MATCH +
+        RETURN
+    ELSE IF next = -
+        MATCH -
+        RETURN
+    ELSE
+        SYNTAX ERROR
+\end{lstlisting}
+\end{framed}
 
 %============================================================
 \section*{Question~3~~(Extra credit for students in 440)\hfill 10 points}
@@ -246,10 +250,9 @@ the following sentences.
 Demonstrate that the modified grammar is still in LL(1).
 %============================================================
 \begin{framed}
-Modify the grammar (changes in red):
 \begin{eqnarray*}
     S & \rightarrow & L ~ \verb|=| ~ \mathit{literal} ~ \verb|;| \\
-    L & \rightarrow & \color{red}{\mathit{ident} ~ I^{\prime}}
+    L & \rightarrow & \mathit{ident} ~ I^{\prime}
     \\
     L & \rightarrow & \verb|*| ~ P
     \\
@@ -264,15 +267,20 @@ Modify the grammar (changes in red):
     O & \rightarrow & \verb|-|
 \end{eqnarray*}
 
-And give the grammar of $I^{\prime}$
+LL(1) will remain unchanged by adding
+\begin{eqnarray*}
+M(I^\prime, \verb|.|) = (9) \\
+M(I^\prime, \$) = (10)
+\end{eqnarray*}
 
+
+The generated grammar for $I^{\prime}$:
 \begin{eqnarray*}
     I^{\prime} & \rightarrow & \verb|.| ~ \mathit{ident} ~ I^{\prime}
     \\
     I^{\prime} & \rightarrow & \epsilon
 \end{eqnarray*}
 
-It only adds two new entries  $M(I^\prime, \verb|.|) = (9)$ and $M(I^\prime, \$) = (10)$ to the parse table, so it is still LL(1).
 \end{framed}
 %============================================================
 
