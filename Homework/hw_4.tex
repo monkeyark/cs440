@@ -133,13 +133,13 @@ For full credit, show how each entry was obtained.
     \centering
     \begin{tabular}{c|c|c|c|c|c}
         \toprule
-            & $ident$ & $+$ & $-$ & $*$ & (   \\
+            & $ident$ & $+$ & $-$ & $*$ & (       \\
         \midrule
-        $S$ & (1)     &     &     & (1) &     \\
-        $L$ & (2)     &     &     & (3) &     \\
-        $P$ & (4)     &     &     & (4) & (5) \\
-        $A$ & (6)     &     &     & (6) &     \\
-        $O$ &         & (7) & (8) &     &     \\
+            $S$ & (1)     &     &     & (1) &     \\
+            $L$ & (2)     &     &     & (3) &     \\
+            $P$ & (4)     &     &     & (4) & (5) \\
+            $A$ & (6)     &     &     & (6) &     \\
+            $O$ &         & (7) & (8) &     &     \\
         \bottomrule
     \end{tabular}
 \end{framed}
@@ -252,18 +252,12 @@ Demonstrate that the modified grammar is still in LL(1).
 \begin{framed}
 \begin{eqnarray*}
     S & \rightarrow & L ~ \verb|=| ~ \mathit{literal} ~ \verb|;| \\
-    L & \rightarrow & \mathit{ident} ~ I^{\prime}
-    \\
-    L & \rightarrow & \verb|*| ~ P
-    \\
-    P & \rightarrow & L
-    \\
-    P & \rightarrow & \verb|(| ~ A ~ \verb|)|
-    \\
-    A & \rightarrow & L ~ O ~ \mathit{literal}
-    \\
-    O & \rightarrow & \verb|+|
-    \\
+    L & \rightarrow & \mathit{ident} ~ I^{\prime} \\
+    L & \rightarrow & \verb|*| ~ P \\
+    P & \rightarrow & L \\
+    P & \rightarrow & \verb|(| ~ A ~ \verb|)| \\
+    A & \rightarrow & L ~ O ~ \mathit{literal} \\
+    O & \rightarrow & \verb|+| \\
     O & \rightarrow & \verb|-|
 \end{eqnarray*}
 
@@ -276,8 +270,7 @@ M(I^\prime, \$) = (10)
 
 The generated grammar for $I^{\prime}$:
 \begin{eqnarray*}
-    I^{\prime} & \rightarrow & \verb|.| ~ \mathit{ident} ~ I^{\prime}
-    \\
+    I^{\prime} & \rightarrow & \verb|.| ~ \mathit{ident} ~ I^{\prime} \\
     I^{\prime} & \rightarrow & \epsilon
 \end{eqnarray*}
 
