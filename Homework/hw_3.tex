@@ -3,6 +3,7 @@
 \usepackage{url}
 \usepackage{color}
 \usepackage{listings}
+\usepackage{framed}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{dkred}{rgb}{0.6,0,0}
@@ -20,7 +21,7 @@
     draw,
     ->,
     >=stealth',
-    auto,git@git.ece.iastate.edu:asminer/coms440-spring2023.git
+    auto,
     semithick} %
 }
 
@@ -87,7 +88,18 @@ Determine
   $\textsc{Follow}(S)$,
   $\textsc{Follow}(L)$, and
   $\textsc{Follow}(I)$.
-
+%============================================================
+\begin{framed}
+\begin{eqnarray*}
+    \textsc{First}(S) & = & \{lbrace\} \\
+    \textsc{First}(L) & = & \{lbrace, number \} \\
+    \textsc{First}(I) & = & \{lbrace, number \} \\
+    \textsc{Follow}(S) & = & \{comma, \$, rbrace\} \\
+    \textsc{Follow}(L) & = & \{comma, \$, rbrace\} \\
+    \textsc{Follow}(I) & = & \{comma, \$, rbrace\}
+\end{eqnarray*}
+\end{framed}
+%============================================================
 
 %============================================================
 \section*{Question~2~\hfill 15 points}
@@ -95,8 +107,20 @@ Determine
 
 Write an equivalent grammar (with the same precedence
 of operators) that does not use left recursion.
-
-
+%============================================================
+\begin{framed}
+\begin{eqnarray*}
+    S & \rightarrow & \mathit{lbrace} ~L~ \mathit{rbrace}
+    \\
+    L & \rightarrow & I ~\mathit{comma}~ L
+    \\
+    L & \rightarrow & I
+    \\
+    I & \rightarrow & \mathit{number}
+    \\
+    I & \rightarrow & S
+\end{eqnarray*}
+\end{framed}
 %============================================================
 \section*{Question~3~\hfill 20 points}
 %============================================================
@@ -117,5 +141,13 @@ The following are examples of legal sentences.
 \end{quote}
 Your grammar should use $\mathit{ident}$, $[$, and $]$ as
 terminal symbols.
+%============================================================
+\begin{framed}
+\begin{eqnarray*}
+    A & \rightarrow & A[A] \\
+    A & \rightarrow & ident
+\end{eqnarray*}
+\end{framed}
+%============================================================
 
 \end{document}

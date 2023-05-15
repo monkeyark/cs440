@@ -20,7 +20,7 @@
     draw,
     ->,
     >=stealth',
-    auto,git@git.ece.iastate.edu:asminer/coms440-spring2023.git
+    auto,
     semithick} %
 }
 
@@ -43,9 +43,9 @@
   tabsize=8
 }
 
-\title{COM S 440/540 Homework 3}
+\title{COM S 440/540 Homework 5}
 \date{}
-\author{Grammars}
+\author{LR Parsing}
 
 \begin{document}
 
@@ -57,8 +57,8 @@ Solutions should be written satisfying the \emph{other student viewpoint},
 and must be prepared using \LaTeX.
 \renewcommand{\thepage}{~}
  
-\noindent 
-{\bf For questions 1 and 2}, use the following grammar, where
+ 
+For all questions, use the following grammar, where
 %============================================================
 \emph{lbrace}, \emph{rbrace}, \emph{comma}, and \emph{number}
 are terminal symbols (i.e., tokens).
@@ -80,42 +80,40 @@ are terminal symbols (i.e., tokens).
 \section*{Question~1~\hfill 15 points}
 %============================================================
 
-Determine
-  $\textsc{First}(S)$,
-  $\textsc{First}(L)$,
-  $\textsc{First}(I)$,
-  $\textsc{Follow}(S)$,
-  $\textsc{Follow}(L)$, and
-  $\textsc{Follow}(I)$.
+Determine the LR(0) \textsc{Closure} of item ~~
+$S$ $\rightarrow$ $\mathit{lbrace}$ $\bullet$ $L$ $\mathit{rbrace}$
+
+%============================================================
+\section*{Question~2~\hfill 10 points}
+%============================================================
+
+Using {\tt bison -g}, generate a DOT file of the automaton
+for this grammar.
+Then, use {\tt dot -Tpdf} to produce a PDF of the automaton.
+Either include this in your \LaTeX{} submission, or submit it separately
+in Canvas.
 
 
 %============================================================
-\section*{Question~2~\hfill 15 points}
+\section*{Question~3~\hfill 40 points}
 %============================================================
 
-Write an equivalent grammar (with the same precedence
-of operators) that does not use left recursion.
+Using the automaton states as numbered by {\tt bison},
+give the LR(0) \textsc{Action} and \textsc{Goto} tables
+for this grammar.
+Indicate if there are any conflicts.
 
 
 %============================================================
-\section*{Question~3~\hfill 20 points}
+\section*{Question~4~~(extra credit for students in 440)\hfill 15 points}
 %============================================================
 
-Write an unambiguous grammar to describe the language of 
-``variables'' in C.
-For this question, a ``variable'' is an identifier
-that could be an array in several dimensions,
-where the array indexes are also variables.
-The following are examples of legal sentences.
-\begin{quote}
-  \emph{ident} \\
-  \emph{ident}[\emph{ident}] \\
-  \emph{ident}[ \emph{ident}[\emph{ident}][\emph{ident}] ]
-  [ \emph{ident} ]
-  [ \emph{ident}[\emph{ident}[\emph{ident}]][\emph{ident}] ]
-  [ \emph{ident}[\emph{ident}][\emph{ident}][\emph{ident}] ]
-\end{quote}
-Your grammar should use $\mathit{ident}$, $[$, and $]$ as
-terminal symbols.
+Trace the execution of your LR(0) parser on the input string
+\begin{center}
+\emph{lbrace}  ~\emph{lbrace}  ~\emph{number}  ~\emph{rbrace}
+ ~\emph{comma}  ~\emph{number} ~\$
+\end{center}
+by indicating the stack contents, remaining input, and
+action(s) taken at each step.
 
 \end{document}

@@ -1,0 +1,126 @@
+\documentclass[10pt]{article}
+\usepackage{fullpage}
+\usepackage{url}
+\usepackage{color}
+\usepackage{listings}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{dkred}{rgb}{0.6,0,0}
+\definecolor{dkblue}{rgb}{0,0,0.7}
+
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows}
+\tikzset{%
+  node distance=2.5cm,
+  initial text={},
+  every state/.style={
+    semithick},
+  double distance=2pt,  % Accept state appearance
+  every edge/.style={
+    draw,
+    ->,
+    >=stealth',
+    auto,
+    semithick} %
+}
+
+\lstdefinestyle{jvm}{
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=left,
+  moredelim=[s][\color{black}]{Ljava}{;},
+  morecomment=[l][\color{dkgreen}]{;},
+  morecomment=[l][\color{magenta}]{;;},
+  keywords={class,public,static,super,method,code,end},
+  keywordstyle=\color{dkblue},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=8
+}
+
+\title{COM S 440/540 Homework 7}
+\date{}
+\author{Code generation}
+
+\begin{document}
+
+\maketitle
+
+\noindent
+Reminder: present your own work and properly cite any sources used.
+Solutions should be written satisfying the \emph{other student viewpoint},
+and must be prepared using \LaTeX.
+\renewcommand{\thepage}{~}
+%============================================================
+\section*{Question~1~\hfill 20--30 points}
+%============================================================
+
+Suppose we define a generalized ``post-increment'' operator, \verb|#|,
+that increments a variable by an expression \emph{after} returning
+the value of the variable.
+More formally, we allow expressions of the form
+\[
+  E ~\rightarrow~~\mathit{ident} ~ \verb|#| ~ E_1
+\]
+which evaluates expression $E_1$ exactly once,
+returns the value of the identifier,
+and then adds the value of $E_1$ to the identifier.
+Give the semantic rules for this production,
+to (incrementally) translate into three-address code.
+For additional points, also give the semantic rules
+to (incrementally) translate into stack machine code.
+
+
+%============================================================
+\section*{Question~2~\hfill 20--25 points}
+%============================================================
+
+Suppose we are designing a language with short-circuiting
+boolean expressions,
+and wish to include an \emph{implication} operator, \verb|=>|,
+with the following truth table:
+\[
+  \begin{array}{c|c|c}
+    x & y & x ~\verb|=>|~ y
+  \\ \hline
+    \mathit{false} & \mathit{false} & \mathit{true}
+  \\
+    \mathit{false} & \mathit{true} & \mathit{true}
+  \\
+    \mathit{true} & \mathit{false} & \mathit{false}
+  \\
+    \mathit{true} & \mathit{true} & \mathit{true}
+  \end{array}
+\]
+Give semantic rules
+for the production
+\[
+  B ~\rightarrow~ B_1 ~~\verb|=>|~~ B_2
+\]
+with short-circuiting.
+For additional points,
+give the semantic rules using the special fall-through label,
+to avoid redundant gotos.
+
+%============================================================
+\section*{Question~3~\hfill 20--30 points}
+%============================================================
+Suppose a \emph{repeat-until} loop
+has the form
+\[
+  S \quad \rightarrow \quad \mathsf{repeat} ~~ S_1 ~~\mathsf{until} ~~ B
+\]
+where $B$ is a boolean expression that short circuits,
+and $S_1$ is a non-empty list of statements.
+The loop will execute statement(s) $S_1$ one or more times,
+stopping when condition $B$ is true.
+Give the semantic rules to generate three-address code for a repeat-until loop.
+For additional points, also give the semantic rules using backpatching
+(you may modify the above production to include markers if necessary).
+
+\end{document}

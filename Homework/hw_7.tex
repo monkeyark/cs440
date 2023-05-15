@@ -1,0 +1,203 @@
+\documentclass[10pt]{article}
+\usepackage{fullpage}
+\usepackage{url}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{framed}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{dkred}{rgb}{0.6,0,0}
+\definecolor{dkblue}{rgb}{0,0,0.7}
+
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows}
+\tikzset{%
+  node distance=2.5cm,
+  initial text={},
+  every state/.style={
+    semithick},
+  double distance=2pt,  % Accept state appearance
+  every edge/.style={
+    draw,
+    ->,
+    >=stealth',
+    auto,
+    semithick} %
+}
+
+\lstdefinestyle{jvm}{
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=left,
+  moredelim=[s][\color{black}]{Ljava}{;},
+  morecomment=[l][\color{dkgreen}]{;},
+  morecomment=[l][\color{magenta}]{;;},
+  keywords={class,public,static,super,method,code,end},
+  keywordstyle=\color{dkblue},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=8
+}
+
+\title{COM S 440/540 Homework 7}
+\date{}
+\author{Code generation}
+
+\begin{document}
+
+\maketitle
+
+\noindent
+Reminder: present your own work and properly cite any sources used.
+Solutions should be written satisfying the \emph{other student viewpoint},
+and must be prepared using \LaTeX.
+\renewcommand{\thepage}{~}
+%============================================================
+\section*{Question~1~\hfill 20--30 points}
+%============================================================
+
+Suppose we define a generalized ``post-increment'' operator, \verb|#|,
+that increments a variable by an expression \emph{after} returning
+the value of the variable.
+More formally, we allow expressions of the form
+\[
+  E ~\rightarrow~~\mathit{ident} ~ \verb|#| ~ E_1
+\]
+which evaluates expression $E_1$ exactly once,
+returns the value of the identifier,
+and then adds the value of $E_1$ to the identifier.
+Give the semantic rules for this production,
+to (incrementally) translate into three-address code.
+For additional points, also give the semantic rules
+to (incrementally) translate into stack machine code.
+
+%============================================================
+\begin{framed}
+The semantic rules for the grammar to translate to three-address code are as follows:
+
+\begin{lstlisting}[style=jvm]
+  E.addr = new_temporary();
+  output_instruction(E.addr, '=', E1.addr);
+  E2.addr = symbol_table_entry_for(ident.name)
+  E3.addr = new_temporary();
+  output_instruction(E3.addr, '=', E1.addr, '+', E2.addr);
+  output_instruction(E2.addr '=', E3.addr);
+\end{lstlisting}
+
+The semantic rules for the grammar to translate to stack machine code are as follows:
+
+\begin{lstlisting}[style=jvm]
+  output_instruction("push ", ident.name);
+  output_instruction("duplicate");
+  output_instruction("push ", E1.addr);
+  output_instruction("add");
+  output_instruction("pop", ident.name);
+\end{lstlisting}
+
+\end{framed}
+%============================================================
+
+%============================================================
+\section*{Question~2~\hfill 20--25 points}
+%============================================================
+
+Suppose we are designing a language with short-circuiting
+boolean expressions,
+and wish to include an \emph{implication} operator, \verb|=>|,
+with the following truth table:
+\[
+  \begin{array}{c|c|c}
+    x & y & x ~\verb|=>|~ y
+  \\ \hline
+    \mathit{false} & \mathit{false} & \mathit{true}
+  \\
+    \mathit{false} & \mathit{true} & \mathit{true}
+  \\
+    \mathit{true} & \mathit{false} & \mathit{false}
+  \\
+    \mathit{true} & \mathit{true} & \mathit{true}
+  \end{array}
+\]
+Give semantic rules
+for the production
+\[
+  B ~\rightarrow~ B_1 ~~\verb|=>|~~ B_2
+\]
+with short-circuiting.
+For additional points,
+give the semantic rules using the special fall-through label,
+to avoid redundant gotos.
+%============================================================
+\begin{framed}
+The semantic rules for the production $B \rightarrow B_1 \implies B_2$ (i.e. $B \rightarrow \neg B_1 \lor B_2$) are as follows:
+
+\begin{lstlisting}[style=jvm]
+B.generate(label t, label f){
+  label b1f = (t != fall_through) ? t : new label;
+  B1.generate(fall_through, b1f);
+  B2.generate(t, f);
+  if (f == fall_through)
+      output_label(b1f);
+}
+  
+\end{lstlisting}
+
+\end{framed}
+%============================================================
+
+%============================================================
+\section*{Question~3~\hfill 20--30 points}
+%============================================================
+Suppose a \emph{repeat-until} loop
+has the form
+\[
+  S \quad \rightarrow \quad \mathsf{repeat} ~~ S_1 ~~\mathsf{until} ~~ B
+\]
+where $B$ is a boolean expression that short circuits,
+and $S_1$ is a non-empty list of statements.
+The loop will execute statement(s) $S_1$ one or more times,
+stopping when condition $B$ is true.
+Give the semantic rules to generate three-address code for a repeat-until loop.
+For additional points, also give the semantic rules using backpatching
+(you may modify the above production to include markers if necessary).
+%============================================================
+\begin{framed}
+The three-address code rules for the production $S \rightarrow \texttt{repeat } S_1 \texttt{ until } B$ are as follows:
+
+
+\begin{lstlisting}[style=jvm]
+S.generate(next){
+  label loop = new label();
+  lable tpart = new label();
+  label loop_end = new label();
+  output_label(loop);
+  S1.generate(next);
+  output_label(loop_end);
+  B1.generate(tpart, next);
+  output_label(tpart);
+  output_instruction("goto ", loop);
+}
+\end{lstlisting}
+
+Backpatching:
+
+Rewrite the production: $ S \rightarrow \texttt{repeat } M_1 \ S_1 \texttt{ until } M_2 \  B $
+
+\begin{lstlisting}[style=jvm]
+  {
+    backpatching(S1.nextlist, M2.instr);
+    backpatching(B.falselist, M1.instr);
+    S.nextlist = B.truelist;
+    output_instruction("goto ", M1.instr);
+  }
+\end{lstlisting}
+
+\end{framed}
+%============================================================
+
+\end{document}

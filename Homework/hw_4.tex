@@ -1,0 +1,279 @@
+\documentclass[10pt]{article}
+\usepackage{fullpage}
+\usepackage{url}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{framed}
+\usepackage{booktabs}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{dkred}{rgb}{0.6,0,0}
+\definecolor{dkblue}{rgb}{0,0,0.7}
+
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows}
+\tikzset{%
+  node distance=2.5cm,
+  initial text={},
+  every state/.style={
+    semithick},
+  double distance=2pt,  % Accept state appearance
+  every edge/.style={
+    draw,
+    ->,
+    >=stealth',
+    auto,
+    semithick} %
+}
+
+\lstdefinestyle{jvm}{
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=left,
+  moredelim=[s][\color{black}]{Ljava}{;},
+  morecomment=[l][\color{dkgreen}]{;},
+  morecomment=[l][\color{magenta}]{;;},
+  keywords={class,public,static,super,method,code,end},
+  keywordstyle=\color{dkblue},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=8
+}
+% ==========================
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{dkred}{rgb}{0.6,0,0}
+\definecolor{dkblue}{rgb}{0,0,0.7}
+
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows}
+\tikzset{%
+  node distance=2.5cm,
+  initial text={},
+  every state/.style={
+    semithick},
+  double distance=2pt,  % Accept state appearance
+  every edge/.style={
+    draw,
+    ->,
+    >=stealth',
+    auto,
+    semithick} %
+}
+
+\lstdefinestyle{jvm}{
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=left,
+  moredelim=[s][\color{black}]{Ljava}{;},
+  morecomment=[l][\color{dkgreen}]{;},
+  morecomment=[l][\color{magenta}]{;;},
+  keywords={class,public,static,super,method,code,end},
+  keywordstyle=\color{dkblue},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=8
+}
+
+\title{COM S 440/540 Homework 4}
+\date{}
+\author{LL Parsing}
+
+\begin{document}
+
+\maketitle
+
+\noindent
+Reminder: present your own work and properly cite any sources used.
+Solutions should be written satisfying the \emph{other student viewpoint},
+and must be prepared using \LaTeX.
+\renewcommand{\thepage}{~}
+%============================================================
+\section*{Question~1~\hfill 30 points}
+%============================================================
+
+Consider the grammar below,
+for (simple) assignments in C, with pointer dereferencing
+and (simple) pointer arithmetic.
+Symbols \emph{literal}, \emph{ident}, \verb|=|, \verb|+|, \verb|-|, \verb|*|,
+\verb|(|, \verb|)|,
+and \verb|;|
+are terminals.
+\begin{eqnarray*}
+  S & \rightarrow & L ~ \verb|=| ~ \mathit{literal} ~ \verb|;|
+\\
+  L & \rightarrow & \mathit{ident}
+\\
+	L & \rightarrow & \verb|*| ~ P
+\\
+	P & \rightarrow & L
+\\
+  P & \rightarrow & \verb|(| ~ A ~ \verb|)|
+\\
+  A & \rightarrow & L ~ O ~ \mathit{literal}
+\\
+  O & \rightarrow & \verb|+|
+\\
+  O & \rightarrow & \verb|-|
+\end{eqnarray*}
+Build the LL(1) parse table $M$ for this grammar.
+For full credit, show how each entry was obtained.
+%============================================================
+% \begin{framed}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|c|c|c|c|c}
+        \toprule
+            & $ident$ & $+$ & $-$ & $*$ & (   \\
+        \midrule
+        $S$ & (1)     &     &     & (1) &     \\
+        $L$ & (2)     &     &     & (3) &     \\
+        $P$ & (4)     &     &     & (4) & (5) \\
+        $A$ & (6)     &     &     & (6) &     \\
+        $O$ &         & (7) & (8) &     &     \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+% \end{framed}
+%============================================================
+
+%============================================================
+\section*{Question~2~\hfill 20 points}
+%============================================================
+
+Based on your answer to the previous question, 
+write a predictive, recursive-descent parser,
+as pseudocode for each non-terminal grammar symbol.
+
+%============================================================
+\begin{framed}
+
+\begin{lstlisting}{style=jvm}
+    S() {
+    if( next == ident || next == '*') {
+        L();
+        match(=);
+        match(literal);
+        match(;)
+        return;
+       }
+       sytaxError();
+    }
+
+    L() {
+        if( next == ident) {
+            match(ident);
+            return;
+        }
+        else if(next == '*') {
+            match('*');
+            P();
+        }
+        sytaxError();
+    }
+
+    P() {
+        if (next == ident || next == '*') {
+            L();
+            return;
+        }
+        else if(next == '(' ){
+            match('(');
+            A();
+            match(')');
+            return;
+        }
+        sytaxError();
+    }
+
+    A() {
+        if (next == ident || next == '*') {
+            L();
+            O();
+            match(literal);
+            return;
+        }
+        sytaxError();
+    }
+
+    O() {
+        if (next == '+') {
+            match('+');
+            return;
+        }
+        else if (next == '-') {
+            match('-');
+            return;
+        }
+        sytaxError();
+    }
+\end{lstlisting}
+
+\end{framed}
+%============================================================
+
+%============================================================
+\section*{Question~3~~(Extra credit for students in 440)\hfill 10 points}
+%============================================================
+
+Give a modified version of the grammar
+(you may introduce new grammar symbols if needed)
+that remains in LL(1),
+to allow for arbitrary depth struct member selection.
+Specifically,
+in place of an \emph{ident},
+your modified grammar should allow
+an \emph{ident} followed by zero or more
+occurrences of sequence \verb|.|\emph{ident}.
+For example, the new grammar should accept
+the following sentences.
+\begin{verbatim}
+  i = 3;
+  point.x = 3;
+  *points.xarray = 3;
+  *(points.xarray+7) = 3;
+  *(*(strange.twod.array.pointer+4)+5) = 3;
+\end{verbatim}
+Demonstrate that the modified grammar is still in LL(1).
+%============================================================
+\begin{framed}
+Modify the grammar (changes in red):
+\begin{eqnarray*}
+    S & \rightarrow & L ~ \verb|=| ~ \mathit{literal} ~ \verb|;| \\
+    L & \rightarrow & \color{red}{\mathit{ident} ~ I^{\prime}}
+    \\
+    L & \rightarrow & \verb|*| ~ P
+    \\
+    P & \rightarrow & L
+    \\
+    P & \rightarrow & \verb|(| ~ A ~ \verb|)|
+    \\
+    A & \rightarrow & L ~ O ~ \mathit{literal}
+    \\
+    O & \rightarrow & \verb|+|
+    \\
+    O & \rightarrow & \verb|-|
+\end{eqnarray*}
+
+And give the grammar of $I^{\prime}$
+
+\begin{eqnarray*}
+    I^{\prime} & \rightarrow & \verb|.| ~ \mathit{ident} ~ I^{\prime}
+    \\
+    I^{\prime} & \rightarrow & \epsilon
+\end{eqnarray*}
+
+It only adds two new entries  $M(I^\prime, \verb|.|) = (9)$ and $M(I^\prime, \$) = (10)$ to the parse table, so it is still LL(1).
+\end{framed}
+%============================================================
+
+\end{document}

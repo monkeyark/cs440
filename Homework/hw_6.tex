@@ -1,0 +1,146 @@
+\documentclass[10pt]{article}
+\usepackage{fullpage}
+\usepackage{url}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{framed}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{dkred}{rgb}{0.6,0,0}
+\definecolor{dkblue}{rgb}{0,0,0.7}
+
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows}
+\tikzset{%
+  node distance=2.5cm,
+  initial text={},
+  every state/.style={
+    semithick},
+  double distance=2pt,  % Accept state appearance
+  every edge/.style={
+    draw,
+    ->,
+    >=stealth',
+    auto,
+    semithick} %
+}
+
+\lstdefinestyle{jvm}{
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=left,
+  moredelim=[s][\color{black}]{Ljava}{;},
+  morecomment=[l][\color{dkgreen}]{;},
+  morecomment=[l][\color{magenta}]{;;},
+  keywords={class,public,static,super,method,code,end},
+  keywordstyle=\color{dkblue},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=8
+}
+
+\title{COM S 440/540 Homework 6}
+\date{}
+\author{Attribute grammars}
+
+\begin{document}
+
+\maketitle
+
+\noindent
+Reminder: present your own work and properly cite any sources used.
+Solutions should be written satisfying the \emph{other student viewpoint},
+and must be prepared using \LaTeX.
+\renewcommand{\thepage}{~}
+ 
+ 
+For all questions, use the following grammar, where
+%============================================================
+\emph{lbrace}, \emph{rbrace}, \emph{comma}, and \emph{number}
+are terminal symbols (i.e., tokens).
+\begin{eqnarray}
+  S & \rightarrow & \mathit{lbrace} ~L~ \mathit{rbrace}
+\\
+  L & \rightarrow & L ~\mathit{comma}~ I
+\\
+  L & \rightarrow & I
+\\
+  I & \rightarrow & \mathit{number}
+\\
+  I & \rightarrow & S
+\end{eqnarray}
+
+
+%============================================================
+\section*{Question~1~\hfill 20 points}
+%============================================================
+
+For the grammar above, give semantic rules to build
+a synthesized attribute named \emph{max},
+which keeps track of the largest \emph{number} appearing anywhere
+within the set.
+You may introduce other synthesized attributes,
+and give rules for them,
+as needed.
+For example, the sentence
+\begin{verbatim}
+  { 3, {{1}, 4}, {1, 5}, {{{9}, 2}, 6}, 5 }
+\end{verbatim}
+should have a \emph{max} attribute equal to 9.
+(Assume lexemes ``\verb|{|'', ``\verb|}|'', and ``\verb|,|''
+correspond to tokens \emph{lbrace}, \emph{rbrace},
+and \emph{comma}, respectively).
+%============================================================
+\begin{framed}
+
+\end{framed}
+%============================================================
+
+%============================================================
+\section*{Question~2~\hfill 30 points}
+%============================================================
+For the grammar above, give semantic rules to build
+an inherited attribute named \emph{depth},
+which keeps track of the depth of each item:
+each item in a set should have depth one greater
+than the depth of the set containing it.
+For example, for the input sentence
+\begin{verbatim}
+  { 1, {{2}, 3}, {4, 5}, {{{6}, 7}, 8}, 9 }
+\end{verbatim}
+we should obtain the following depths.
+\begin{center}
+\begin{tabular}{lrcrlrc}
+  Item & & Depth & ~ ~ ~ & Item & & Depth \\
+  \cline{1-1} \cline{3-3} \cline{5-5} \cline{7-7}
+  \verb|{ 1, {{2}, 3}, {4, 5}, {{{6}, 7}, 8}, 9 }| && 0
+  && \verb|4| && 2 \\
+  \verb|1|  && 1
+  && \verb|5| && 2 \\
+  \verb|{{2}, 3}| && 1
+  && \verb|{{6}, 7}| && 2 \\
+  \verb|{4, 5}| && 1
+  && \verb|8| && 2 \\
+  \verb|{{{6}, 7}, 8}| && 1
+  && \verb|2| && 3 \\
+  \verb|9| && 1
+  && \verb|{6}| && 3 \\
+  \verb|{2}| && 2
+  && \verb|7| && 3 \\
+  \verb|3| && 2
+  && \verb|6| && 4
+\end{tabular}
+\end{center}
+
+%============================================================
+\begin{framed}
+
+\end{framed}
+%============================================================
+
+\end{document}

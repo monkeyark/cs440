@@ -1,0 +1,199 @@
+\documentclass[10pt]{article}
+\usepackage{fullpage}
+\usepackage{url}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{framed}
+\usepackage{booktabs}
+\usepackage{amsmath}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{dkred}{rgb}{0.6,0,0}
+\definecolor{dkblue}{rgb}{0,0,0.7}
+
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows}
+\tikzset{%
+  node distance=2.5cm,
+  initial text={},
+  every state/.style={
+    semithick},
+  double distance=2pt,  % Accept state appearance
+  every edge/.style={
+    draw,
+    ->,
+    >=stealth',
+    auto,
+    semithick} %
+}
+
+\lstdefinestyle{jvm}{
+  % aboveskip=3mm,
+  % belowskip=3mm,
+  xleftmargin=2em,
+  % xrightmargin=2em,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\ttfamily},
+  numbers=left,
+  moredelim=[s][\color{black}]{Ljava}{;},
+  morecomment=[l][\color{dkgreen}]{;},
+  morecomment=[l][\color{magenta}]{;;},
+  keywords={class,public,static,super,method,code,end},
+  keywordstyle=\color{dkblue},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=8
+}
+
+\title{COM S 440/540 Homework 5}
+\date{}
+\author{LR Parsing}
+
+\begin{document}
+
+\maketitle
+
+\noindent
+Reminder: present your own work and properly cite any sources used.
+Solutions should be written satisfying the \emph{other student viewpoint},
+and must be prepared using \LaTeX.
+\renewcommand{\thepage}{~}
+ 
+ 
+For all questions, use the following grammar, where
+%============================================================
+\emph{lbrace}, \emph{rbrace}, \emph{comma}, and \emph{number}
+are terminal symbols (i.e., tokens).
+
+\begin{eqnarray}
+  S & \rightarrow & \mathit{lbrace} ~L~ \mathit{rbrace}
+\\
+  L & \rightarrow & L ~\mathit{comma}~ I
+\\
+  L & \rightarrow & I
+\\
+  I & \rightarrow & \mathit{number}
+\\
+  I & \rightarrow & S
+\end{eqnarray}
+
+
+%============================================================
+\section*{Question~1~\hfill 15 points}
+%============================================================
+
+Determine the LR(0) \textsc{Closure} of item ~~
+$S$ $\rightarrow$ $\mathit{lbrace}$ $\bullet$ $L$ $\mathit{rbrace}$
+%============================================================
+% \begin{framed}
+$$
+  \begin{aligned}
+    \textsc{Closure}(S \rightarrow \mathit{lbrace} \bullet \  L \  \mathit{rbrace}) = \{ & S \rightarrow \mathit{lbrace} \bullet \  L \  \mathit{rbrace},       \\                                                                      & L \rightarrow  \bullet \  L \ \mathit{comma} \ I, \\
+                                                                                         & L \rightarrow  \bullet \  I,                                         \\
+                                                                                         & I \rightarrow  \bullet \ \mathit{number},                            \\
+                                                                                         & I \rightarrow  \bullet \ S,                                          \\
+                                                                                         & S \rightarrow \bullet \  \mathit{lbrace}  \  L \  \mathit{rbrace} \} \\
+  \end{aligned}
+$$
+
+% \end{framed}
+%============================================================
+
+%============================================================
+\section*{Question~2~\hfill 10 points}
+%============================================================
+
+Using {\tt bison -g}, generate a DOT file of the automaton
+for this grammar.
+Then, use {\tt dot -Tpdf} to produce a PDF of the automaton.
+Either include this in your \LaTeX{} submission, or submit it separately
+in Canvas.
+
+%============================================================
+\begin{framed}
+% \includegraphics[width=\textwidth]{tuple.pdf}
+\end{framed}
+%============================================================
+\newpage
+%============================================================
+\section*{Question~3~\hfill 40 points}
+%============================================================
+
+Using the automaton states as numbered by {\tt bison},
+give the LR(0) \textsc{Action} and \textsc{Goto} tables
+for this grammar.
+Indicate if there are any conflicts.
+
+%============================================================
+% \begin{framed}
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{c|ccccc|ccc}
+    \toprule
+          & \multicolumn{5}{c|}{Action} & \multicolumn{3}{c}{Goto}                                     \\
+    State & number                      & lbrace                   & rbrace & comma & \$  & S & L & I  \\
+    \midrule
+    0     &                             & s1                       &        &       &     & 2 &   &    \\
+    1     & s3                          & s1                       &        &       &     & 4 & 5 & 6  \\
+    2     &                             &                          &        &       & acc &   &   &    \\
+    3     & r4                          & r4                       & r4     & r4    & r4  &   &   &    \\
+    4     & r5                          & r5                       & r5     & r5    & r5  &   &   &    \\
+    5     &                             &                          & s8     & s9    &     &   &   &    \\
+    6     & r3                          & r3                       & r3     & r3    & r3  &   &   &    \\
+    8     & r1                          & r1                       & r1     & r1    & r1  &   &   &    \\
+    9     & s3                          & s1                       &        &       &     & 4 &   & 10 \\
+    10    & r2                          & r2                       & r2     & r2    & r2  &   &   &    \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% \end{framed}
+%============================================================
+
+%============================================================
+\section*{Question~4~~(extra credit for students in 440)\hfill 15 points}
+%============================================================
+
+Trace the execution of your LR(0) parser on the input string
+\begin{center}
+\emph{lbrace}  ~\emph{lbrace}  ~\emph{number}  ~\emph{rbrace}
+ ~\emph{comma}  ~\emph{number} ~\$
+\end{center}
+by indicating the stack contents, remaining input, and
+action(s) taken at each step.
+%============================================================
+% \begin{framed}
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{l|l|l|l}
+    \toprule
+    Stack                             & Input                                                         & Action & Reduction                                              \\
+    \midrule
+    0                                 & \emph{lbrace}  ~\emph{lbrace}  ~\emph{number}  ~\emph{rbrace}
+    ~\emph{comma}  ~\emph{number} ~\$ & s1                                                            &                                                                 \\
+    0 1                               & \emph{lbrace}  ~\emph{number}  ~\emph{rbrace}
+    ~\emph{comma}  ~\emph{number} ~\$ & s1                                                            &                                                                 \\
+    0 1 1                             & \emph{number}  ~\emph{rbrace}
+    ~\emph{comma}  ~\emph{number} ~\$ & s3                                                            &                                                                 \\
+    0 1 1 3                           & \emph{rbrace} ~\emph{comma}  ~\emph{number} ~\$               & r4     & $I \rightarrow \mathit{number}$                        \\
+    0 1 1 6                           & \emph{rbrace} ~\emph{comma}  ~\emph{number} ~\$               & r3     & $L \rightarrow I$                                      \\
+    0 1 1 5                           & \emph{rbrace} ~\emph{comma}  ~\emph{number} ~\$               & s8     &                                                        \\
+    0 1 1 5 8                         & \emph{comma}  ~\emph{number} ~\$                              & r1     & $S \rightarrow \mathit{lbrace} \  L \ \mathit{rbrace}$ \\
+    0 1 4                             & \emph{comma}  ~\emph{number} ~\$                              & r5     & $I \rightarrow S$                                      \\
+    0 1 6                             & \emph{comma}  ~\emph{number} ~\$                              & r3     & $L \rightarrow I$                                      \\
+    0 1 5                             & \emph{comma}  ~\emph{number} ~\$                              & s9     &                                                        \\
+    0 1 5 9                           & \emph{number} ~\$                                             & s3     &                                                        \\
+    0 1 5 9 3                         & ~\$                                                           & r4     & $I \rightarrow \mathit{number}$                        \\
+    0 1 5 9 10                        & ~\$                                                           & r2     & $L \rightarrow L \  \mathit{comma} \  I$               \\
+    0 1 5                             & ~\$                                                           & Reject &                                                        \\
+    % 0 1 5 8                           & ~\$                                                           & r1     & $S \rightarrow \mathit{lbrace} \  L \ \mathit{rbrace}$ \\
+  \end{tabular}
+\end{table}
+
+% \end{framed}
+%============================================================
+
+\end{document}

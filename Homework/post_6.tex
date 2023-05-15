@@ -20,7 +20,7 @@
     draw,
     ->,
     >=stealth',
-    auto,git@git.ece.iastate.edu:asminer/coms440-spring2023.git
+    auto,
     semithick} %
 }
 
@@ -43,9 +43,9 @@
   tabsize=8
 }
 
-\title{COM S 440/540 Homework 3}
+\title{COM S 440/540 Homework 6}
 \date{}
-\author{Grammars}
+\author{Attribute grammars}
 
 \begin{document}
 
@@ -57,12 +57,11 @@ Solutions should be written satisfying the \emph{other student viewpoint},
 and must be prepared using \LaTeX.
 \renewcommand{\thepage}{~}
  
-\noindent 
-{\bf For questions 1 and 2}, use the following grammar, where
+ 
+For all questions, use the following grammar, where
 %============================================================
 \emph{lbrace}, \emph{rbrace}, \emph{comma}, and \emph{number}
 are terminal symbols (i.e., tokens).
-
 \begin{eqnarray}
   S & \rightarrow & \mathit{lbrace} ~L~ \mathit{rbrace}
 \\
@@ -77,45 +76,60 @@ are terminal symbols (i.e., tokens).
 
 
 %============================================================
-\section*{Question~1~\hfill 15 points}
+\section*{Question~1~\hfill 20 points}
 %============================================================
 
-Determine
-  $\textsc{First}(S)$,
-  $\textsc{First}(L)$,
-  $\textsc{First}(I)$,
-  $\textsc{Follow}(S)$,
-  $\textsc{Follow}(L)$, and
-  $\textsc{Follow}(I)$.
-
+For the grammar above, give semantic rules to build
+a synthesized attribute named \emph{max},
+which keeps track of the largest \emph{number} appearing anywhere
+within the set.
+You may introduce other synthesized attributes,
+and give rules for them,
+as needed.
+For example, the sentence
+\begin{verbatim}
+  { 3, {{1}, 4}, {1, 5}, {{{9}, 2}, 6}, 5 }
+\end{verbatim}
+should have a \emph{max} attribute equal to 9.
+(Assume lexemes ``\verb|{|'', ``\verb|}|'', and ``\verb|,|''
+correspond to tokens \emph{lbrace}, \emph{rbrace},
+and \emph{comma}, respectively).
 
 %============================================================
-\section*{Question~2~\hfill 15 points}
+\section*{Question~2~\hfill 30 points}
 %============================================================
+For the grammar above, give semantic rules to build
+an inherited attribute named \emph{depth},
+which keeps track of the depth of each item:
+each item in a set should have depth one greater
+than the depth of the set containing it.
+For example, for the input sentence
+\begin{verbatim}
+  { 1, {{2}, 3}, {4, 5}, {{{6}, 7}, 8}, 9 }
+\end{verbatim}
+we should obtain the following depths.
+\begin{center}
+\begin{tabular}{lrcrlrc}
+  Item & & Depth & ~ ~ ~ & Item & & Depth \\
+  \cline{1-1} \cline{3-3} \cline{5-5} \cline{7-7}
+  \verb|{ 1, {{2}, 3}, {4, 5}, {{{6}, 7}, 8}, 9 }| && 0
+  && \verb|4| && 2 \\
+  \verb|1|  && 1
+  && \verb|5| && 2 \\
+  \verb|{{2}, 3}| && 1
+  && \verb|{{6}, 7}| && 2 \\
+  \verb|{4, 5}| && 1
+  && \verb|8| && 2 \\
+  \verb|{{{6}, 7}, 8}| && 1
+  && \verb|2| && 3 \\
+  \verb|9| && 1
+  && \verb|{6}| && 3 \\
+  \verb|{2}| && 2
+  && \verb|7| && 3 \\
+  \verb|3| && 2
+  && \verb|6| && 4
+\end{tabular}
+\end{center}
 
-Write an equivalent grammar (with the same precedence
-of operators) that does not use left recursion.
-
-
-%============================================================
-\section*{Question~3~\hfill 20 points}
-%============================================================
-
-Write an unambiguous grammar to describe the language of 
-``variables'' in C.
-For this question, a ``variable'' is an identifier
-that could be an array in several dimensions,
-where the array indexes are also variables.
-The following are examples of legal sentences.
-\begin{quote}
-  \emph{ident} \\
-  \emph{ident}[\emph{ident}] \\
-  \emph{ident}[ \emph{ident}[\emph{ident}][\emph{ident}] ]
-  [ \emph{ident} ]
-  [ \emph{ident}[\emph{ident}[\emph{ident}]][\emph{ident}] ]
-  [ \emph{ident}[\emph{ident}][\emph{ident}][\emph{ident}] ]
-\end{quote}
-Your grammar should use $\mathit{ident}$, $[$, and $]$ as
-terminal symbols.
 
 \end{document}
