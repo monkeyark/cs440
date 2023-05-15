@@ -4,7 +4,7 @@ TEX = pdflatex
 
 TEXFLAGS = -shell-escape -interaction=nonstopmode -file-line-error --interaction=batchmode
 
-TEXFILES = post_4.tex
+TEXFILES = post_1.tex
 
 all: $(TEXFILES)
 	@$(ECHO) Generating Documentations $@
