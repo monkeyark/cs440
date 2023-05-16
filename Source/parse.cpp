@@ -99,7 +99,7 @@ int parse_file(string filename, bool is_output)
     }
     if(is_output)
     {
-        cout << "\tFile "+ filename +" is syntactically correct." << endl;
+        cout << "\tFile " + filename + " is syntactically correct." << endl;
         for(auto x : result)
         {
             cout << x << endl;
@@ -130,16 +130,16 @@ void hard_syntax_match(int value , string msg)
     tok_idx++;
 }
 
-void output_parse_result(int idx, string entity)
+//TODO need to format the output
+void output_parse_result(int idx, string kind)
 {
-    int output = idx;
-    string s = "File file_name Line " + std::to_string(lines_parse[output]) + ": " + entity + " " + words[output];
+    string s = "File " + file_name + " Line " + std::to_string(lines_parse[idx]) + ": " + kind + " " + words[idx];
     result.push_back(s);  
 }
 
 void output_parse_err(string msg)
 { 
-    cout << "parser error in file " << file_name << " line " << lines_parse[tok_idx] << " near text " << words[tok_idx] << endl;
+    cerr << "Parser error in file " << file_name << " line " << lines_parse[tok_idx] << " at text " << words[tok_idx] << endl;
     cout << "\t"<< msg << endl; 
     exit(0);
 }
@@ -576,12 +576,3 @@ void StD()
     output_parse_result(tok_idx , (in_struct > 0? "member" : (in_block >0? "local variable" : "global variable")));
     I();
 }
-
-// int main()
-// {
-//     start_parser();
-// }
-
-
-
-
