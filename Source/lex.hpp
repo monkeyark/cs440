@@ -74,6 +74,10 @@ enum tokentype {
 	SWITCH    = 411,
 	CASE      = 412,
 	DEFAULT   = 413,
+
+/* Unary */
+	UNARY_INCR     = 501,
+	UNARY_DECR     = 502,
 	
 };
 

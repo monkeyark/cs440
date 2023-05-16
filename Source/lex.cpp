@@ -410,6 +410,37 @@ int is_str_lit(string token)
 	return STR_LIT;
 }
 
+int is_unary_increment(string token)
+{
+    // Check if the string is empty or has only two characters
+    if (token.empty() || token.size() < 2) {
+        return TOKEN_ERR;
+    }
+    
+    // Check if the last two characters are "++"
+    if (token.substr(token.size() - 2) != "++") {
+        return TOKEN_ERR;
+    }
+		// Check if the rest of the string is a legal C identifier
+    for (size_t i = 0; i < token.size() - 2; ++i) {
+        if (i == 0 && !isalpha(token[i]) && token[i] != '_') {
+            return TOKEN_ERR;
+        }
+        if (!isalnum(token[i]) && token[i] != '_') {
+            return TOKEN_ERR;
+        }
+    }
+    
+    return true;
+	return TOKEN_ERR;
+}
+
+int is_unary_decrement(string token)
+{
+	//TODO check identifier with --
+	return TOKEN_ERR;
+}
+
 typedef int (*token_function) (string token);
 token_function token_search[] =
 {
@@ -423,6 +454,8 @@ token_function token_search[] =
 	is_int_lit,
 	is_real_lit,
 	is_legal_character,
+	is_unary_increment,
+	is_unary_decrement,
 };
 
 int find_tokenid(string token)
@@ -433,19 +466,6 @@ int find_tokenid(string token)
 		tokenid = token_search[i](token);
 		i++;
 	} while (tokenid && i < 10);
-
-	// switch (tokenid)
-	// {
-	// 	case TYPE:
-	// 		return TYPE;
-	// 		break;
-	// 	case END:
-	// 		return END;
-	// 		break;
-	// 	default:
-	// 		return -1;
-	// }
-
 	return tokenid;
 }
 
@@ -471,6 +491,10 @@ int search_tokenid(string token)
 		return is_real_lit(token);
 	else if (is_legal_character(token))
 		return is_legal_character(token);
+	else if (is_unary_increment(token))
+		return is_unary_increment(token);
+	else if (is_unary_decrement(token))
+		return is_unary_decrement(token);
 	else
 		return TOKEN_UNRECOGNIZED;
 }
