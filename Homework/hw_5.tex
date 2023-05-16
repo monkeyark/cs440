@@ -86,19 +86,51 @@ are terminal symbols (i.e., tokens).
 Determine the LR(0) \textsc{Closure} of item ~~
 $S$ $\rightarrow$ $\mathit{lbrace}$ $\bullet$ $L$ $\mathit{rbrace}$
 %============================================================
+% \begin{framed}
+%   \begin{aligned*}
+%     $\textsc{Closure}$ ($S$ $\rightarrow$ $\mathit{lbrace}$ $\bullet$ \  $L$ \  $\mathit{rbrace}$ ) &= \\
+%     \{ \\
+%       & $S$ $\rightarrow$  $\mathit{lbrace}$ $\bullet$ \  $L$ \  $\mathit{rbrace}$, \\
+%       & $L$ $\rightarrow$  $\bullet$ \  $L$ \ $\mathit{comma}$ \ $I$, \\
+%       & $L$ $\rightarrow$  $\bullet$ \  $I$, \\
+%       & $I$ $\rightarrow$  $\bullet$ \  $\mathit{number}$, \\
+%       & $I$ $\rightarrow$  $\bullet$ \  $S$, \\
+%       & $S$ $\rightarrow$  $\bullet$ \  $\mathit{lbrace}$  \  L \  $\mathit{rbrace}$ \\
+%     \}
+%   \end{aligned*}
+% \end{framed}
+
+% \begin{framed}
+%   \begin{eqnarray*}
+%     \textsc{Closure}(S \rightarrow \mathit{lbrace} \bullet \  L \  \mathit{rbrace}) = \\
+%     \{
+%     \\
+%     S \rightarrow \mathit{lbrace} \bullet \  L \  \mathit{rbrace}, \\
+%     L \rightarrow  \bullet \  L \ \mathit{comma} \ I, \\
+%     L \rightarrow  \bullet \  I, \\
+%     I \rightarrow  \bullet \ \mathit{number}, \\
+%     I \rightarrow  \bullet \ S, \\
+%     S \rightarrow \bullet \  \mathit{lbrace}  \  L \  \mathit{rbrace} \\
+%     \}
+%   \end{eqnarray*}
+% \end{framed}
+
+
 \begin{framed}
-\begin{align*}
-\textsc{Closure}(S &\rightarrow \mathit{lbrace} \bullet \  L \  \mathit{rbrace}) = \\
-\{ \\
-  & S \rightarrow \mathit{lbrace} \bullet \  L \  \mathit{rbrace}, \\
-  & L \rightarrow \bullet \  L \ \mathit{comma} \ I, \\
-  & L \rightarrow \bullet \  I, \\
-  & I \rightarrow \bullet \ \mathit{number}, \\
-  & I \rightarrow \bullet \ S, \\
-  & S \rightarrow \bullet \ \mathit{lbrace} \  L \  \mathit{rbrace} \\
-\}
-\end{align*}
+  \begin{aligned*}
+    \textsc{Closure} $(S \rightarrow \mathit{lbrace} \ \bullet \ L \  \mathit{rbrace} )$
+        &= \\
+        &\{ \\
+        S & \rightarrow  \mathit{lbrace} \bullet \  L \  \mathit{rbrace}, \\
+        L & \rightarrow  \bullet \  L \ \mathit{comma} \ I, \\
+        L & \rightarrow  \bullet \  I, \\
+        I & \rightarrow  \bullet \  \mathit{number}, \\
+        I & \rightarrow  \bullet \  S, \\
+        S & \rightarrow  \bullet \  \mathit{lbrace}  \  L \  \mathit{rbrace} \\
+        & \}
+  \end{aligned*}
 \end{framed}
+
 %============================================================
 
 %============================================================
@@ -130,6 +162,7 @@ Indicate if there are any conflicts.
 \begin{framed}
   \centering
   \begin{tabular}{c|ccccc|ccc}
+    \toprule
     State & lbrace & rbrace & comma  & number & \$    & S      & L      & I  \\
     \midrule
     0     & s1     &        &        &        &       & 2      &        &    \\
@@ -142,6 +175,7 @@ Indicate if there are any conflicts.
     8     & r1     & r1     & r1     & r1     & r1    &        &        &    \\
     9     & s1     &        &        & s3     &       & 4      &        & 10 \\
     10    & r2     & r2     & r2     & r2     & r2    &        &        &    \\
+    \bottomrule
   \end{tabular}
 \end{framed}
 %============================================================
@@ -158,8 +192,12 @@ Trace the execution of your LR(0) parser on the input string
 by indicating the stack contents, remaining input, and
 action(s) taken at each step.
 %============================================================
+% \begin{framed}
+
 \begin{framed}
+  \centering
   \begin{tabular}{l|l|l|l}
+    \toprule
     Stack                             & Input                                                         & Action & Reduction                                              \\
     \midrule
     0                                 & \emph{lbrace}  ~\emph{lbrace}  ~\emph{number}  ~\emph{rbrace}
@@ -182,6 +220,7 @@ action(s) taken at each step.
   \end{tabular}
 \end{framed}
 
+% \end{framed}
 %============================================================
 
 \end{document}
