@@ -87,11 +87,11 @@ unordered_set<int> unary_op({BANG, MINUS, TILDE});
 
 
 // Extract filename from the filepath
-void filename_extract(string fname)
+void filename_extract(string path)
 {
-    cout << file_path << endl;
+    cout << path << endl;
 
-    fname = file_path.substr(file_path.find_last_of("/") + 1);
+    fname = path.substr(path.find_last_of("/") + 1);
     cout << fname << endl;
     size_t dot_pos = fname.find_last_of(".");
     if (dot_pos != std::string::npos)
