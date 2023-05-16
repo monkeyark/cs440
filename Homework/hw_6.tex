@@ -63,7 +63,7 @@ For all questions, use the following grammar, where
 %============================================================
 \emph{lbrace}, \emph{rbrace}, \emph{comma}, and \emph{number}
 are terminal symbols (i.e., tokens).
-\begin{eqnarray}
+\begin{eqnarray*}
   S & \rightarrow & \mathit{lbrace} ~L~ \mathit{rbrace}
 \\
   L & \rightarrow & L ~\mathit{comma}~ I
@@ -73,7 +73,7 @@ are terminal symbols (i.e., tokens).
   I & \rightarrow & \mathit{number}
 \\
   I & \rightarrow & S
-\end{eqnarray}
+\end{eqnarray*}
 
 
 %============================================================
@@ -97,10 +97,17 @@ correspond to tokens \emph{lbrace}, \emph{rbrace},
 and \emph{comma}, respectively).
 %============================================================
 \begin{framed}
-
+\centering
+\begin{tabular}{ll}
+    Production                                              & Rule \\
+    \hline
+    $S  \rightarrow  \mathit{lbrace} ~L~ \mathit{rbrace}$   & $S.\mathit{max} = L.\mathit{max}$ \\
+    $L  \rightarrow  L^\prime ~\mathit{comma}~ I$           & $L.\mathit{max} = \max(L^\prime.\mathit{max}, I.\mathit{max})$ \\
+    $L  \rightarrow  I$                                     & $L.\mathit{max} = I.\mathit{max}$ \\
+    $I  \rightarrow  \mathit{number}$                       & $I.\mathit{max} = \mathit{number}.\mathit{value}$ \\
+    $I  \rightarrow  S$                                     & $I.\mathit{max} = S.\mathit{max}$ \\
+\end{tabular}
 \end{framed}
-%============================================================
-
 %============================================================
 \section*{Question~2~\hfill 30 points}
 %============================================================
@@ -138,8 +145,23 @@ we should obtain the following depths.
 \end{center}
 
 %============================================================
+% We should the the table:
 \begin{framed}
-
+\centering
+\begin{tabular}{l|l}
+    Production                                                & Rule \\
+    \hline
+    $S  \rightarrow  \mathit{lbrace} ~L~ \mathit{rbrace}$     & $L.depth = S.depth + 1$ \\
+    \hline
+    $L  \rightarrow  L^\prime ~\mathit{comma}~ I$             & $L^\prime.depth = L.depth$ \\
+                                                              & $I.depth = L.depth$ \\
+    \hline
+    $L  \rightarrow  I$                                       & $I.depth = L.depth$ \\
+    \hline
+    $I  \rightarrow  \mathit{number}$                         & $\{number.depth = I.depth\}$ \\
+    \hline
+    $I  \rightarrow  S$                                       & $S.depth = I.depth$ \\
+\end{tabular}
 \end{framed}
 %============================================================
 

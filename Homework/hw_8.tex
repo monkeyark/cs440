@@ -132,21 +132,18 @@ Determine the basic blocks for the following Java assembly code.
 \end{lstlisting}
 %============================================================
 \begin{framed}
-Basic Blocks are
-
 \begin{lstlisting}[style=jvm]
-[L0, L7]
-[L8, L10]
-[L13, L20]
-[L23, L28]
-[L29, L31]
-[L34, L42]
-[L44, L47]
-[L50, L70]
-[L73, L82]
-[L85, L90]
+            [L0, L7]
+            [L8, L10]
+            [L13, L20]
+            [L23, L28]
+            [L29, L31]
+            [L34, L42]
+            [L44, L47]
+            [L50, L70]
+            [L73, L82]
+            [L85, L90]
 \end{lstlisting}
-
 \end{framed}
 %============================================================
 
@@ -188,18 +185,15 @@ identify the loops.
 For each loop, give the loop entry.
 %============================================================
 \begin{framed}
-Loop:
-
-\begin{table}[h]
-    \begin{tabular}{l | l}
-        Basic Block                & Entries      \\
-        \midrule
-        $B_2$, $B_3$               & $B_2$        \\
-        $B_5$, $B_7$, $B_8$, $B_9$ & $B_7$, $B_9$ \\
-        $B_6$, $B_9$               & $B_9$        \\
-    \end{tabular}
-\end{table}
-
+\begin{center}
+\begin{tabular}{l | l}
+    Loop                                & Entry         \\
+    \hline
+    $B_2$, $B_3$                        & $B_2$         \\
+    $B_5$, $B_7$, $B_8$, $B_9$, $B_6$   & $B_7$, $B_9$  \\
+    $B_6$, $B_9$                        & $B_9$         \\
+\end{tabular}
+\end{center}
 \end{framed}
 %============================================================
 
