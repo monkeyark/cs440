@@ -86,5 +86,7 @@ int lex_file(std::string file_path, bool is_output);
 std::vector<std::string> get_words();
 std::vector<int> get_tokens();
 std::vector<int> get_lines();
+std::string get_str_between_two_str(const std::string &s, const std::string &start_delim, const std::string &stop_delim);
+std::string get_str_before_last_delim_inclusive(std::string const& s, const std::string &delim);
 
 #endif
