@@ -71,7 +71,9 @@ using std::cerr;
 ///////////////////////////////
 
 
-string file_name;
+string file_path;
+string fname;
+
 vector<int> lines_parse;
 vector<int> tokens;
 vector<string> words;
@@ -84,25 +86,40 @@ unordered_set<int> binary_op({EQ, NE, GT, GE, LT, LE, PLUS, MINUS, STAR, SLASH, 
 unordered_set<int> unary_op({BANG, MINUS, TILDE});
 
 
-
-
-int parse_file(string filename, bool is_output)
+// Extract filename from the filepath
+void filename_extract(string fname)
 {
-    lex_file(filename , false);
+    cout << file_path << endl;
+
+    fname = file_path.substr(file_path.find_last_of("/") + 1);
+    cout << fname << endl;
+    size_t dot_pos = fname.find_last_of(".");
+    if (dot_pos != std::string::npos)
+    {
+        fname = fname.substr(0, dot_pos);
+    }
+    cout << fname << endl;
+
+}
+
+int parse_file(string path, bool is_output)
+{
+    file_path = path;
+    filename_extract(file_path);
+    lex_file(path , false);
     tokens = get_tokens();
     lines_parse = get_lines();
     words = get_words();
-    file_name = filename;
+    file_path = path;
     while(tok_idx < tokens.size())
     {
         declare_syntax();
     }
     if(is_output)
     {
-        cout << "\tFile " + filename + " is syntactically correct." << endl;
-        for(auto x : result)
+        for(auto r : result)
         {
-            cout << x << endl;
+            cout << r << endl;
         }
         return -1;
     }
@@ -133,15 +150,15 @@ void hard_syntax_match(int value , string msg)
 //TODO need to format the output
 void output_parse_result(int idx, string kind)
 {
-    string s = "File " + file_name + " Line " + std::to_string(lines_parse[idx]) + ": " + kind + " " + words[idx];
+    string s = "File " + fname + " Line " + std::to_string(lines_parse[idx]) + ": " + kind + " " + words[idx];
     result.push_back(s);  
 }
 
 void output_parse_err(string msg)
 { 
-    cerr << "Parser error in file " << file_name << " line " << lines_parse[tok_idx] << " at text " << words[tok_idx] << endl;
+    cerr << "Parser error in file " << file_path << " line " << lines_parse[tok_idx] << " at text " << words[tok_idx] << endl;
     cout << "\t"<< msg << endl; 
-    exit(0);
+    // exit(0);
 }
 
 void declare_syntax()
@@ -151,7 +168,6 @@ void declare_syntax()
         St();
         return;
     }
-
     if(is_syntax_match(CONST) || next_syntax_match(CONST))
     {
         C();
@@ -254,14 +270,14 @@ void End()
 
 void Var()
 {
-   if(is_syntax_match(SEMI))
+if(is_syntax_match(SEMI))
     {
         tok_idx++;
     }
     else if(is_syntax_match(COMMA))
     {
-        tok_idx++; // change
-        output_parse_result(tok_idx , (in_struct > 0? "member" : (in_block >0? "local variable" : "gobal variable")));
+        tok_idx++;
+        output_parse_result(tok_idx , (in_struct > 0? "member" : (in_block >0? "local variable" : "global variable")));
         I();
         VD();
     }
@@ -358,33 +374,36 @@ void Stmt()
     else if(is_syntax_match(IF))
     {
         tok_idx++;
-        hard_syntax_match(LPAR , "Expect ( ");
+        hard_syntax_match(LPAR , "Expect (");
         E();
-        hard_syntax_match(RPAR , "Expect ) ");
+        hard_syntax_match(RPAR , "Expect )");
         B();
         Else();
     }
     else if(is_syntax_match(FOR))
     {
         tok_idx++;
-        hard_syntax_match(LPAR , "Expect (");
-        if(!is_syntax_match(SEMI))E();
-        hard_syntax_match(SEMI , "Expect ;");
-        if(!is_syntax_match(SEMI))E();
-        hard_syntax_match(SEMI , "expect ;");
-        if(!is_syntax_match(RPAR))E();
-        hard_syntax_match(RPAR , "expect )");
+        hard_syntax_match(LPAR, "Expect (");
+        if(!is_syntax_match(SEMI))
+            E();
+        hard_syntax_match(SEMI, "Expect ;");
+        if(!is_syntax_match(SEMI))
+            E();
+        hard_syntax_match(SEMI, "expect ;");
+        if(!is_syntax_match(RPAR))
+            E();
+        hard_syntax_match(RPAR, "expect )");
         B();
     }
-    else if(is_syntax_match(WHILE))
+    else if(is_syntax_match(DO))
     {
         tok_idx++;
         B();
-        hard_syntax_match(DO , "expect while");
-        hard_syntax_match(LPAR , "expect (");
+        hard_syntax_match(WHILE, "expect while");
+        hard_syntax_match(LPAR, "expect (");
         E();
-        hard_syntax_match(RPAR , "expect )");
-        hard_syntax_match(SEMI , "expect ;");
+        hard_syntax_match(RPAR, "expect )");
+        hard_syntax_match(SEMI, "expect ;");
     }
     else if(is_syntax_match(STRUCT))
     {
@@ -555,13 +574,13 @@ void StF()
         if(is_syntax_match(STRUCT))
         {
             tok_idx++;
-            hard_syntax_match(IDENT , "expecting ident ");
+            hard_syntax_match(IDENT , "expecting ident");
             StD();
-            hard_syntax_match(SEMI , "expecting ; ");
+            hard_syntax_match(SEMI , "expecting ;");
         }
         else
         {
-            hard_syntax_match(TYPE , "expecting type ");
+            hard_syntax_match(TYPE , "expecting type");
             output_parse_result(tok_idx , "member");
             hard_syntax_match(IDENT , "expecting ident");
             VD();

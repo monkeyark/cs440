@@ -8,6 +8,10 @@
 #define find_max(x,y) (((x) >= (y)) ? (x) : (y))
 #define find_min(x,y) (((x) <= (y)) ? (x) : (y))
 
+// std::string file_path;
+// std::string dir;
+// std::string fname;
+
 enum tokentype {
 	END     = 0,
 	COMMA   = ',',
