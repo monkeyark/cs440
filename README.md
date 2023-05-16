@@ -75,9 +75,9 @@ Valid modes:
 
 	-3: Type checking
 
-	-4: Code generation: Expressions
+	-4: Code generation: expressions
 
-	-5: Part 5
+	-5: Code generation: control flow
 
 Valid options:
 
@@ -89,7 +89,7 @@ The part mark with * is under development.
 
 	-0: Version information only
 	-1: Lexer for C
-	*-2: C parser
+	-2: C parser
 	*-3: Type checking
-	*-4: Code generation: Expressions
-	*-5: Part 5
+	*-4: Code generation: expressions
+	*-5: Code generation: control flow

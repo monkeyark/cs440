@@ -23,8 +23,8 @@ Valid modes:\n\
 	-1: Lexer for C\n\
 	-2: C parser\n\
 	-3: Type checking\n\
-	-4: Code generation: Expressions\n\
-	-5: Part 5 (not yet implemented)\n\
+	-4: Code generation: expressions\n\
+	-5: Code generation: control flow\n\
 Valid options:\n\
 	-o outfile: write to outfile instead of standard output"
 
