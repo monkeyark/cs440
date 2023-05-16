@@ -4,6 +4,7 @@
 \usepackage{color}
 \usepackage{listings}
 \usepackage{framed}
+\usepackage{amsmath}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{dkred}{rgb}{0.6,0,0}
@@ -171,32 +172,34 @@ The three-address code rules for the production $S \rightarrow \texttt{repeat } 
 
 
 \begin{lstlisting}[style=jvm]
-S.generate(next){
-  label loop = new label();
-  lable tpart = new label();
-  label loop_end = new label();
-  output_label(loop);
-  S1.generate(next);
-  output_label(loop_end);
-  B1.generate(tpart, next);
-  output_label(tpart);
-  output_instruction("goto ", loop);
-}
+        S.generate(next)
+        {
+            label loop = new label();
+            lable tpart = new label();
+            label loop_end = new label();
+            output_label(loop);
+            S1.generate(next);
+            output_label(loop_end);
+            B1.generate(tpart, next);
+            output_label(tpart);
+            output_instruction("goto ", loop);
+        }
 \end{lstlisting}
+\end{framed}
 
+\begin{framed}
 Backpatching:
 
 Rewrite the production: $ S \rightarrow \texttt{repeat } M_1 \ S_1 \texttt{ until } M_2 \  B $
 
 \begin{lstlisting}[style=jvm]
-  {
-    backpatching(S1.nextlist, M2.instr);
-    backpatching(B.falselist, M1.instr);
-    S.nextlist = B.truelist;
-    output_instruction("goto ", M1.instr);
-  }
+            {
+            backpatching(S1.nextlist, M2.instr);
+            backpatching(B.falselist, M1.instr);
+            S.nextlist = B.truelist;
+            output_instruction("goto ", M1.instr);
+            }
 \end{lstlisting}
-
 \end{framed}
 %============================================================
 
