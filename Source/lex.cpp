@@ -412,33 +412,48 @@ int is_str_lit(string token)
 
 int is_unary_increment(string token)
 {
-    // Check if the string is empty or has only two characters
-    if (token.empty() || token.size() < 2) {
-        return TOKEN_ERR;
-    }
-    
-    // Check if the last two characters are "++"
-    if (token.substr(token.size() - 2) != "++") {
-        return TOKEN_ERR;
-    }
-		// Check if the rest of the string is a legal C identifier
-    for (size_t i = 0; i < token.size() - 2; ++i) {
-        if (i == 0 && !isalpha(token[i]) && token[i] != '_') {
-            return TOKEN_ERR;
-        }
-        if (!isalnum(token[i]) && token[i] != '_') {
-            return TOKEN_ERR;
-        }
-    }
-    
-    return true;
-	return TOKEN_ERR;
+	// Check if the string is empty or has only two characters
+	if (token.empty() || token.size() < 2) {
+			return TOKEN_ERR;
+	}
+	
+	// Check if the last two characters are "++"
+	if (token.substr(token.size() - 2) != "++") {
+			return TOKEN_ERR;
+	}
+	// Check if the rest of the string is a legal C identifier
+	for (size_t i = 0; i < token.size() - 2; ++i) {
+			if (i == 0 && !isalpha(token[i]) && token[i] != '_') {
+					return TOKEN_ERR;
+			}
+			if (!isalnum(token[i]) && token[i] != '_') {
+					return TOKEN_ERR;
+			}
+	}
+	return IDENT;
 }
 
 int is_unary_decrement(string token)
 {
-	//TODO check identifier with --
-	return TOKEN_ERR;
+	// Check if the string is empty or has only two characters
+	if (token.empty() || token.size() < 2) {
+			return TOKEN_ERR;
+	}
+	
+	// Check if the last two characters are "++"
+	if (token.substr(token.size() - 2) != "--") {
+			return TOKEN_ERR;
+	}
+	// Check if the rest of the string is a legal C identifier
+	for (size_t i = 0; i < token.size() - 2; ++i) {
+			if (i == 0 && !isalpha(token[i]) && token[i] != '_') {
+					return TOKEN_ERR;
+			}
+			if (!isalnum(token[i]) && token[i] != '_') {
+					return TOKEN_ERR;
+			}
+	}
+	return IDENT;
 }
 
 typedef int (*token_function) (string token);
